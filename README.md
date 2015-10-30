@@ -19,11 +19,12 @@ All open source digital assets for the software developed by MediaArea during th
 ## Dependencies
 
 * Apache web server >= 2.2 (should also work on nginx and lighttpd)
+    * mod rewrite is recommended
 * Php >= 5.4
-    * Mandatory packages for debian-like distributions : libapache2-mod-php5, php5-cli, php5-intl, php5-mysql
+    * Mandatory packages for debian-like distributions : libapache2-mod-php5, php5-cli, php5-intl, php5-mysqlnd
     * Mandatory packages for RedHat-like distributions : php, php-cli, php-intl, php-mbstring, php-mysql, php-pdo, php-process, php-xml
     * Optional packages for RedHat-like distributions : php-pecl-apc or php-opcache
-    * date.timezone should be set in your php.ini (both cli and apache module)
+    * date.timezone parameter should be set in your php.ini (both cli and apache module)
 * MySQL >= 5.1
 * [MediaConch-cli](https://mediaarea.net/MediaConch/download.html) >= 15.10 (depends on [libmediainfo >= 0.7.79](https://mediaarea.net/en/MediaInfo/Download) and [libzen >= 0.4.31](https://mediaarea.net/en/MediaInfo/Download)) 
 * [Composer](https://getcomposer.org/download/)
@@ -34,9 +35,8 @@ All open source digital assets for the software developed by MediaArea during th
 
 Clone MediaConchOnline repository
 ```
-git clone https://github.com/MediaArea/MediaConch.git
+git clone https://github.com/MediaArea/MediaConchOnline.git
 ```
-Source directory of MediaConchOnline is "SourceCode/policyCheckWeb/"
 
 ### From tarball
 
@@ -61,7 +61,7 @@ GRANT ALL PRIVILEGES ON `YOUR_DATABASE` . * TO 'YOUR_USER'@'localhost';
 
 Enter project directory and run composer to install dependencies and configure the project
 ```
-cd YOUR_PATH/MediaConch/SourceCode/policyCheckWeb/
+cd YOUR_PATH/MediaConchOnline/
 composer install
 ```
 Parameters :
@@ -96,7 +96,7 @@ app/console fos:user:create YOUR_ADMIN_USER YOUR_EMAIL@domain.com --super-admin
 
 __Create a directory to store user policies files and give it rights to apache user__
 ```
-mkdir files && sudo chown apache files
+mkdir files && sudo chown YOUR_APACHE_USER files
 ```
 
 ### Apache
@@ -105,8 +105,8 @@ Add a vhost to access MediaConchOnline, like this minimal example :
 ```
 <VirtualHost *:80>
     ServerName WWW.YOURWEBSITE.COM
-    DocumentRoot "YOUR_PATH/MediaConch/SourceCode/policyCheckWeb/web/"
-    <Directory "YOUR_PATH/MediaConch/SourceCode/policyCheckWeb/web/">
+    DocumentRoot "YOUR_PATH/MediaConchOnline/web/"
+    <Directory "YOUR_PATH/MediaConchOnline/web/">
         AllowOverride All
         Options -Indexes
         <IfModule mod_authz_core.c>
