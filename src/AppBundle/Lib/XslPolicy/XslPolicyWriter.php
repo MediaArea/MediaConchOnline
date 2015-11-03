@@ -33,22 +33,22 @@ class XslPolicyWriter
             switch ($rule->getValidator()) {
                 case 'is_true':
                     $rules .= '
-                        <policy>
-                            <xsl:attribute name="title">' . $rule->getTitle() . '</xsl:attribute>
+                        <check>
+                            <xsl:attribute name="name">' . $rule->getTitle() . '</xsl:attribute>
                             <context>
                                 <xsl:attribute name="value">' . $rule->getValue() . '</xsl:attribute>
                             </context>
                             <xsl:call-template name="is_true">
                                 <xsl:with-param name="xpath" select="' . $rule->getValue() . '"/>
                             </xsl:call-template>
-                        </policy>';
+                        </check>';
                 break;
 
                 case 'exists':
                 case 'does_not_exist':
                     $rules .= '
-                        <policy>
-                            <xsl:attribute name="title">' . $rule->getTitle() . '</xsl:attribute>
+                        <check>
+                            <xsl:attribute name="name">' . $rule->getTitle() . '</xsl:attribute>
                             <context>
                                 <xsl:attribute name="field">' . $rule->getField() . '</xsl:attribute>
                             </context>
@@ -64,13 +64,13 @@ class XslPolicyWriter
                                     <test outcome="invalid"/>
                                 </xsl:otherwise>
                             </xsl:choose>
-                        </policy>';
+                        </check>';
                 break;
 
                 default:
                     $rules .= '
-                        <policy>
-                            <xsl:attribute name="title">' . $rule->getTitle() . '</xsl:attribute>
+                        <check>
+                            <xsl:attribute name="name">' . $rule->getTitle() . '</xsl:attribute>
                             <context>
                                 <xsl:attribute name="field">' . $rule->getField() . '</xsl:attribute>
                                 <xsl:attribute name="value">' . $rule->getValue() . '</xsl:attribute>
@@ -88,7 +88,7 @@ class XslPolicyWriter
                                     <test outcome="invalid"/>
                                 </xsl:otherwise>
                             </xsl:choose>
-                        </policy>';
+                        </check>';
                 break;
             }
         }
@@ -106,14 +106,14 @@ class XslPolicyWriter
             <xsl:attribute name="version">
                 <xsl:text>0.1</xsl:text>
             </xsl:attribute>
-            <policyChecks>
-                <title>' . $this->policy->getTitle() . '</title>
-                <description>' . $this->policy->getDescription() . '</description>
-                <xsl:for-each select="ma:media">
-                    <media>
-                        <xsl:attribute name="ref">
-                            <xsl:value-of select="./@ref"/>
-                        </xsl:attribute>';
+            <xsl:for-each select="ma:media">
+                <media>
+                    <xsl:attribute name="ref">
+                        <xsl:value-of select="./@ref"/>
+                    </xsl:attribute>
+                    <policyChecks>
+                        <name>' . $this->policy->getTitle() . '</name>
+                        <description>' . $this->policy->getDescription() . '</description>';
 
         return $header;
     }
@@ -121,9 +121,9 @@ class XslPolicyWriter
     protected function getFooter()
     {
         $footer = '
-                    </media>
-                </xsl:for-each>
-            </policyChecks>
+                    </policyChecks>
+                </media>
+            </xsl:for-each>
         </MediaConch>
     </xsl:template>
     <xsl:template name="is_true">
@@ -134,9 +134,14 @@ class XslPolicyWriter
                     <xsl:value-of select="../@type"/>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:if test="../@streamid">
-                <xsl:attribute name="streamid">
-                    <xsl:value-of select="../@streamid"/>
+            <xsl:if test="../@tracktypeorder">
+                <xsl:attribute name="tracktypeorder">
+                    <xsl:value-of select="../@tracktypeorder"/>
+                </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="../mi:ID">
+                <xsl:attribute name="trackid">
+                    <xsl:value-of select="../mi:ID"/>
                 </xsl:attribute>
             </xsl:if>
             <xsl:choose>
@@ -159,9 +164,14 @@ class XslPolicyWriter
                     <xsl:value-of select="../@type"/>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:if test="../@streamid">
-                <xsl:attribute name="streamid">
-                    <xsl:value-of select="../@streamid"/>
+            <xsl:if test="../@tracktypeorder">
+                <xsl:attribute name="tracktypeorder">
+                    <xsl:value-of select="../@tracktypeorder"/>
+                </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="../mi:ID">
+                <xsl:attribute name="trackid">
+                    <xsl:value-of select="../mi:ID"/>
                 </xsl:attribute>
             </xsl:if>
             <xsl:attribute name="actual">
@@ -187,9 +197,14 @@ class XslPolicyWriter
                     <xsl:value-of select="../@type"/>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:if test="../@streamid">
-                <xsl:attribute name="streamid">
-                    <xsl:value-of select="../@streamid"/>
+            <xsl:if test="../@tracktypeorder">
+                <xsl:attribute name="tracktypeorder">
+                    <xsl:value-of select="../@tracktypeorder"/>
+                </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="../mi:ID">
+                <xsl:attribute name="trackid">
+                    <xsl:value-of select="../mi:ID"/>
                 </xsl:attribute>
             </xsl:if>
             <xsl:attribute name="actual">
@@ -215,9 +230,14 @@ class XslPolicyWriter
                     <xsl:value-of select="../@type"/>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:if test="../@streamid">
-                <xsl:attribute name="streamid">
-                    <xsl:value-of select="../@streamid"/>
+            <xsl:if test="../@tracktypeorder">
+                <xsl:attribute name="tracktypeorder">
+                    <xsl:value-of select="../@tracktypeorder"/>
+                </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="../mi:ID">
+                <xsl:attribute name="trackid">
+                    <xsl:value-of select="../mi:ID"/>
                 </xsl:attribute>
             </xsl:if>
             <xsl:attribute name="actual">
@@ -243,9 +263,14 @@ class XslPolicyWriter
                     <xsl:value-of select="../@type"/>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:if test="../@streamid">
-                <xsl:attribute name="streamid">
-                    <xsl:value-of select="../@streamid"/>
+            <xsl:if test="../@tracktypeorder">
+                <xsl:attribute name="tracktypeorder">
+                    <xsl:value-of select="../@tracktypeorder"/>
+                </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="../mi:ID">
+                <xsl:attribute name="trackid">
+                    <xsl:value-of select="../mi:ID"/>
                 </xsl:attribute>
             </xsl:if>
             <xsl:attribute name="actual">
@@ -271,9 +296,14 @@ class XslPolicyWriter
                     <xsl:value-of select="../@type"/>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:if test="../@streamid">
-                <xsl:attribute name="streamid">
-                    <xsl:value-of select="../@streamid"/>
+            <xsl:if test="../@tracktypeorder">
+                <xsl:attribute name="tracktypeorder">
+                    <xsl:value-of select="../@tracktypeorder"/>
+                </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="../mi:ID">
+                <xsl:attribute name="trackid">
+                    <xsl:value-of select="../mi:ID"/>
                 </xsl:attribute>
             </xsl:if>
             <xsl:attribute name="actual">
@@ -299,9 +329,14 @@ class XslPolicyWriter
                     <xsl:value-of select="../@type"/>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:if test="../@streamid">
-                <xsl:attribute name="streamid">
-                    <xsl:value-of select="../@streamid"/>
+            <xsl:if test="../@tracktypeorder">
+                <xsl:attribute name="tracktypeorder">
+                    <xsl:value-of select="../@tracktypeorder"/>
+                </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="../mi:ID">
+                <xsl:attribute name="trackid">
+                    <xsl:value-of select="../mi:ID"/>
                 </xsl:attribute>
             </xsl:if>
             <xsl:attribute name="actual">
@@ -326,9 +361,14 @@ class XslPolicyWriter
                     <xsl:value-of select="../@type"/>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:if test="../@streamid">
-                <xsl:attribute name="streamid">
-                    <xsl:value-of select="../@streamid"/>
+            <xsl:if test="../@tracktypeorder">
+                <xsl:attribute name="tracktypeorder">
+                    <xsl:value-of select="../@tracktypeorder"/>
+                </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="mi:track/ID">
+                <xsl:attribute name="trackid">
+                    <xsl:value-of select="mi:track/ID"/>
                 </xsl:attribute>
             </xsl:if>
             <xsl:attribute name="actual">
@@ -353,9 +393,14 @@ class XslPolicyWriter
                     <xsl:value-of select="../@type"/>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:if test="../@streamid">
-                <xsl:attribute name="streamid">
-                    <xsl:value-of select="../@streamid"/>
+            <xsl:if test="../@tracktypeorder">
+                <xsl:attribute name="tracktypeorder">
+                    <xsl:value-of select="../@tracktypeorder"/>
+                </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="../mi:ID">
+                <xsl:attribute name="trackid">
+                    <xsl:value-of select="../mi:ID"/>
                 </xsl:attribute>
             </xsl:if>
             <xsl:attribute name="actual">
@@ -381,9 +426,14 @@ class XslPolicyWriter
                     <xsl:value-of select="../@type"/>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:if test="../@streamid">
-                <xsl:attribute name="streamid">
-                    <xsl:value-of select="../@streamid"/>
+            <xsl:if test="../@tracktypeorder">
+                <xsl:attribute name="tracktypeorder">
+                    <xsl:value-of select="../@tracktypeorder"/>
+                </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="../mi:ID">
+                <xsl:attribute name="trackid">
+                    <xsl:value-of select="../mi:ID"/>
                 </xsl:attribute>
             </xsl:if>
             <xsl:attribute name="actual">

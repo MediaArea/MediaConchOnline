@@ -37,7 +37,7 @@ class XslPolicyParser
         $this->policy->setTitle($this->getPolicyTitle());
         $this->policy->setDescription($this->getPolicyDescription());
 
-        $policies = $this->xsl->getElementsByTagName('policy');
+        $policies = $this->xsl->getElementsByTagName('check');
         foreach ($policies as $policy) {
             $policyRule = new XslPolicyRule();
             $validator = $this->getValidator($policy);
@@ -68,7 +68,7 @@ class XslPolicyParser
     {
         $attributes = $element->getElementsByTagNameNS('http://www.w3.org/1999/XSL/Transform', 'attribute');
         foreach ($attributes as $attribute) {
-            if ('title' == $attribute->getAttribute('name')) {
+            if ('name' == $attribute->getAttribute('name')) {
                 return $attribute->nodeValue;
             }
         }
@@ -130,7 +130,7 @@ class XslPolicyParser
 
     protected function getPolicyTitle()
     {
-        $title = $this->xsl->getElementsByTagName('title');
+        $title = $this->xsl->getElementsByTagName('name');
         if ($title->item(0) !== null) {
             return $title->item(0)->nodeValue;
         }

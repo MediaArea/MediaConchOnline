@@ -12,6 +12,7 @@ class MediaConchConformance extends MediaConch
         $process = $builder->setPrefix($this->MediaConch)
             ->add($this->source)
             ->getProcess();
+        $process->setEnv(array('LANG' => 'en_US.UTF-8'));
         $process->run();
 
         if ($process->isSuccessful()) {
