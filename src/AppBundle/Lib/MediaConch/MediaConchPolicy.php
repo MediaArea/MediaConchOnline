@@ -21,6 +21,7 @@ class MediaConchPolicy extends MediaConch
         }
 
         $process = $builder->getProcess();
+        $process->setEnv(array('LANG' => 'en_US.UTF-8'));
         $process->run();
 
         if ($process->isSuccessful()) {
