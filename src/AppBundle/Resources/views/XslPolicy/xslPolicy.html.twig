@@ -42,6 +42,7 @@ MediaConchOnline Policy Management
           <div class="panel-body">
             <a href="{{ path('app_xslpolicy_xslpolicydelete', {'id': item.id}) }}"><button class="btn-danger pull-right">Delete</button></a>
             <a href="{{ path('app_xslpolicy_xslpolicyexport', {'id': item.id}) }}"><button class="btn-warning pull-right">Export</button></a>
+            <a href="{{ path('app_xslpolicy_xslpolicyduplicate', {'id': item.id}) }}"><button class="btn-warning pull-right">Duplicate</button></a>
             <a href="{{ path('app_xslpolicy_xslpolicyruleedit', {'id': item.id}) }}"><button class="btn-success pull-right">Edit</button></a>
           </div>
         </div>

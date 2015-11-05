@@ -173,6 +173,45 @@ class XslPolicyController extends Controller
     }
 
     /**
+     * @Route("/xslPolicy/duplicate/{id}", requirements={"id": "\d+"})
+     * @Method("GET")
+     */
+    public function xslPolicyDuplicateAction($id)
+    {
+        $policy = $this->getDoctrine()
+            ->getRepository('AppBundle:XslPolicyFile')
+            ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
+
+        if (!$policy) {
+             $this->get('session')->getFlashBag()->add(
+                'danger',
+                'Policy not found'
+                );
+        }
+        else {
+            $duplicatePolicy = clone $policy;
+            $helper = $this->container->get('vich_uploader.storage');
+            $policyFile = $helper->resolvePath($policy, 'policyFile');
+            $duplicatePolicyFilename = str_replace(pathinfo($policy->getPolicyFilename(), PATHINFO_FILENAME), pathinfo($policy->getPolicyFilename(), PATHINFO_FILENAME) . '_duplicate', $policy->getPolicyFilename());
+            $duplicatePolicy->setPolicyFilename($duplicatePolicyFilename);
+            $duplicatePolicy->setPolicyName($policy->getPolicyName() . ' - duplicate');
+            $duplicatePolicyFile = str_replace($policy->getPolicyFilename(), $duplicatePolicyFilename, $policyFile);
+            copy($policyFile, $duplicatePolicyFile);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($duplicatePolicy);
+            $em->flush();
+
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                'Policy successfully duplicated'
+                );
+        }
+
+        return $this->redirect($this->generateUrl('app_xslpolicy_xslpolicy'));
+    }
+
+    /**
      * @Route("/xslPolicy/edit/{id}/{ruleId}", defaults={"ruleId" = "new"}, requirements={"id": "\d+", "ruleId": "\d+"})
      * @Template()
      */
