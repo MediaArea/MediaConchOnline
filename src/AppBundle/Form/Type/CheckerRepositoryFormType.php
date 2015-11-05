@@ -6,12 +6,13 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\EntityManager;
 
 class CheckerRepositoryFormType extends AbstractType
 {
     private $user;
 
-    public function __construct(TokenStorageInterface $tokenStorage)
+    public function __construct(TokenStorageInterface $tokenStorage, EntityManager $em)
     {
         $token = $tokenStorage->getToken();
         if ($token !== null && $token->getUser() instanceof \AppBundle\Entity\User) {
@@ -20,35 +21,24 @@ class CheckerRepositoryFormType extends AbstractType
         else {
             throw new \Exception('Invalid User');
         }
+
+        $this->em = $em;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add($builder->create('step1', 'form', array('inherit_data' => true, 'label' => 'Policy'))
+        $builder
             ->add('policy', 'entity', array('class' => 'AppBundle:XslPolicyFile',
-                'query_builder' => function(EntityRepository $er) {
-                    return $er->createQueryBuilder('p')
-                        ->where('p.user = :user')
-                        ->setParameter('user', $this->user);
-                },
+                'choices' => $this->em->getRepository('AppBundle:XslPolicyFile')->getUserAndSystemPolicies($this->user),
                 'placeholder' => 'Choose a policy',
                 'required' => false,
-                'label' => 'Select policy from list')
+                'label' => 'Policy')
                 )
-            ->add('schematron', 'file', array('label' => 'Or upload a Schematron (.sch) or a XSL (.xsl) file',
+            ->add('display', 'entity', array('class' => 'AppBundle:DisplayFile',
+                'choices' => $this->em->getRepository('AppBundle:DisplayFile')->getUserAndSystemDisplays($this->user),
+                'placeholder' => 'Choose a display',
                 'required' => false,
-                'attr' => array('accept' => '.sch, .xsl'))
-                )
-            )
-            ->add('policyDisplay', 'entity', array('class' => 'AppBundle:XslPolicyDisplayFile',
-                'query_builder' => function(EntityRepository $er) {
-                    return $er->createQueryBuilder('p')
-                        ->where('p.user = :user')
-                        ->setParameter('user', $this->user);
-                },
-                'placeholder' => 'Choose a policy display',
-                'required' => false,
-                'label' => 'Policy display')
+                'label' => 'Display')
                 )
             ->add('Check files', 'submit', array('attr' => array('class' => 'btn-warning')));
     }

@@ -11,6 +11,7 @@ use AppBundle\Entity\User;
 
 /**
  * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Entity\XslPolicyFileRepository")
  * @Vich\Uploadable
  */
 class XslPolicyFile

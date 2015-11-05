@@ -20,7 +20,7 @@ class Checker
     protected $policyEnable = true;
     protected $policy;
     protected $policyItem;
-    protected $policyDisplayFile = null;
+    protected $displayFile = null;
     protected $traceEnable = false;
     protected $trace;
     protected $traceFormat = array();
@@ -82,16 +82,7 @@ class Checker
             if (is_string($this->policyItem) && file_exists($this->policyItem)) {
                 $MediaConchPolicy = new MediaConchPolicy($this->source);
                 $MediaConchPolicy->setPolicyType(pathinfo($this->policyItem, PATHINFO_EXTENSION))
-                    ->run($this->policyItem, $this->policyDisplayFile);
-                if ($MediaConchPolicy->getSuccess()) {
-                    $this->setStatus($MediaConchPolicy->isValid());
-                    $this->policy = $MediaConchPolicy->getOutput();
-                }
-            }
-            elseif ($this->policyItem instanceof \Symfony\Component\HttpFoundation\File\UploadedFile) {
-                $MediaConchPolicy = new MediaConchPolicy($this->source);
-                $MediaConchPolicy->setPolicyType($this->policyItem->getClientOriginalExtension())
-                    ->run($this->policyItem->getRealPath(), $this->policyDisplayFile);
+                    ->run($this->policyItem, $this->displayFile);
                 if ($MediaConchPolicy->getSuccess()) {
                     $this->setStatus($MediaConchPolicy->isValid());
                     $this->policy = $MediaConchPolicy->getOutput();
@@ -172,12 +163,7 @@ class Checker
 
     public function getInfo($format = null)
     {
-        if (isset($this->info['xml'])) {
-            $this->info['xml'] = str_replace($this->source, $this->getBasename(), $this->info['xml']);
-        }
-        if (isset($this->info['jstree'])) {
-            $this->info['jstree'] = str_replace($this->source, $this->getBasename(), $this->info['jstree']);
-        }
+        $this->info = str_replace($this->source, $this->getBasename(), $this->info);
 
         if (null == $format) {
             return $this->info;
@@ -227,13 +213,7 @@ class Checker
 
     public function getPolicy()
     {
-        $this->policy = str_replace($this->source, $this->getBasename(), $this->policy);
-
-        if ($this->policyItem instanceof \Symfony\Component\HttpFoundation\File\UploadedFile) {
-            $this->policy = str_replace($this->policyItem->getRealPath(), $this->policyItem->getClientOriginalName(), $this->policy);
-        }
-
-        return $this->policy;
+        return str_replace($this->source, $this->getBasename(), $this->policy);
     }
 
     public function getPolicyOutputFormat()
@@ -280,9 +260,7 @@ class Checker
 
     public function getTrace($format = null)
     {
-        if (isset($this->trace['xml'])) {
-            $this->trace['xml'] = str_replace($this->source, $this->getBasename(), $this->trace['xml']);
-        }
+        $this->trace = str_replace($this->source, $this->getBasename(), $this->trace);
 
         if (null == $format) {
             return $this->trace;
@@ -304,9 +282,9 @@ class Checker
         return $this;
     }
 
-    public function setPolicyDisplayFile($policyDisplayFile)
+    public function setDisplayFile($displayFile)
     {
-        $this->policyDisplayFile = $policyDisplayFile;
+        $this->displayFile = $displayFile;
 
         return $this;
     }

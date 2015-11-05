@@ -159,8 +159,8 @@ class Quotas
             ->getQuery()
             ->getSingleScalarResult();
 
-        $xslPolicyDisplay = $this->em
-            ->getRepository('AppBundle:XslPolicyDisplayFile')
+        $display = $this->em
+            ->getRepository('AppBundle:DisplayFile')
             ->createQueryBuilder('p')
                 ->select('COUNT(p)')
                 ->where('p.user = :user')
@@ -168,7 +168,7 @@ class Quotas
             ->getQuery()
             ->getSingleScalarResult();
 
-        return $xslPolicy + $xslPolicyDisplay;
+        return $xslPolicy + $display;
     }
 
     private function getUser($tokenStorage)
