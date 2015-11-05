@@ -11,9 +11,10 @@ use AppBundle\Entity\User;
 
 /**
  * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Entity\DisplayFileRepository")
  * @Vich\Uploadable
  */
-class XslPolicyDisplayFile
+class DisplayFile
 {
     /**
      * @ORM\Id
@@ -26,24 +27,24 @@ class XslPolicyDisplayFile
      * @ORM\Column(type="string", length=50)
      * @Assert\NotBlank()
      */
-    protected $policyDisplayName;
+    protected $displayName;
 
     /**
      * NOTE: This is not a mapped field of entity metadata, just a simple property.
      *
-     * @Vich\UploadableField(mapping="xsl_policy_display", fileNameProperty="policyDisplayFilename")
+     * @Vich\UploadableField(mapping="display", fileNameProperty="displayFilename")
      * @Assert\File(maxSize="1000000")
      *
      * @var File
      */
-    private $policyDisplayFile;
+    private $displayFile;
 
     /**
      * @ORM\Column(type="string", length=255)
      *
      * @var string
      */
-    private $policyDisplayFilename;
+    private $displayFilename;
 
     /**
      * @ORM\Column(type="datetime")
@@ -53,7 +54,7 @@ class XslPolicyDisplayFile
     private $updatedAt;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="xslPolicyDisplay", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="display", cascade={"persist"})
      */
     protected $user;
 
@@ -68,26 +69,26 @@ class XslPolicyDisplayFile
     }
 
     /**
-     * Set policyDisplayName
+     * Set displayName
      *
-     * @param string $policyDisplayName
-     * @return XslPolicyDisplayFile
+     * @param string $displayName
+     * @return DisplayFile
      */
-    public function setPolicyDisplayName($policyDisplayName)
+    public function setDisplayName($displayName)
     {
-        $this->policyDisplayName = $policyDisplayName;
+        $this->displayName = $displayName;
 
         return $this;
     }
 
     /**
-     * Get policyDisplayName
+     * Get displayName
      *
      * @return string
      */
-    public function getPolicyDisplayName()
+    public function getDisplayName()
     {
-        return $this->policyDisplayName;
+        return $this->displayName;
     }
 
     /**
@@ -99,11 +100,11 @@ class XslPolicyDisplayFile
      *
      * @param File|\Symfony\Component\HttpFoundation\File\UploadedFile $image
      */
-    public function setPolicyDisplayFile(File $policyDisplayFile = null)
+    public function setDisplayFile(File $displayFile = null)
     {
-        $this->policyDisplayFile = $policyDisplayFile;
+        $this->displayFile = $displayFile;
 
-        if ($policyDisplayFile) {
+        if ($displayFile) {
             // It is required that at least one field changes if you are using doctrine
             // otherwise the event listeners won't be called and the file is lost
             $this->updatedAt = new \DateTime('now');
@@ -113,39 +114,39 @@ class XslPolicyDisplayFile
     /**
      * @return File
      */
-    public function getPolicyDisplayFile()
+    public function getDisplayFile()
     {
-        return $this->policyDisplayFile;
+        return $this->displayFile;
     }
 
     /**
-     * Set policyDisplayFilename
+     * Set displayFilename
      *
-     * @param string $policyDisplayFilename
-     * @return XslPolicyDisplayFile
+     * @param string $displayFilename
+     * @return DisplayFile
      */
-    public function setPolicyDisplayFilename($policyDisplayFilename)
+    public function setDisplayFilename($displayFilename)
     {
-        $this->policyDisplayFilename = $policyDisplayFilename;
+        $this->displayFilename = $displayFilename;
 
         return $this;
     }
 
     /**
-     * Get policyDisplayFilename
+     * Get displayFilename
      *
      * @return string
      */
-    public function getPolicyDisplayFilename()
+    public function getDisplayFilename()
     {
-        return $this->policyDisplayFilename;
+        return $this->displayFilename;
     }
 
     /**
      * Set updatedAt
      *
      * @param \DateTime $updatedAt
-     * @return XslPolicyDisplayFile
+     * @return DisplayFile
      */
     public function setUpdatedAt($updatedAt)
     {
@@ -168,7 +169,7 @@ class XslPolicyDisplayFile
      * Set user
      *
      * @param \AppBundle\Entity\User $user
-     * @return XslPolicyDisplayFile
+     * @return DisplayFile
      */
     public function setUser(\AppBundle\Entity\User $user = null)
     {
@@ -188,6 +189,6 @@ class XslPolicyDisplayFile
     }
 
     function __toString() {
-        return $this->getPolicyDisplayName();
+        return $this->getDisplayName();
     }
 }

@@ -1,0 +1,59 @@
+{% extends 'AppBundle:Default:base.html.twig' %}
+
+{% block title %}
+MediaConchOnline Display Management
+{% endblock %}
+
+{% block body %}
+<div class="col-md-12">
+    <h1 class="headline">Display</h1>
+</div>
+<div class="col-md-6">
+    <div>
+        <h2>Import a display</h2>
+        {% if importDisplayForm is defined and importDisplayForm %}
+            {{ form(importDisplayForm) }}
+        {% else %}
+            {{ include('AppBundle:Default:quotaExceeded.html.twig') }}
+        {% endif %}
+    </div>
+</div>
+<div class="col-md-6">
+    <h4>Display list:</h4>
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    {% for item in displayList %}
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="heading{{ item.id }}">
+            <h4 class="panel-title" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ item.id }}" aria-expanded="true" aria-controls="collapse{{ item.id }}">
+                {{ item.displayName }}
+            </h4>
+            </div>
+            <div id="collapse{{ item.id }}" class="panel-collapse collapse{% if 0 == loop.index0 %} in{% endif %}" role="tabpanel" aria-labelledby="heading{{ item.id }}">
+                <div class="panel-body">
+                    <a href="{{ path('app_display_displaydelete', {'id': item.id}) }}"><button class="btn-danger pull-right">Delete</button></a>
+                    <a href="{{ path('app_display_displayexport', {'id': item.id}) }}"><button class="btn-warning pull-right">Export</button></a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+
+    <h4>System display list:</h4>
+    <div class="panel-group" id="accordionSystem" role="tablist" aria-multiselectable="true">
+    {% for item in displaySystemList %}
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="heading{{ item.id }}">
+            <h4 class="panel-title" role="button" data-toggle="collapse" data-parent="#accordionSystem" href="#collapse{{ item.id }}" aria-expanded="true" aria-controls="collapse{{ item.id }}">
+                {{ item.displayName }}
+            </h4>
+            </div>
+            <div id="collapse{{ item.id }}" class="panel-collapse collapse{% if 0 == loop.index0 %} in{% endif %}" role="tabpanel" aria-labelledby="heading{{ item.id }}">
+                <div class="panel-body">
+                    <a href="{{ path('app_display_displaysystemexport', {'id': item.id}) }}"><button class="btn-warning pull-right">Export</button></a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+{% endblock %}

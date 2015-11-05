@@ -43,7 +43,7 @@ class MediaConchPolicy extends MediaConch
                 $this->policyType = MediaConchPolicy::$TYPE_SCHEMATRON;
                 break;
             default :
-                $this->policyType = MediaConchPolicy::$TYPE_SCHEMATRON;
+                $this->policyType = MediaConchPolicy::$TYPE_XSLT;
                 break;
         }
 

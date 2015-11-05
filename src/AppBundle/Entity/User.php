@@ -26,10 +26,10 @@ class User extends BaseUser
     protected $xslPolicy;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\XslPolicyDisplayFile", mappedBy="user", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\DisplayFile", mappedBy="user", cascade={"persist", "remove"})
      * @Assert\Valid()
      */
-    protected $xslPolicyDisplay;
+    protected $display;
 
     /**
      * @ORM\OneToOne(targetEntity="AppBundle\Entity\UserQuotas", mappedBy="user", cascade={"persist", "remove"})
@@ -290,35 +290,35 @@ class User extends BaseUser
     }
 
     /**
-     * Add xslPolicyDisplay
+     * Add display
      *
-     * @param \AppBundle\Entity\XslPolicyDisplayFile $xslPolicyDisplay
+     * @param \AppBundle\Entity\DisplayFile $display
      * @return User
      */
-    public function addXslPolicyDisplay(\AppBundle\Entity\XslPolicyDisplayFile $xslPolicyDisplay)
+    public function addDisplay(\AppBundle\Entity\DisplayFile $display)
     {
-        $this->xslPolicyDisplay[] = $xslPolicyDisplay;
+        $this->display[] = $display;
 
         return $this;
     }
 
     /**
-     * Remove xslPolicyDisplay
+     * Remove display
      *
-     * @param \AppBundle\Entity\XslPolicyDisplayFile $xslPolicyDisplay
+     * @param \AppBundle\Entity\DisplayFile $display
      */
-    public function removeXslPolicyDisplay(\AppBundle\Entity\XslPolicyDisplayFile $xslPolicyDisplay)
+    public function removeDisplay(\AppBundle\Entity\DisplayFile $display)
     {
-        $this->xslPolicyDisplay->removeElement($xslPolicyDisplay);
+        $this->display->removeElement($display);
     }
 
     /**
-     * Get xslPolicyDisplay
+     * Get display
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getXslPolicyDisplay()
+    public function getDisplay()
     {
-        return $this->xslPolicyDisplay;
+        return $this->display;
     }
 }

@@ -35,19 +35,16 @@ class CheckerController extends Controller
                 $selectForm = 'upload';
                 $data = $formUpload->getData();
                 if ($data['file']->isValid()) {
-                    if ($data['policyDisplay'] instanceof \AppBundle\Entity\XslPolicyDisplayFile) {
+                    if ($data['display'] instanceof \AppBundle\Entity\DisplayFile) {
                         $helper = $this->container->get('vich_uploader.storage');
-                        $policyDisplayFile = $helper->resolvePath($data['policyDisplay'], 'policyDisplayFile');
+                        $displayFile = $helper->resolvePath($data['display'], 'displayFile');
                     }
                     else {
-                        $policyDisplayFile = null;
+                        $displayFile = null;
                     }
 
                     $checker = new Checker($data['file']);
-                    if ($data['schematron'] instanceof \Symfony\Component\HttpFoundation\File\UploadedFile && $data['schematron']->isValid()) {
-                        $checker->setPolicyItem($data['schematron']);
-                    }
-                    else if ($data['policy'] instanceof \AppBundle\Entity\XslPolicyFile) {
+                    if ($data['policy'] instanceof \AppBundle\Entity\XslPolicyFile) {
                         $helper = $this->container->get('vich_uploader.storage');
                         $policyFile = $helper->resolvePath($data['policy'], 'policyFile');
                         $checker->setPolicyItem($policyFile);
@@ -57,7 +54,7 @@ class CheckerController extends Controller
                     }
 
                     $checker->setInfoFormat(array('xml', 'jstree'))
-                        ->setPolicyDisplayFile($policyDisplayFile)
+                        ->setDisplayFile($displayFile)
                         ->enableTrace()
                         ->setTraceFormat(array('xml', 'jstree'))
                         ->run();
@@ -76,18 +73,15 @@ class CheckerController extends Controller
                 $selectForm = 'online';
                 $data = $formOnline->getData();
 
-                if ($data['policyDisplay'] instanceof \AppBundle\Entity\XslPolicyDisplayFile) {
+                if ($data['display'] instanceof \AppBundle\Entity\DisplayFile) {
                     $helper = $this->container->get('vich_uploader.storage');
-                    $policyDisplayFile = $helper->resolvePath($data['policyDisplay'], 'policyDisplayFile');
+                    $displayFile = $helper->resolvePath($data['display'], 'displayFile');
                 }
                 else {
-                    $policyDisplayFile = null;
+                    $displayFile = null;
                 }
                 $checker = new Checker(str_replace(' ', '%20', $data['file']));
-                if ($data['schematron'] instanceof \Symfony\Component\HttpFoundation\File\UploadedFile && $data['schematron']->isValid()) {
-                    $checker->setPolicyItem($data['schematron']);
-                }
-                else if ($data['policy'] instanceof \AppBundle\Entity\XslPolicyFile) {
+                if ($data['policy'] instanceof \AppBundle\Entity\XslPolicyFile) {
                     $helper = $this->container->get('vich_uploader.storage');
                     $policyFile = $helper->resolvePath($data['policy'], 'policyFile');
                     $checker->setPolicyItem($policyFile);
@@ -97,7 +91,7 @@ class CheckerController extends Controller
                 }
 
                 $checker->setInfoFormat(array('xml', 'jstree'))
-                    ->setPolicyDisplayFile($policyDisplayFile)
+                    ->setDisplayFile($displayFile)
                     ->enableTrace()
                     ->setTraceFormat(array('xml', 'jstree'))
                     ->run();
@@ -119,22 +113,19 @@ class CheckerController extends Controller
 
                     $checks = array();
 
-                    if ($data['policyDisplay'] instanceof \AppBundle\Entity\XslPolicyDisplayFile) {
+                    if ($data['display'] instanceof \AppBundle\Entity\DisplayFile) {
                         $helper = $this->container->get('vich_uploader.storage');
-                        $policyDisplayFile = $helper->resolvePath($data['policyDisplay'], 'policyDisplayFile');
+                        $displayFile = $helper->resolvePath($data['display'], 'displayFile');
                     }
                     else {
-                        $policyDisplayFile = null;
+                        $displayFile = null;
                     }
 
                     $finder = new Finder();
                     $finder->files()->in($this->container->getParameter('mco_check_folder'));
                     foreach($finder as $file) {
                         $checker = new Checker($file->getPathname());
-                        if ($data['schematron'] instanceof \Symfony\Component\HttpFoundation\File\UploadedFile && $data['schematron']->isValid()) {
-                            $checker->setPolicyItem($data['schematron']);
-                        }
-                        else if ($data['policy'] instanceof \AppBundle\Entity\XslPolicyFile) {
+                        if ($data['policy'] instanceof \AppBundle\Entity\XslPolicyFile) {
                             $helper = $this->container->get('vich_uploader.storage');
                             $policyFile = $helper->resolvePath($data['policy'], 'policyFile');
                             $checker->setPolicyItem($policyFile);
@@ -144,7 +135,7 @@ class CheckerController extends Controller
                         }
 
 
-                        $checker->setPolicyDisplayFile($policyDisplayFile)
+                        $checker->setDisplayFile($displayFile)
                             ->disableInfo()
                             ->run();
                         $checks[] = $checker;

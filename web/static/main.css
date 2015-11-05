@@ -144,24 +144,6 @@ footer {
     margin-top: 40px;
 }
 
-#checkerUpload > div:nth-child(1) {
-    border: 1px solid #DDD;
-    border-radius: 4px;
-    padding: 2px;
-}
-
-#checkerOnline > div:nth-child(1) {
-    border: 1px solid #DDD;
-    border-radius: 4px;
-    padding: 2px;
-}
-
-#checkerRepository > div:nth-child(1) {
-    border: 1px solid #DDD;
-    border-radius: 4px;
-    padding: 2px;
-}
-
 #fos_user_registration_form .required:after, #fos_user_profile_form .required:after, #xslPolicyRule .required:after {
     content: " *";
 }
