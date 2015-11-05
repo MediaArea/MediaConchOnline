@@ -105,6 +105,6 @@ vich_uploader:
             namer:              vich_uploader.namer_origname
             directory_namer:    mco.directory_namer.policy
         display:
-            upload_destination: %kernel.root_dir%/../files/xsl_policy_display
+            upload_destination: %kernel.root_dir%/../files/display
             namer:              vich_uploader.namer_origname
             directory_namer:    mco.directory_namer.policy
