@@ -29,8 +29,8 @@
 
         {% block stylesheets %}{% endblock %}
     </head>
-    <body id="body">
-        
+    <body id="body" class="container">
+
             <nav class="navbar-default page-scroll">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#collapse-1">
                      <span class="icon-bar"></span>
@@ -60,8 +60,8 @@
                 {% endif %}
                 </ul>
             </nav>
-            
-        <div class="container">
+
+        <div>
         {% for type, messages in app.session.flashBag.all %}
             {% for message in messages %}
                 <div class="alert alert-{{ type }}">
