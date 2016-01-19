@@ -58,9 +58,9 @@ MediaConch checker
     {% endif %}
     </div>
 </div>
-<div class="col-md-6">
+<div class="col-md-12">
 {% if checks is iterable %}
-    {{ include('AppBundle:Default:fileDetailChecker.html.twig', { 'checks': checks, 'selectForm': selectForm }) }}
+    {{ include('AppBundle:Checker:fileDetailCheckerTable.html.twig', { 'checks': checks, 'selectForm': selectForm }) }}
 {% endif %}
 </div>
 {% endblock %}
@@ -71,7 +71,7 @@ MediaConch checker
         <script>
             $(document).ready(function() {
                 // Add download button to result list
-                $('.checker-results li.report div a.results-dld').each(function() {
+                $('.checker-results a.results-dld').each(function() {
                     $(this).on('click', function(e) {
                         e.preventDefault(); // Don't put a « # » in URL
                         downloadReport($(this));
@@ -112,7 +112,7 @@ MediaConch checker
                 };
 
                 // Add download trace button to result list
-                $('.checker-results li.report div a.results-dld-trace').each(function() {
+                $('.checker-results a.results-dld-trace').each(function() {
                     $(this).on('click', function(e) {
                         e.preventDefault(); // Don't put a « # » in URL
                         downloadTrace($(this));
@@ -134,7 +134,7 @@ MediaConch checker
                 };
 
                 // Add download trace ajax button to result list
-                $('.checker-results li.report div a.results-dld-trace-ajax').each(function() {
+                $('.checker-results a.results-dld-trace-ajax').each(function() {
                     $(this).on('click', function(e) {
                         e.preventDefault(); // Don't put a « # » in URL
                         downloadTraceAjax($(this));
@@ -164,7 +164,7 @@ MediaConch checker
                 };
 
                 // Add download MediaInfo button to result list
-                $('.checker-results li.report div a.results-dld-info').each(function() {
+                $('.checker-results a.results-dld-info').each(function() {
                     $(this).on('click', function(e) {
                         e.preventDefault(); // Don't put a « # » in URL
                         downloadInfo($(this));
@@ -186,7 +186,7 @@ MediaConch checker
                 };
 
                 // Add download MediaInfo ajax button to result list
-                $('.checker-results li.report div a.results-dld-info-ajax').each(function() {
+                $('.checker-results a.results-dld-info-ajax').each(function() {
                     $(this).on('click', function(e) {
                         e.preventDefault(); // Don't put a « # » in URL
                         downloadInfoAjax($(this));
@@ -216,12 +216,12 @@ MediaConch checker
                 };
 
                 // Remove result block
-                $('.checker-results .panel-heading .close').each(function() {
+                $('.checker-results .result-close').each(function() {
                     $(this).click(function () {
                         $(this).parent().parent().remove();
 
                         // Remove close all button
-                        if (0 == $('div.checker-results').length) {
+                        if (0 == $('table.checker-results tbody tr').length) {
                             $('#checkerResultTitle .close').addClass('hidden');
                         };
                     });
@@ -229,7 +229,7 @@ MediaConch checker
 
                 // Remove all results blocks
                 $('#checkerResultTitle .close').click(function () {
-                    $('div.checker-results').each(function () {
+                    $('table.checker-results tbody tr').each(function () {
                         $(this).remove();
                     });
 
@@ -241,7 +241,7 @@ MediaConch checker
                 $('.nav a').each(function() {
                     $(this).click(function (e) {
                         // Check if there is close all button
-                        if (0 < $('div.checker-results').length) {
+                        if (0 < $('table.checker-results tbody tr').length) {
                             choice = confirm('Are you sure ?\nAll analysis results will be discarded!');
                             if (choice == false) {
                                 e.preventDefault();

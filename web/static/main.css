@@ -102,33 +102,9 @@ footer {
     font-size: 16px;
 }
 
-.checker-results .list-group {
-    margin-bottom: 0;
-}
-
-.report-blue {
-    color: #4383BD;
-}
-
-.checker-results.panel {
-    margin-bottom: 5px;
-}
-
-.checker-results .panel-heading h4 {
-    display: inline-block;
-    width: 95%
-}
-
-.checker-results ul li p {
-    float: right;
-}
-
-.checker-result-text {
-    display: inline-block;
-    width: 90%;
-}
-
-.checker-result-buttons {
+.checker-results .btn {
+    font-size: inherit;
+    padding: 0 0 0 10px;
     float: right;
 }
 

@@ -20,6 +20,7 @@ class Checker
     protected $policyEnable = true;
     protected $policy;
     protected $policyItem;
+    protected $policyName;
     protected $displayFile = null;
     protected $traceEnable = false;
     protected $trace;
@@ -80,6 +81,7 @@ class Checker
     {
         if ($this->policyEnable) {
             if (is_string($this->policyItem) && file_exists($this->policyItem)) {
+                $this->setPolicyName();
                 $MediaConchPolicy = new MediaConchPolicy($this->source);
                 $MediaConchPolicy->setPolicyType(pathinfo($this->policyItem, PATHINFO_EXTENSION))
                     ->run($this->policyItem, $this->displayFile);
@@ -103,6 +105,15 @@ class Checker
         }
 
         return $this;
+    }
+
+    protected function setPolicyName()
+    {
+        $name = pathinfo($this->policyItem, PATHINFO_FILENAME);
+        // Remove uniqid
+        $name = substr($name, (strpos($name, '_') + 1));
+        $this->policyName = $name;
+
     }
 
     public function getStatus()
@@ -226,6 +237,11 @@ class Checker
         }
 
        return 'txt';
+    }
+
+    public function getPolicyName()
+    {
+        return $this->policyName;
     }
 
     public function enableTrace()
