@@ -102,34 +102,23 @@ footer {
     font-size: 16px;
 }
 
-.checker-results .list-group {
-    margin-bottom: 0;
-}
-
-.report-blue {
-    color: #4383BD;
-}
-
-.checker-results.panel {
-    margin-bottom: 5px;
-}
-
-.checker-results .panel-heading h4 {
-    display: inline-block;
-    width: 95%
-}
-
-.checker-results ul li p {
+.checker-results .btn {
+    font-size: inherit;
+    padding: 0 0 0 10px;
     float: right;
 }
 
-.checker-result-text {
-    display: inline-block;
-    width: 90%;
+.tab-pane {
+    background-color: #F5F5F5;
+    padding-top: 10px;
 }
 
-.checker-result-buttons {
-    float: right;
+.tab-pane .form-horizontal .control-label {
+    text-align: left;
+}
+
+#file div.col-md-10 label.col-sm-2 {
+    padding-right: 0;
 }
 
 .results-dld, .results-dld-trace, .results-dld-trace-ajax, .results-dld-info, .results-dld-info-ajax {

@@ -108,3 +108,9 @@ vich_uploader:
             upload_destination: %kernel.root_dir%/../files/display
             namer:              vich_uploader.namer_origname
             directory_namer:    mco.directory_namer.policy
+
+services:
+ twig.extension.text:
+     class: Twig_Extensions_Extension_Text
+     tags:
+         - { name: twig.extension }

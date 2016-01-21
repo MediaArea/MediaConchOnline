@@ -40,7 +40,7 @@ class CheckerRepositoryFormType extends AbstractType
                 'required' => false,
                 'label' => 'Display')
                 )
-            ->add('Check files', 'submit', array('attr' => array('class' => 'btn-warning')));
+            ->add('check', 'submit', array('attr' => array('class' => 'btn-warning'), 'label' => 'Check files'));
     }
 
     public function configureOptions(OptionsResolver $resolver)

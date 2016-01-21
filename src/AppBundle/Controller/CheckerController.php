@@ -60,7 +60,7 @@ class CheckerController extends Controller
                         ->run();
                     $checks = array(0 => $checker);
 
-                    $this->get('mediaconch_user.quotas')->hitUrls();
+                    $this->get('mediaconch_user.quotas')->hitUploads();
                 }
             }
         }

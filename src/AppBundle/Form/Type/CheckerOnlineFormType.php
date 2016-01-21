@@ -41,7 +41,7 @@ class CheckerOnlineFormType extends AbstractType
                 'label' => 'Display')
                 )
             ->add('file', 'url', array('max_length' => 512, 'label' => 'URL of file'))
-            ->add('Check file', 'submit', array('attr' => array('class' => 'btn-warning')));
+            ->add('check', 'submit', array('attr' => array('class' => 'btn-warning'), 'label' => 'Check file'));
     }
 
     public function configureOptions(OptionsResolver $resolver)
