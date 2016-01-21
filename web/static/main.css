@@ -113,6 +113,10 @@ footer {
     padding-top: 10px;
 }
 
+.tab-pane .form-horizontal .control-label {
+    text-align: left;
+}
+
 #file div.col-md-10 label.col-sm-2 {
     padding-right: 0;
 }
