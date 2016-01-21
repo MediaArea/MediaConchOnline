@@ -6,6 +6,7 @@ use AppBundle\Lib\MediaConch\MediaConchPolicy;
 use AppBundle\Lib\MediaConch\MediaConchConformance;
 use AppBundle\Lib\MediaConch\MediaConchTrace;
 use AppBundle\Lib\MediaConch\MediaConchInfo;
+use AppBundle\Lib\XslPolicy\XslPolicyParser;
 use AppBundle\Entity\XslPolicyFile;
 
 class Checker
@@ -109,11 +110,17 @@ class Checker
 
     protected function setPolicyName()
     {
-        $name = pathinfo($this->policyItem, PATHINFO_FILENAME);
-        // Remove uniqid
-        $name = substr($name, (strpos($name, '_') + 1));
-        $this->policyName = $name;
-
+        $policyParser = new XslPolicyParser();
+        $policyParser->loadXsl($this->policyItem);
+        $policy = $policyParser->getPolicy();
+        if ($policy->getTitle()) {
+            $this->policyName = $policy->getTitle();
+        }
+        else {
+            $name = pathinfo($this->policyItem, PATHINFO_FILENAME);
+            // Remove uniqid if present
+            $this->policyName = preg_replace('/^[0-9a-z]{13}_(.*)/', '$1', $name);
+        }
     }
 
     public function getStatus()
