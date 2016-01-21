@@ -41,7 +41,7 @@ class CheckerUploadFormType extends AbstractType
                 'label' => 'Display')
                 )
             ->add('file', 'file', array('label' => 'File (max ' . ini_get('upload_max_filesize') . ')'))
-            ->add('Check file', 'submit', array('attr' => array('class' => 'btn-warning')));
+            ->add('check', 'submit', array('attr' => array('class' => 'btn-warning'), 'label' => 'Check file'));
     }
 
     public function configureOptions(OptionsResolver $resolver)

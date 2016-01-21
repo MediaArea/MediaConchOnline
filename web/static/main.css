@@ -108,6 +108,15 @@ footer {
     float: right;
 }
 
+.tab-pane {
+    background-color: #F5F5F5;
+    padding-top: 10px;
+}
+
+#file div.col-md-10 label.col-sm-2 {
+    padding-right: 0;
+}
+
 .results-dld, .results-dld-trace, .results-dld-trace-ajax, .results-dld-info, .results-dld-info-ajax {
     margin-left: 10px;
 }
