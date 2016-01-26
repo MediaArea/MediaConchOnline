@@ -36,13 +36,9 @@ footer {
     padding-bottom: 6px;
 }
 
-.navbar span {
-    position: relative;
-    display: block;
-    padding: 10px 15px;
-    padding-top: 15px;
-    padding-bottom: 15px;
-    line-height: 20px;
+.navbar ul.dropdown-menu li {
+    border-left: none;
+    border-right: none;
 }
 
 .navbar-brand img {
