@@ -49,7 +49,16 @@
                     <li><a href="{{ path('app_xslpolicy_xslpolicy') }}">Policies</a></li>
                     <li><a href="{{ path('app_display_display') }}">Display</a></li>
                     <li class="dropdown">
-                        <a href="{{ path('fos_user_profile_show') }}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} <span class="caret"></span></a>
+                        <a href="https://mediaarea.net/MediaConch/documentation/About.html" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" target="_blank">Help <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="https://mediaarea.net/MediaConch/documentation/About.html" target="_blank" class="no-close-alert">About</a></li>
+                            <li><a href="https://mediaarea.net/MediaConch/documentation/GettingStarted.html" target="_blank" class="no-close-alert">Getting Started</a></li>
+                            <li><a href="https://mediaarea.net/MediaConch/documentation/HowToUse.html" target="_blank" class="no-close-alert">How to Use</a></li>
+                            <li><a href="https://mediaarea.net/MediaConch/documentation/DataFormat.html" target="_blank" class="no-close-alert">Data Format</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="{{ path('fos_user_profile_show') }}" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{{ path('fos_user_profile_show') }}">Profile</a></li>
                             {% if is_granted('ROLE_ADMIN') %}
@@ -59,6 +68,15 @@
                         </ul>
                     </li>
                 {% else %}
+                    <li class="dropdown">
+                        <a href="https://mediaarea.net/MediaConch/documentation/About.html" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" target="_blank">Help <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="https://mediaarea.net/MediaConch/documentation/About.html" target="_blank" class="no-close-alert">About</a></li>
+                            <li><a href="https://mediaarea.net/MediaConch/documentation/GettingStarted.html" target="_blank" class="no-close-alert">Getting Started</a></li>
+                            <li><a href="https://mediaarea.net/MediaConch/documentation/HowToUse.html" target="_blank" class="no-close-alert">How to Use</a></li>
+                            <li><a href="https://mediaarea.net/MediaConch/documentation/DataFormat.html" target="_blank" class="no-close-alert">Data Format</a></li>
+                        </ul>
+                    </li>
                     <li><a href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a></li>
                     <li><a href="{{ path('fos_user_registration_register') }}">{{ 'layout.register'|trans({}, 'FOSUserBundle') }}</a></li>
                 {% endif %}
