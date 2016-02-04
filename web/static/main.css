@@ -17,6 +17,10 @@ footer {
     padding-right: 40px;
 }
 
+footer .navbar {
+    padding-right: 0;
+}
+
 .navbar-collapse {
     border-top: 6px solid #3472A1;
     margin-bottom: 0px;
