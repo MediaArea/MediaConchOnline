@@ -243,15 +243,18 @@ MediaConch checker
 
                 // Alert user when they leave checker page with results
                 $('.nav.navbar a').each(function() {
-                    $(this).click(function (e) {
-                        // Check if there is close all button
-                        if (0 < $('table.checker-results tbody tr').length) {
-                            choice = confirm('Are you sure ?\nAll analysis results will be discarded!');
-                            if (choice == false) {
-                                e.preventDefault();
-                            }
-                        };
-                    });
+                    // Exclude some links
+                    if (!$(this).hasClass('no-close-alert')) {
+                        $(this).click(function (e) {
+                            // Check if there is close all button
+                            if (0 < $('table.checker-results tbody tr').length) {
+                                choice = confirm('Are you sure ?\nAll analysis results will be discarded!');
+                                if (choice == false) {
+                                    e.preventDefault();
+                                }
+                            };
+                        });
+                    };
                 });
             });
         </script>
