@@ -110,7 +110,7 @@ vich_uploader:
             directory_namer:    mco.directory_namer.policy
 
 services:
- twig.extension.text:
-     class: Twig_Extensions_Extension_Text
-     tags:
-         - { name: twig.extension }
+    twig.extension.text:
+        class: Twig_Extensions_Extension_Text
+        tags:
+            - { name: twig.extension }
