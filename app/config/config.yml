@@ -94,7 +94,7 @@ fos_user:
             enabled:    true
     from_email:
         address:        info@mediaarea.net
-        sender_name:    MediaConch Online
+        sender_name:    MediaConchOnline
 
 # VichUploader
 vich_uploader:
