@@ -5,10 +5,7 @@ MediaConch checker
 {% endblock %}
 
 {% block body %}
-<div class="col-md-12" id="checkerResultTitle">
-    <h1>Check files</h1>
-    <button type="button" class="close{% if not selectForm %} hidden{% endif %}">&times; Close all results</button>
-</div>
+<h1>Check files</h1>
 
 <div class="col-md-12">
     <!-- Nav tabs -->
@@ -63,329 +60,40 @@ MediaConch checker
 </div>
 
 <div class="col-md-12">
-{% if checks is iterable %}
-    {{ include('AppBundle:Checker:fileDetailCheckerTable.html.twig', { 'checks': checks, 'selectForm': selectForm }) }}
-{% endif %}
+    <div id="checkerResultTitle">
+        <h2>Results</h2>
+        <button type="button" class="close h2 hidden">&times; Close all results</button>
+    </div>
+    <div class="table-responsive">
+        <table id="result-table" class="table table-hover checker-results display">
+            <thead>
+                <tr>
+                    <th>Files</th>
+                    <th class="text-center">Implementation</th>
+                    <th class="text-center">Policy</th>
+                    <th class="text-center">MediaInfo</th>
+                    <th class="text-center">MediaTrace</th>
+                    <th class="text-center">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <div class="result-container"></div>
 </div>
 {% endblock %}
 
 {% block javascripts %}
-    {% if checks is iterable %}
-        <script src="/static/FileSaver.min.js"></script>
-        <script>
-            $(document).ready(function() {
-                // Add download button to result list
-                $('.checker-results a.results-dld').each(function() {
-                    $(this).on('click', function(e) {
-                        e.preventDefault(); // Don't put a « # » in URL
-                        downloadReport($(this));
-                    });
-                });
-
-                // Add download button binding on modal
-                $('.modal-footer .report-dld').each(function () {
-                    $(this).on('click', function(e) {
-                        downloadReport($(this));
-                    });
-                });
-
-                function downloadReport(item) {
-                    if (0 < $(item.data('target')).find('div.modal-body').length) {
-                        report = $(item.data('target')).find('div.modal-body').text().trim();
-                    }
-                    else {
-                        report = $(item.data('target')).text().trim();
-                    }
-                    reportName = $(item).data('save-name');
-                    reportExt = reportName.replace(/(.*)\.([a-z]{3})$/, "$2");
-                    switch(reportExt) {
-                        case 'xml':
-                            reportType = 'text/xml';
-                            break;
-                        case 'txt':
-                            reportType = 'text/plain';
-                            break;
-                        case 'html':
-                            reportType = 'text/html';
-                            break;
-                        default:
-                            reportType = 'text/plain';
-                    }
-                    var blob = new Blob([report], {type: reportType + ';charset=utf-8'});
-                    saveAs(blob, reportName);
-                };
-
-                // Add download trace button to result list
-                $('.checker-results a.results-dld-trace').each(function() {
-                    $(this).on('click', function(e) {
-                        e.preventDefault(); // Don't put a « # » in URL
-                        downloadTrace($(this));
-                    });
-                });
-
-                // Add download trace button binding on modal
-                $('.modal-footer .report-dld-trace').each(function() {
-                    $(this).on('click', function(e) {
-                        downloadTrace($(this));
-                    });
-                });
-
-                function downloadTrace(item) {
-                    report = $(item.data('target')).text().trim();
-                    reportName = $(item).data('save-name');
-                    var blob = new Blob([report], {type: 'text/xml;charset=utf-8'});
-                    saveAs(blob, reportName);
-                };
-
-                // Add download trace ajax button to result list
-                $('.checker-results a.results-dld-trace-ajax').each(function() {
-                    $(this).on('click', function(e) {
-                        e.preventDefault(); // Don't put a « # » in URL
-                        downloadTraceAjax($(this));
-                    });
-                });
-
-                // Add download trace ajax button binding on modal
-                $('.modal-footer .report-dld-trace-ajax').each(function() {
-                    $(this).on('click', function(e) {
-                        downloadTraceAjax($(this));
-                    });
-                });
-
-                function downloadTraceAjax(item) {
-                    id = $(item).data('target').replace(/#traceXml(\d)/, "$1");
-                    url = '{{ path('app_checker_checkerajaxtracefolder', {'id': 0, 'format': 'xml'}) }}';
-                    url = url.replace(/(.*)\/(0)/, "$1/" + id);
-                    $.get(url)
-                        .done(function (d) {
-                            reportName = $(item).data('save-name');
-                            var blob = new Blob([d], {type: 'text/xml;charset=utf-8'});
-                            saveAs(blob, reportName);
-                        })
-                        .fail(function () {
-                            console.log('Fail to get trace XML');
-                        });
-                };
-
-                // Add download MediaInfo button to result list
-                $('.checker-results a.results-dld-info').each(function() {
-                    $(this).on('click', function(e) {
-                        e.preventDefault(); // Don't put a « # » in URL
-                        downloadInfo($(this));
-                    });
-                });
-
-                // Add download MediaInfo button binding on modal
-                $('.modal-footer .report-dld-info').each(function() {
-                    $(this).on('click', function(e) {
-                        downloadInfo($(this));
-                    });
-                });
-
-                function downloadInfo(item) {
-                    report = $(item.data('target')).text().trim();
-                    reportName = $(item).data('save-name');
-                    var blob = new Blob([report], {type: 'text/xml;charset=utf-8'});
-                    saveAs(blob, reportName);
-                };
-
-                // Add download MediaInfo ajax button to result list
-                $('.checker-results a.results-dld-info-ajax').each(function() {
-                    $(this).on('click', function(e) {
-                        e.preventDefault(); // Don't put a « # » in URL
-                        downloadInfoAjax($(this));
-                    });
-                });
-
-                // Add download MediaInfo ajax button binding on modal
-                $('.modal-footer .report-dld-info-ajax').each(function() {
-                    $(this).on('click', function(e) {
-                        downloadInfoAjax($(this));
-                    });
-                });
-
-                function downloadInfoAjax(item) {
-                    id = $(item).data('target').replace(/#infoXml(\d)/, "$1");
-                    url = '{{ path('app_checker_checkerajaxinfofolder', {'id': 0, 'format': 'xml'}) }}';
-                    url = url.replace(/(.*)\/(0)/, "$1/" + id);
-                    $.get(url)
-                        .done(function (d) {
-                            reportName = $(item).data('save-name');
-                            var blob = new Blob([d], {type: 'text/xml;charset=utf-8'});
-                            saveAs(blob, reportName);
-                        })
-                        .fail(function () {
-                            console.log('Fail to get MediaInfo XML');
-                        });
-                };
-
-                // Remove result block
-                $('.checker-results .result-close').each(function() {
-                    $(this).click(function () {
-                        $(this).parent().parent().remove();
-
-                        // Remove close all button
-                        if (0 == $('table.checker-results tbody tr').length) {
-                            $('#checkerResultTitle .close').addClass('hidden');
-                        };
-                    });
-                });
-
-                // Remove all results blocks
-                $('#checkerResultTitle .close').click(function () {
-                    $('table.checker-results tbody tr').each(function () {
-                        $(this).remove();
-                    });
-
-                    // Remove close all button
-                    $(this).addClass('hidden');
-                });
-
-                // Alert user when they leave checker page with results
-                $('.nav.navbar a').each(function() {
-                    // Exclude some links
-                    if (!$(this).hasClass('no-close-alert')) {
-                        $(this).click(function (e) {
-                            // Check if there is close all button
-                            if (0 < $('table.checker-results tbody tr').length) {
-                                choice = confirm('Are you sure ?\nAll analysis results will be discarded!');
-                                if (choice == false) {
-                                    e.preventDefault();
-                                }
-                            };
-                        });
-                    };
-                });
-            });
-        </script>
-
-        <script src="//cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
-        <script src="/static/jstreegrid.js"></script>
-        <script>
-        {% for check in checks %}
-        $('#modalTrace{{ loop.index }}').on('show.bs.modal',
-            function() {
-                $('#trace{{ loop.index }}').jstree({
-                    'core' : {
-                        'check_callback' : function (operation, node, parent, position, more) {
-                            if (operation === 'copy_node' || operation === 'move_node') {
-                                return false; // disable copy and move
-                            }
-                            else {
-                                return true;
-                            }
-                        },
-                        'multiple' : false,
-                        'dblclick_toggle' : false,
-                        {% if selectForm == 'repository' %}
-                            'data' : {'url' : '{{ path('app_checker_checkerajaxtracefolder', {'id': loop.index, 'format': 'jstree'}) }}', 'dataType' : 'json'}
-                        {% else %}
-                            'data' : {{ check.getTrace.jstree|raw }}
-                        {% endif %}
-                    },
-                    "plugins" : ['search', 'types', 'grid'],
-                    'types' : {
-                        'default' : {'icon' : 'glyphicon glyphicon-folder-open'},
-                        'block' : {'icon' : 'glyphicon glyphicon-folder-open'},
-                        'data' : {'icon' : 'glyphicon glyphicon-file'},
-                    },
-                    grid: {
-                        columns: [
-                            {header: "Offset", value: "offset"},
-                            {header: "Key", tree: true},
-                            {header: "Value", value: "dataValue"},
-                        ],
-                        resizable: true,
-                    },
-                })
-            });
-
-            $('#trace{{ loop.index }}').on('ready.jstree', function () {
-                $(function () {
-                    var to = false;
-                    $('#traceSearch{{ loop.index }}').keyup(function () {
-                        if(to) { clearTimeout(to); }
-                        to = setTimeout(function () {
-                            var v = $('#traceSearch{{ loop.index }}').val();
-                            $('#trace{{ loop.index }}').jstree(true).search(v);
-                        }, 250);
-                    });
-                });
-            });
-
-            $('#trace{{ loop.index }}').on('loaded.jstree', function (e, data) {
-                data.instance.get_container().find('li').each(function () {
-                    data.instance.open_node($(this));
-                })
-            });
-
-            $('#trace{{ loop.index }}').on('select_node.jstree', function (e, data) {
-                data.instance.toggle_node(data.node);
-            });
-
-        $('#modalInfo{{ loop.index }}').on('show.bs.modal',
-            function() {
-                $('#info{{ loop.index }}').jstree({
-                    'core' : {
-                        'check_callback' : function (operation, node, parent, position, more) {
-                            if (operation === 'copy_node' || operation === 'move_node') {
-                                return false; // disable copy and move
-                            }
-                            else {
-                                return true;
-                            }
-                        },
-                        'multiple' : false,
-                        'dblclick_toggle' : false,
-                        {% if selectForm == 'repository' %}
-                            'data' : {'url' : '{{ path('app_checker_checkerajaxinfofolder', {'id': loop.index, 'format': 'jstree'}) }}', 'dataType' : 'json'}
-                        {% else %}
-                            'data' : {{ check.getInfo.jstree|raw }}
-                        {% endif %}
-                    },
-                    "plugins" : ['search', 'types', 'grid'],
-                    'types' : {
-                        'default' : {'icon' : 'glyphicon glyphicon-folder-open'},
-                        'block' : {'icon' : 'glyphicon glyphicon-folder-open'},
-                        'data' : {'icon' : 'glyphicon glyphicon-file'},
-                    },
-                    grid: {
-                        columns: [
-                            {header: "Key", tree: true},
-                            {header: "Value", value: "dataValue"},
-                        ],
-                        resizable: true,
-                    },
-                })
-            });
-
-            $('#info{{ loop.index }}').on('ready.jstree', function () {
-                $(function () {
-                    var to = false;
-                    $('#infoSearch{{ loop.index }}').keyup(function () {
-                        if(to) { clearTimeout(to); }
-                        to = setTimeout(function () {
-                            var v = $('#infoSearch{{ loop.index }}').val();
-                            $('#info{{ loop.index }}').jstree(true).search(v);
-                        }, 250);
-                    });
-                });
-            });
-
-            $('#info{{ loop.index }}').on('loaded.jstree', function (e, data) {
-                data.instance.open_all();
-            });
-
-            $('#info{{ loop.index }}').on('select_node.jstree', function (e, data) {
-                data.instance.toggle_node(data.node);
-            });
-        {% endfor %}
-        </script>
-    {% endif %}
+    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', {'callback': 'fos.Router.setData'}) }}"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <script src="/static/jstreegrid.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/s/bs/dt-1.10.11/datatables.min.js"></script>
+    <script src="/static/checker.js"></script>
 {% endblock %}
 
 {% block stylesheets %}
-    {% if checks is iterable %}
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
-    {% endif %}
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/s/bs/dt-1.10.11/datatables.min.css"/>
 {% endblock %}

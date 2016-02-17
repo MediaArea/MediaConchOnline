@@ -78,5 +78,20 @@
 
         <service id="mco.xslpolicy.writer" class="AppBundle\Lib\XslPolicy\XslPolicyWriter">
         </service>
+
+        <service id="mco.checker.analyze" class="AppBundle\Lib\Checker\CheckerAnalyze">
+        </service>
+
+        <service id="mco.checker.status" class="AppBundle\Lib\Checker\CheckerStatus">
+        </service>
+
+        <service id="mco.checker.validate" class="AppBundle\Lib\Checker\CheckerValidate">
+        </service>
+
+        <service id="mco.checker.report" class="AppBundle\Lib\Checker\CheckerReport">
+        </service>
+
+        <service id="mco.checker.filename" class="AppBundle\Lib\Checker\CheckerFilename">
+        </service>
     </services>
 </container>

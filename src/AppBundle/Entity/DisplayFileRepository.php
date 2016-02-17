@@ -26,4 +26,17 @@ class DisplayFileRepository extends EntityRepository
 
         return $list;
     }
+
+    public function findOneByUserOrSystem($display, $user)
+    {
+        $query = $this->getEntityManager()->getRepository('AppBundle:DisplayFile')->createQueryBuilder('d')
+            ->where('d.id = :displayID AND d.user = :userID')
+            ->orWhere('d.id = :displayID AND d.user IS NULL')
+            ->setParameter('displayID', $display)
+            ->setParameter('userID', $user)
+            ->setMaxResults(1)
+            ->getQuery();
+
+        return $query->getSingleResult();
+    }
 }

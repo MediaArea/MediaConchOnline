@@ -8,10 +8,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Finder\Finder;
-
-use AppBundle\Lib\Checker\Checker;
 
 /**
  * @Route("/")
@@ -24,125 +25,20 @@ class CheckerController extends Controller
      */
     public function checkerAction(Request $request)
     {
-        $checks = false;
         $selectForm = false;
 
         if ($this->get('mediaconch_user.quotas')->hasUploadsRights()) {
             $formUpload = $this->createForm('checkerUpload');
-            $formUpload->handleRequest($request);
-
-            if ($formUpload->isValid()) {
-                $selectForm = 'upload';
-                $data = $formUpload->getData();
-                if ($data['file']->isValid()) {
-                    if ($data['display'] instanceof \AppBundle\Entity\DisplayFile) {
-                        $helper = $this->container->get('vich_uploader.storage');
-                        $displayFile = $helper->resolvePath($data['display'], 'displayFile');
-                    }
-                    else {
-                        $displayFile = null;
-                    }
-
-                    $checker = new Checker($data['file']);
-                    if ($data['policy'] instanceof \AppBundle\Entity\XslPolicyFile) {
-                        $helper = $this->container->get('vich_uploader.storage');
-                        $policyFile = $helper->resolvePath($data['policy'], 'policyFile');
-                        $checker->setPolicyItem($policyFile);
-                    }
-                    else {
-                        $checker->disablePolicy();
-                    }
-
-                    $checker->setInfoFormat(array('xml', 'jstree'))
-                        ->setDisplayFile($displayFile)
-                        ->enableTrace()
-                        ->setTraceFormat(array('xml', 'jstree'))
-                        ->run();
-                    $checks = array(0 => $checker);
-
-                    $this->get('mediaconch_user.quotas')->hitUploads();
-                }
-            }
         }
 
         if ($this->get('mediaconch_user.quotas')->hasUrlsRights()) {
             $formOnline = $this->createForm('checkerOnline');
-            $formOnline->handleRequest($request);
-
-            if ($formOnline->isValid()) {
-                $selectForm = 'online';
-                $data = $formOnline->getData();
-
-                if ($data['display'] instanceof \AppBundle\Entity\DisplayFile) {
-                    $helper = $this->container->get('vich_uploader.storage');
-                    $displayFile = $helper->resolvePath($data['display'], 'displayFile');
-                }
-                else {
-                    $displayFile = null;
-                }
-                $checker = new Checker(str_replace(' ', '%20', $data['file']));
-                if ($data['policy'] instanceof \AppBundle\Entity\XslPolicyFile) {
-                    $helper = $this->container->get('vich_uploader.storage');
-                    $policyFile = $helper->resolvePath($data['policy'], 'policyFile');
-                    $checker->setPolicyItem($policyFile);
-                }
-                else {
-                    $checker->disablePolicy();
-                }
-
-                $checker->setInfoFormat(array('xml', 'jstree'))
-                    ->setDisplayFile($displayFile)
-                    ->enableTrace()
-                    ->setTraceFormat(array('xml', 'jstree'))
-                    ->run();
-                $checks = array(0 => $checker);
-
-                $this->get('mediaconch_user.quotas')->hitUrls();
-            }
         }
 
         if (null != $this->container->getParameter('mco_check_folder') && file_exists($this->container->getParameter('mco_check_folder'))) {
             $repositoryEnable = true;
             if ($this->get('mediaconch_user.quotas')->hasPolicyChecksRights()) {
                 $formRepository = $this->createForm('checkerRepository');
-                $formRepository->handleRequest($request);
-
-                if ($formRepository->isValid()) {
-                    $selectForm = 'repository';
-                    $data = $formRepository->getData();
-
-                    $checks = array();
-
-                    if ($data['display'] instanceof \AppBundle\Entity\DisplayFile) {
-                        $helper = $this->container->get('vich_uploader.storage');
-                        $displayFile = $helper->resolvePath($data['display'], 'displayFile');
-                    }
-                    else {
-                        $displayFile = null;
-                    }
-
-                    $finder = new Finder();
-                    $finder->files()->in($this->container->getParameter('mco_check_folder'));
-                    foreach($finder as $file) {
-                        $checker = new Checker($file->getPathname());
-                        if ($data['policy'] instanceof \AppBundle\Entity\XslPolicyFile) {
-                            $helper = $this->container->get('vich_uploader.storage');
-                            $policyFile = $helper->resolvePath($data['policy'], 'policyFile');
-                            $checker->setPolicyItem($policyFile);
-                        }
-                        else {
-                            $checker->disablePolicy();
-                        }
-
-
-                        $checker->setDisplayFile($displayFile)
-                            ->disableInfo()
-                            ->run();
-                        $checks[] = $checker;
-                    }
-
-                    $this->get('mediaconch_user.quotas')->hitPolicyChecks(count($finder));
-                }
             }
         }
         else {
@@ -153,29 +49,19 @@ class CheckerController extends Controller
             'formOnline' => isset($formOnline) ? $formOnline->createView() : false,
             'formRepository' => isset($formRepository) ? $formRepository->createView() : false,
             'repositoryEnable' => $repositoryEnable,
-            'checks' => $checks,
             'selectForm' => $selectForm);
     }
 
     /**
-     * @Route("/checkerAjaxTraceFolder/{id}.{format}", requirements={"id": "\d+", "format"})
+     * @Route("/checkerStatus/{id}", requirements={"id": "\d+"})
      */
-    public function checkerAjaxTraceFolderAction($id, $format, Request $request)
+    public function checkerStatusAction($id, Request $request)
     {
         if ($request->isXmlHttpRequest()) {
+            $status = $this->get('mco.checker.status');
+            $status->getStatus($id);
 
-            $finder = new Finder();
-            $finder->files()->in($this->container->getParameter('mco_check_folder'));
-            $i = 1;
-            foreach ($finder as $file) {
-                if ($i++ == $id) {
-                    $checker = new Checker($file->getPathname());
-                    $checker->disablePolicy()->disableInfo()->disableConformance()->enableTrace()->setTraceFormat(array($format));
-                    $checker->run();
-                }
-            }
-
-            return new Response(isset($checker) ? $checker->getTrace($format) : '');
+            return new JsonResponse($status->getResponseAsArray());
         }
         else {
             throw new NotFoundHttpException();
@@ -183,27 +69,225 @@ class CheckerController extends Controller
     }
 
     /**
-     * @Route("/checkerAjaxInfoFolder/{id}.{format}", requirements={"id": "\d+", "format"})
+     * @Route("/checkerImplemStatus/{id}", requirements={"id": "\d+"})
      */
-    public function checkerAjaxInfoFolderAction($id, $format, Request $request)
+    public function checkerImplemStatusAction($id, Request $request)
     {
         if ($request->isXmlHttpRequest()) {
+            $validate = $this->get('mco.checker.validate');
+            $validate->validate($id, 'IMPLEMENTATION');
 
-            $finder = new Finder();
-            $finder->files()->in($this->container->getParameter('mco_check_folder'));
-            $i = 1;
-            foreach ($finder as $file) {
-                if ($i++ == $id) {
-                    $checker = new Checker($file->getPathname());
-                    $checker->disablePolicy()->enableInfo()->disableConformance()->disableTrace()->setInfoFormat(array($format));
-                    $checker->run();
-                }
-            }
-
-            return new Response(isset($checker) ? $checker->getInfo($format) : '');
+            return new JsonResponse($validate->getResponseAsArray());
         }
         else {
             throw new NotFoundHttpException();
+        }
+    }
+
+    /**
+     * @Route("/checkerPolicyStatus/{id}", requirements={"id": "\d+"})
+     */
+    public function checkerPolicyStatusAction($id, Request $request)
+    {
+        if ($request->isXmlHttpRequest()) {
+            $policyFile = null;
+            if (ctype_digit($request->query->get('policy'))) {
+                $policy = $this->getDoctrine()
+                    ->getRepository('AppBundle:XslPolicyFile')
+                    ->findOneByUserOrSystem($request->query->get('policy'), $this->getUser());
+                if ($policy) {
+                    $helper = $this->container->get('vich_uploader.storage');
+                    $policyFile = $helper->resolvePath($policy, 'policyFile');
+                }
+            }
+
+            $validate = $this->get('mco.checker.validate');
+            $validate->validate($id, 'POLICY', $policyFile);
+
+            return new JsonResponse($validate->getResponseAsArray());
+        }
+        else {
+            throw new NotFoundHttpException();
+        }
+    }
+
+    /**
+     * @Route("/checkerReport/{id}/{reportType}/{displayName}", requirements={"id": "\d+", "reportType", "displayName"})
+     */
+    public function checkerReportAction($id, $reportType, $displayName, Request $request)
+    {
+        if ($request->isXmlHttpRequest()) {
+            $policyFile = null;
+            if (ctype_digit($request->query->get('policy'))) {
+                $policy = $this->getDoctrine()
+                    ->getRepository('AppBundle:XslPolicyFile')
+                    ->findOneByUserOrSystem($request->query->get('policy'), $this->getUser());
+               if ($policy) {
+                    $helper = $this->container->get('vich_uploader.storage');
+                    $policyFile = $helper->resolvePath($policy, 'policyFile');
+                }
+            }
+
+            $displayFile = null;
+            if (ctype_digit($request->query->get('display'))) {
+                $display = $this->getDoctrine()
+                    ->getRepository('AppBundle:DisplayFile')
+                    ->findOneByUserOrSystem($request->query->get('display'), $this->getUser());
+                if ($display) {
+                    $helper = $this->container->get('vich_uploader.storage');
+                    $displayFile = $helper->resolvePath($display, 'displayFile');
+                }
+            }
+
+            $report = $this->get('mco.checker.report');
+            $report->report($id, $reportType, $displayName, $displayFile, $policyFile);
+
+            if (($reportType == 'mi' || $reportType == 'mt') && $displayName == 'jstree') {
+                return new Response($report->getServerResponse()->getReport());
+            }
+            else {
+                return new JsonResponse($report->getResponseAsArray());
+            }
+        }
+        else {
+            throw new NotFoundHttpException();
+        }
+    }
+
+    /**
+     * @Route("/checkerDownloadReport/{id}/{reportType}/{displayName}", requirements={"id": "\d+", "reportType", "displayName"})
+     */
+    public function checkerDownloadReportAction($id, $reportType, $displayName, Request $request)
+    {
+        if ($this->container->has('profiler'))
+        {
+            $this->container->get('profiler')->disable();
+        }
+
+        $policyFile = null;
+        if (ctype_digit($request->query->get('policy'))) {
+            $policy = $this->getDoctrine()
+                ->getRepository('AppBundle:XslPolicyFile')
+                ->findOneByUserOrSystem($request->query->get('policy'), $this->getUser());
+            if ($policy) {
+                $helper = $this->container->get('vich_uploader.storage');
+                $policyFile = $helper->resolvePath($policy, 'policyFile');
+            }
+        }
+
+        $displayFile = null;
+        if (ctype_digit($request->query->get('display'))) {
+            $display = $this->getDoctrine()
+            ->getRepository('AppBundle:DisplayFile')
+            ->findOneByUserOrSystem($request->query->get('display'), $this->getUser());
+            if ($display) {
+                $helper = $this->container->get('vich_uploader.storage');
+                $displayFile = $helper->resolvePath($display, 'displayFile');
+                $displayName = 'txt';
+            }
+        }
+
+        $report = $this->get('mco.checker.report');
+        $report->report($id, $reportType, $displayName, $displayFile, $policyFile);
+
+
+        $file = $this->get('mco.checker.filename');
+        $file->fileFromId($id);
+        $filename = $file->getFilename();
+
+        $response = new Response($report->getServerResponse()->getReport());
+        $d = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $filename . '_' . $report->getDownloadReportName() . '.' . $report->getDownloadReportExtension()
+        );
+
+        $response->headers->set('Content-Type', $report->getDownloadReportMimeType());
+        $response->headers->set('Content-Disposition', $d);
+        $response->headers->set('Content-length', strlen($report->getServerResponse()->getReport()));
+
+        return $response;
+    }
+
+    /**
+     * @Route("/checkerAjaxForm")
+     */
+    public function checkerAjaxFormAction(Request $request)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
+
+        if ($this->get('mediaconch_user.quotas')->hasUploadsRights()) {
+            $formUpload = $this->createForm('checkerUpload');
+            $formUpload->handleRequest($request);
+
+            if (null !== $data = $formUpload->getData()) {
+                if ($formUpload->isValid()) {
+                    if ($data['file']->isValid()) {
+                        $path = $this->container->getParameter('kernel.root_dir').'/../files/upload/' . $this->getUser()->getId();
+                        $filename =  $data['file']->getClientOriginalName();
+                        $fileMd5 = md5(file_get_contents($data['file']->getRealPath()));
+
+                        if (file_exists($path . '/' . $fileMd5 . '/' . $filename)) {
+                            $file = new File($path . '/' . $fileMd5 . '/' . $filename);
+                        }
+                        else {
+                            $file = $data['file']->move($path . '/' . $fileMd5, $filename);
+                        }
+
+                        $checks = $this->get('mco.checker.analyze');
+                        $checks->analyse($file->getRealPath());
+                        $response = $checks->getResponseAsArray();
+
+                        $this->get('mediaconch_user.quotas')->hitUploads();
+
+                        return new JsonResponse($response, 200);
+                    }
+                }
+            }
+        }
+
+        if ($this->get('mediaconch_user.quotas')->hasUrlsRights()) {
+            $formOnline = $this->createForm('checkerOnline');
+            $formOnline->handleRequest($request);
+
+            if (null !== $data = $formOnline->getData()) {
+                if ($formOnline->isValid()) {
+
+                    $checks = $this->get('mco.checker.analyze');
+                    $checks->analyse(str_replace(' ', '%20', $data['file']));
+                    $response = $checks->getResponseAsArray();
+
+                    $this->get('mediaconch_user.quotas')->hitUrls();
+
+                    return new JsonResponse($response, 200);
+                }
+            }
+        }
+
+        if (null != $this->container->getParameter('mco_check_folder') && file_exists($this->container->getParameter('mco_check_folder'))) {
+            if ($this->get('mediaconch_user.quotas')->hasPolicyChecksRights()) {
+                $formRepository = $this->createForm('checkerRepository');
+                $formRepository->handleRequest($request);
+
+                if (null !== $data = $formRepository->getData()) {
+                    if ($formRepository->isValid()) {
+                        $response = array();
+
+                        $finder = new Finder();
+                        $finder->files()->in($this->container->getParameter('mco_check_folder'));
+                        foreach($finder as $file) {
+                            $checks = $this->get('mco.checker.analyze');
+                            $checks->analyse($file->getPathname());
+                            $response[] = $checks->getResponseAsArray();
+                        }
+
+                        $this->get('mediaconch_user.quotas')->hitPolicyChecks(count($finder));
+
+                        return new JsonResponse($response, 200);
+                    }
+                }
+            }
         }
     }
 }
