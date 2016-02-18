@@ -79,6 +79,9 @@ footer .navbar {
     padding-bottom: 80px;
 }
 
+.content .col-lg-offset-1 {
+    margin-left: 4.16666667%;
+}
 
 .panel {
     background-color: #F5F5F5;
@@ -106,6 +109,11 @@ footer .navbar {
     font-size: inherit;
     padding: 0 0 0 10px;
     float: right;
+    border: 0px;
+}
+
+#result-table td p {
+    margin: 0;
 }
 
 .tab-pane {

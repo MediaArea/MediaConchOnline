@@ -65,7 +65,7 @@ $(document).ready(function() {
     });
 
     function addFile(fileName, fileId) {
-        node = result.row.add( [ '<span title="' + fileName + '">' + truncateString(fileName, 30) + '</span>', '', '', '', '', '<span class="status-text">In queue</span><button type="button" class="btn btn-link result-close" title="Close result"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button><button type="button" class="btn btn-link hidden" title="Reload result"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>' ] ).draw(false).node();
+        node = result.row.add( [ '<span title="' + fileName + '">' + truncateString(fileName, 35) + '</span>', '', '', '', '', '<span class="status-text">In queue</span><button type="button" class="btn btn-link result-close" title="Close result"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button><button type="button" class="btn btn-link hidden" title="Reload result"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>' ] ).draw(false).node();
 
         // Add id
         resultId = 'result-' + result.row(node).index();
@@ -77,7 +77,7 @@ $(document).ready(function() {
         $(node).data('display', $('.tab-content .active .displayList').val());
 
         // Change status class
-        $(result.cell(node, 5).node()).addClass( 'info' );
+        $(result.cell(node, 5).node()).addClass('info');
 
         // Close button
         result.$('#' + resultId).find('.result-close').click(node, function (e) {
@@ -203,7 +203,7 @@ $(document).ready(function() {
                     nodePolicy.addClass('danger');
                     policyResultText = '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> ';
                 }
-                policyResultText += '<span title="' + $(node).data('policyName') + '">' + truncateString($(node).data('policyName'), 20) + '</span>';
+                policyResultText += '<span title="' + $(node).data('policyName') + '">' + truncateString($(node).data('policyName'), 25) + '</span>';
 
                 result.cell('#' + resultId, 2).data(policyResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" data-target="#modalPolicy' + resultId + '" data-save-name="' + resultId + '_PolicyReport.txt" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
 
