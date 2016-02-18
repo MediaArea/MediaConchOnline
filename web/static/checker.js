@@ -3,14 +3,13 @@ $(document).ready(function() {
         'order': [],
         'autoWidth': false,
         'columnDefs': [
-        { 'orderable': true, targets: 0 },
-        { 'orderable': true, 'searchable': false, targets: [1, 2, 5] },
-        { 'orderable': false, 'searchable': false, 'width': '10%', targets: [3, 4] },
-        { 'width': '15%', targets: [1, 5] },
-        { 'width': '25%', targets: [0, 2] },
+            { 'orderable': true, targets: 0 },
+            { 'orderable': true, 'searchable': false, targets: [1, 2, 5] },
+            { 'orderable': false, 'searchable': false, 'width': '10%', targets: [3, 4] },
+            { 'width': '15%', targets: [1, 5] },
+            { 'width': '25%', targets: [0, 2] },
         ]
     });
-    results = 0;
 
     // Upload form
     $('#file form').on('submit', function (e) {
@@ -66,7 +65,6 @@ $(document).ready(function() {
     });
 
     function addFile(fileName, fileId) {
-        results++;
         node = result.row.add( [ '<span title="' + fileName + '">' + truncateString(fileName, 30) + '</span>', '', '', '', '', '<span class="status-text">In queue</span><button type="button" class="btn btn-link result-close" title="Close result"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button><button type="button" class="btn btn-link hidden" title="Reload result"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>' ] ).draw(false).node();
 
         // Add id
@@ -82,7 +80,7 @@ $(document).ready(function() {
         $(result.cell(node, 5).node()).addClass( 'info' );
 
         // Close button
-        $('#' + resultId + ' .result-close').click(node, function (e) {
+        result.$('#' + resultId).find('.result-close').click(node, function (e) {
             result.row(e.data).remove().draw(false);
 
             // Remove close all button
@@ -117,7 +115,7 @@ $(document).ready(function() {
                             //i = 0;
                         }
                         else if (data.percent > 0) {
-                            $('#' + resultId + ' .status-text').text('Analyzing');
+                            $(result.cell('#' + resultId, 5).node()).find('.status-text').text('Analyzing');
                         }
                     });
                 }
@@ -135,24 +133,26 @@ $(document).ready(function() {
     };
 
     function statusCell(resultId, fileId) {
-        $(result.cell('#' + resultId, 5).node()).removeClass().addClass('success');
-        $('#' + resultId + ' .status-text').text('Analyzed');
+        nodeStatus = $(result.cell('#' + resultId, 5).node());
+        nodeStatus.removeClass().addClass('success');
+        nodeStatus.find('.status-text').text('Analyzed');
     };
 
     function implementationCell(resultId, fileId) {
         $.get(Routing.generate('app_checker_checkerimplemstatus', { id: fileId }), function(data) {
+            nodeImplem = $(result.cell('#' + resultId, 1).node());
             if (data.valid) {
-                $(result.cell('#' + resultId, 1).node()).addClass('success');
+                nodeImplem.addClass('success');
                 implemResultText = '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> Valid'
             }
             else {
-                $(result.cell('#' + resultId, 1).node()).addClass('danger');
+                nodeImplem.addClass('danger');
                 implemResultText = '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Not valid';
             }
 
             result.cell('#' + resultId, 1).data(implemResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalConformance' + resultId + '" title="View implementation report"><span class="glyphicon glyphicon-eye-open implem-view" aria-hidden="true"></span></a><a href="#" class="implem-dld" data-target="#modalConformance' + resultId + '" data-save-name="' + resultId + '_ImplementationReport.txt" title="Download implementation report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
 
-            $('#' + resultId + ' .implem-view').on('click', function(e) {
+            nodeImplem.find('.implem-view').on('click', function(e) {
                 e.preventDefault();
                 if (!$('#modalConformance' + resultId).length) {
                     $('.result-container').append(' \
@@ -183,7 +183,7 @@ $(document).ready(function() {
                 }
             });
 
-            $('#' + resultId + ' .implem-dld').on('click', function(e) {
+            nodeImplem.find('.implem-dld').on('click', function(e) {
                 e.preventDefault();
                 window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'implem',  displayName: 'html'});
             });
@@ -194,29 +194,31 @@ $(document).ready(function() {
     function policyCell(resultId, fileId) {
         if ($(node).data('policy')) {
             $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: $(node).data('policy') }), function(data) {
+                nodePolicy = $(result.cell('#' + resultId, 2).node());
                 if (data.valid) {
-                    $(result.cell('#' + resultId, 2).node()).addClass('success');
+                    nodePolicy.addClass('success');
                     policyResultText = '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> '
                 }
                 else {
-                    $(result.cell('#' + resultId, 2).node()).addClass('danger');
+                    nodePolicy.addClass('danger');
                     policyResultText = '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> ';
                 }
                 policyResultText += '<span title="' + $(node).data('policyName') + '">' + truncateString($(node).data('policyName'), 20) + '</span>';
 
                 result.cell('#' + resultId, 2).data(policyResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" data-target="#modalPolicy' + resultId + '" data-save-name="' + resultId + '_PolicyReport.txt" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
 
-                policyModal(resultId, fileId);
+                policyModal(resultId, fileId, nodePolicy);
             });
         }
         else {
-            $(result.cell('#' + resultId, 2).node()).addClass('info');
+            nodePolicy = $(result.cell('#' + resultId, 2).node());
+            nodePolicy.addClass('info');
             result.cell('#' + resultId, 2).data('N/A');
         }
     }
 
-    function policyModal(resultId, fileId) {
-        $('#' + resultId + ' .policy-view').on('click', function(e) {
+    function policyModal(resultId, fileId, nodePolicy) {
+        nodePolicy.find('.policy-view').on('click', function(e) {
             e.preventDefault();
             if (!$('#modalPolicy' + resultId).length) {
                 $('.result-container').append(' \
@@ -249,17 +251,18 @@ $(document).ready(function() {
             }
         });
 
-        $('#' + resultId + ' .policy-dld').on('click', function(e) {
+        nodePolicy.find('.policy-dld').on('click', function(e) {
             e.preventDefault();
             window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: $(node).data('policy'), display: $(node).data('display')});
         });
     }
 
     function mediaInfoCell(resultId, fileId) {
-        $(result.cell('#' + resultId, 3).node()).addClass('text-center');
+        nodeMI = $(result.cell('#' + resultId, 3).node());
+        nodeMI.addClass('text-center');
         result.cell('#' + resultId, 3).data('<a href="#" class="mi-view" data-toggle="modal" data-target="#modalInfo' + resultId + '" title="View MediaInfo report"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a><a href="#" class="mi-dld" data-target="#infoXml' + resultId + '" data-save-name="' + resultId + '_MediaInfo.xml" title="Download MediaInfo report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a>');
 
-        $('#' + resultId + ' .mi-view').on('click', function(e) {
+        nodeMI.find('.mi-view').on('click', function(e) {
             e.preventDefault();
             if (!$('#modalInfo' + resultId).length) {
                 $('.result-container').append(' \
@@ -297,7 +300,7 @@ $(document).ready(function() {
             }
         });
 
-        $('#' + resultId + ' .mi-dld').on('click', function(e) {
+        nodeMI.find('.mi-dld').on('click', function(e) {
             e.preventDefault();
             window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'mi',  displayName: 'xml'});
         });
@@ -357,10 +360,11 @@ $(document).ready(function() {
 
 
     function mediaTraceCell(resultId, fileId) {
-        $(result.cell('#' + resultId, 4).node()).addClass('text-center');
+        nodeMT = $(result.cell('#' + resultId, 4).node());
+        nodeMT.addClass('text-center');
         result.cell('#' + resultId, 4).data('<a href="#" class="mt-view" data-toggle="modal" data-target="#modalTrace' + resultId + '" title="View MediaTrace report"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a><a href="#" class="mt-dld" data-target="#traceXml' + resultId + '" data-save-name="' + resultId + '_MediaTrace.xml" title="Download MediaTrace report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a>');
 
-        $('#' + resultId + ' .mt-view').on('click', function(e) {
+        nodeMT.find('.mt-view').on('click', function(e) {
             e.preventDefault();
             if (!$('#modalTrace' + resultId).length) {
                 $('.result-container').append(' \
@@ -398,7 +402,7 @@ $(document).ready(function() {
             }
         });
 
-        $('#' + resultId + ' .mt-dld').on('click', function(e) {
+        nodeMT.find('.mt-dld').on('click', function(e) {
             e.preventDefault();
             window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'mt',  displayName: 'xml'});
         });
