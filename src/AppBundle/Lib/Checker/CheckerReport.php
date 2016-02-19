@@ -10,10 +10,12 @@ class CheckerReport
     protected $report;
     protected $displayName;
     protected $policy;
+    protected $fullPath = false;
+    protected $filename;
 
-    public function __construct()
+    public function __construct(MediaConchServer $mc)
     {
-
+        $this->mc = $mc;
     }
 
     public function report($id, $report, $displayName, $display = null, $policy = null)
@@ -26,20 +28,35 @@ class CheckerReport
             $this->displayName = $displayName;
         }
 
-        $mc = new MediaConchServer;
-        $this->response = $mc->report($id, $this->getReportType(), $this->getDisplayName(), $display, $policy);
-    }
-
-    public function getServerResponse()
-    {
-        return $this->response;
+        $this->response = $this->mc->report($id, $this->getReportType(), $this->getDisplayName(), $display, $policy);
     }
 
     public function getResponseAsArray()
     {
-        return array('report' => $this->response->getReport(),
+        return array('report' => $this->getReport(),
             'error' => $this->response->getError(),
             );
+    }
+
+    public function getReport()
+    {
+        if ($this->fullPath) {
+            return $this->response->getReport();
+        }
+        else {
+            return str_replace($this->filename, pathinfo($this->filename, PATHINFO_BASENAME), $this->response->getReport());
+        }
+    }
+
+    public function setFullPath($fullPath, $filename = null)
+    {
+        if (!$fullPath && $filename !== null) {
+            $this->fullPath = false;
+            $this->filename = $filename;
+        }
+        else {
+            $this->fullPath = true;
+        }
     }
 
     public function getDownloadReportName()

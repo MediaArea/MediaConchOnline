@@ -24,5 +24,9 @@ class AppExtension extends Extension
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
+
+        $container->setParameter('app.mediaconch.address', $config['mediaconch']['address']);
+        $container->setParameter('app.mediaconch.port', $config['mediaconch']['port']);
+        $container->setParameter('app.mediaconch.api.version', $config['mediaconch']['api_version']);
     }
 }

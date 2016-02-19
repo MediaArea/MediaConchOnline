@@ -8,15 +8,14 @@ class CheckerFilename
 {
     protected $response;
 
-    public function __construct()
+    public function __construct(MediaConchServer $mc)
     {
-
+        $this->mc = $mc;
     }
 
     public function fileFromId($id)
     {
-        $mc = new MediaConchServer;
-        $this->response = $mc->fileFromId($id);
+        $this->response = $this->mc->fileFromId($id);
     }
 
     public function getServerResponse()
@@ -30,8 +29,13 @@ class CheckerFilename
             );
     }
 
-    public function getFilename()
+    public function getFilename($full = false)
     {
-        return pathinfo($this->response->getFile(), PATHINFO_BASENAME);
+        if ($full) {
+            return $this->response->getFile();
+        }
+        else {
+            return pathinfo($this->response->getFile(), PATHINFO_BASENAME);
+        }
     }
 }

@@ -9,16 +9,15 @@ class CheckerAnalyze
     protected $response;
     protected $source;
 
-    public function __construct()
+    public function __construct(MediaConchServer $mc)
     {
-
+        $this->mc = $mc;
     }
 
     public function analyse($file)
     {
         $this->source = $file;
-        $mc = new MediaConchServer;
-        $this->response = $mc->analyse($file);
+        $this->response = $this->mc->analyse($file);
     }
 
     public function getServerResponse()

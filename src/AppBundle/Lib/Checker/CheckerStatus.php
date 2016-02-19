@@ -8,15 +8,14 @@ class CheckerStatus
 {
     protected $response;
 
-    public function __construct()
+    public function __construct(MediaConchServer $mc)
     {
-
+        $this->mc = $mc;
     }
 
     public function getStatus($id)
     {
-        $mc = new MediaConchServer;
-        $this->response = $mc->status($id);
+        $this->response = $this->mc->status($id);
     }
 
     public function getResponseAsArray()

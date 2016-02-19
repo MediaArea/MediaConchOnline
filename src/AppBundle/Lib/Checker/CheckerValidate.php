@@ -8,15 +8,14 @@ class CheckerValidate
 {
     protected $response;
 
-    public function __construct()
+    public function __construct(MediaConchServer $mc)
     {
-
+        $this->mc = $mc;
     }
 
     public function validate($id, $report, $policy = null)
     {
-        $mc = new MediaConchServer;
-        $this->response = $mc->validate($id, $report, $policy);
+        $this->response = $this->mc->validate($id, $report, $policy);
     }
 
     public function getResponseAsArray()

@@ -118,3 +118,9 @@ services:
         class: Twig_Extensions_Extension_Text
         tags:
             - { name: twig.extension }
+
+app:
+    mediaconch:
+        address: 127.0.0.1
+        port: 4242
+        api_version: 1.2

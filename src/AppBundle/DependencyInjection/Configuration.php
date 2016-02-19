@@ -23,6 +23,17 @@ class Configuration implements ConfigurationInterface
         // Here you should define the parameters that are allowed to
         // configure your bundle. See the documentation linked above for
         // more information on that topic.
+        $rootNode
+            ->children()
+                ->arrayNode('mediaconch')
+                    ->children()
+                        ->scalarNode('address')->end()
+                        ->integerNode('port')->end()
+                        ->scalarNode('api_version')->end()
+                    ->end()
+                ->end() // mediaconch
+            ->end()
+        ;
 
         return $treeBuilder;
     }

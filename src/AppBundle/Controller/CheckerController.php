@@ -139,11 +139,15 @@ class CheckerController extends Controller
                 }
             }
 
+            $file = $this->get('mco.checker.filename');
+            $file->fileFromId($id);
+
             $report = $this->get('mco.checker.report');
             $report->report($id, $reportType, $displayName, $displayFile, $policyFile);
+            $report->setFullPath(false, $file->getFilename(true));
 
             if (($reportType == 'mi' || $reportType == 'mt') && $displayName == 'jstree') {
-                return new Response($report->getServerResponse()->getReport());
+                return new Response($report->getReport());
             }
             else {
                 return new JsonResponse($report->getResponseAsArray());
@@ -187,23 +191,22 @@ class CheckerController extends Controller
             }
         }
 
-        $report = $this->get('mco.checker.report');
-        $report->report($id, $reportType, $displayName, $displayFile, $policyFile);
-
-
         $file = $this->get('mco.checker.filename');
         $file->fileFromId($id);
-        $filename = $file->getFilename();
 
-        $response = new Response($report->getServerResponse()->getReport());
+        $report = $this->get('mco.checker.report');
+        $report->report($id, $reportType, $displayName, $displayFile, $policyFile);
+        $report->setFullPath(false, $file->getFilename(true));
+
+        $response = new Response($report->getReport());
         $d = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $filename . '_' . $report->getDownloadReportName() . '.' . $report->getDownloadReportExtension()
+            $file->getFilename() . '_' . $report->getDownloadReportName() . '.' . $report->getDownloadReportExtension()
         );
 
         $response->headers->set('Content-Type', $report->getDownloadReportMimeType());
         $response->headers->set('Content-Disposition', $d);
-        $response->headers->set('Content-length', strlen($report->getServerResponse()->getReport()));
+        $response->headers->set('Content-length', strlen($report->getReport()));
 
         return $response;
     }

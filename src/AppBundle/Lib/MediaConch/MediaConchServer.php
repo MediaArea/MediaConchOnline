@@ -4,9 +4,12 @@ namespace AppBundle\Lib\MediaConch;
 
 class MediaConchServer
 {
-    protected $address = '127.0.0.1';
-    protected $port = '4242';
-    protected $apiVersion = '1.2';
+    public function __construct($address, $port, $apiVersion)
+    {
+        $this->address = $address;
+        $this->port = $port;
+        $this->apiVersion = $apiVersion;
+    }
 
     public function analyse($file)
     {

@@ -79,19 +79,30 @@
         <service id="mco.xslpolicy.writer" class="AppBundle\Lib\XslPolicy\XslPolicyWriter">
         </service>
 
+        <service id="mco.mediaconch.server" class="AppBundle\Lib\MediaConch\MediaConchServer" public="false">
+            <argument>%app.mediaconch.address%</argument>
+            <argument>%app.mediaconch.port%</argument>
+            <argument>%app.mediaconch.api.version%</argument>
+        </service>
+
         <service id="mco.checker.analyze" class="AppBundle\Lib\Checker\CheckerAnalyze">
+            <argument type="service" id="mco.mediaconch.server"/>
         </service>
 
         <service id="mco.checker.status" class="AppBundle\Lib\Checker\CheckerStatus">
+            <argument type="service" id="mco.mediaconch.server"/>
         </service>
 
         <service id="mco.checker.validate" class="AppBundle\Lib\Checker\CheckerValidate">
+            <argument type="service" id="mco.mediaconch.server"/>
         </service>
 
         <service id="mco.checker.report" class="AppBundle\Lib\Checker\CheckerReport">
+            <argument type="service" id="mco.mediaconch.server"/>
         </service>
 
         <service id="mco.checker.filename" class="AppBundle\Lib\Checker\CheckerFilename">
+            <argument type="service" id="mco.mediaconch.server"/>
         </service>
     </services>
 </container>
