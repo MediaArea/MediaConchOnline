@@ -172,7 +172,7 @@ $(document).ready(function() {
                         </div> \
                     </div>');
 
-                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'implem',  displayName: 'html'}), function(data) {
+                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: $(node).data('display')}), function(data) {
                         $('#modalConformance' + resultId + ' .modal-body').html(data.report);
                     });
 
