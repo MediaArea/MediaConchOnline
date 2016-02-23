@@ -33,7 +33,7 @@ class CheckerReport
 
     public function getResponseAsArray()
     {
-        return array('report' => $this->getReport(),
+        return array('report' => $this->isHtmlReport() ? $this->getReport() : nl2br($this->getReport()),
             'error' => $this->response->getError(),
             );
     }
@@ -115,6 +115,11 @@ class CheckerReport
             default:
                 return 'text/plain';
         }
+    }
+
+    protected function isHtmlReport()
+    {
+        return preg_match('/<!doctype/i', $this->response->getReport());
     }
 
     protected function getReportType()
