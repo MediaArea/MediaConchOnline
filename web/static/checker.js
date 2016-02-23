@@ -65,11 +65,16 @@ $(document).ready(function() {
     });
 
     function addFile(fileName, fileId) {
+        if (findDuplicateRow(fileId)) {
+            return;
+        }
+
         node = result.row.add( [ '<span title="' + fileName + '">' + truncateString(fileName, 35) + '</span>', '', '', '', '', '<span class="status-text">In queue</span><button type="button" class="btn btn-link result-close" title="Close result"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button><button type="button" class="btn btn-link hidden" title="Reload result"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>' ] ).draw(false).node();
 
         // Add id
         resultId = 'result-' + result.row(node).index();
         $(node).prop('id', resultId);
+        $(node).addClass('fileId-' + fileId);
 
         // Add policy and display
         $(node).data('policy', $('.tab-content .active .policyList').val());
@@ -465,6 +470,19 @@ $(document).ready(function() {
 
     function truncateString(str, length) {
         return str.length > length ? str.substring(0, length) + '&hellip;' : str
+    }
+
+
+    function findDuplicateRow(fileId) {
+        findRows = 0;
+
+        result.$('tr.fileId-' + fileId).each(function () {
+            if ($(this).data('policy') == $('.tab-content .active .policyList').val()) {
+                findRows++;
+            }
+        });
+
+        return findRows;
     }
 
     // Remove all results blocks
