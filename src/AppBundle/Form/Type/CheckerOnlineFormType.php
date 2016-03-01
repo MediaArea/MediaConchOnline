@@ -32,15 +32,17 @@ class CheckerOnlineFormType extends AbstractType
                 'choices' => $this->em->getRepository('AppBundle:XslPolicyFile')->getUserAndSystemPolicies($this->user),
                 'placeholder' => 'Choose a policy',
                 'required' => false,
-                'label' => 'Policy')
+                'label' => 'Policy',
+                'attr' => array('class' => 'policyList'))
                 )
             ->add('display', 'entity', array('class' => 'AppBundle:DisplayFile',
                 'choices' => $this->em->getRepository('AppBundle:DisplayFile')->getUserAndSystemDisplays($this->user),
                 'placeholder' => 'Choose a display',
                 'required' => false,
-                'label' => 'Display')
+                'label' => 'Display',
+                'attr' => array('class' => 'displayList'))
                 )
-            ->add('file', 'url', array('max_length' => 512, 'label' => 'URL of file'))
+            ->add('file', 'url', array('attr' => array('pattern' => '.{10,512}'), 'label' => 'URL of file'))
             ->add('check', 'submit', array('attr' => array('class' => 'btn-warning'), 'label' => 'Check file'));
     }
 

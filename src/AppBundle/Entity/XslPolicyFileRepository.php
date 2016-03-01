@@ -26,4 +26,17 @@ class XslPolicyFileRepository extends EntityRepository
 
         return $list;
     }
+
+    public function findOneByUserOrSystem($policy, $user)
+    {
+        $query = $this->getEntityManager()->getRepository('AppBundle:XslPolicyFile')->createQueryBuilder('p')
+            ->where('p.id = :policyID AND p.user = :userID')
+            ->orWhere('p.id = :policyID AND p.user IS NULL')
+            ->setParameter('policyID', $policy)
+            ->setParameter('userID', $user)
+            ->setMaxResults(1)
+            ->getQuery();
+
+        return $query->getSingleResult();
+    }
 }

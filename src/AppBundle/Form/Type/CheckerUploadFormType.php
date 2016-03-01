@@ -32,13 +32,15 @@ class CheckerUploadFormType extends AbstractType
                 'choices' => $this->em->getRepository('AppBundle:XslPolicyFile')->getUserAndSystemPolicies($this->user),
                 'placeholder' => 'Choose a policy',
                 'required' => false,
-                'label' => 'Policy')
+                'label' => 'Policy',
+                'attr' => array('class' => 'policyList'))
                 )
             ->add('display', 'entity', array('class' => 'AppBundle:DisplayFile',
                 'choices' => $this->em->getRepository('AppBundle:DisplayFile')->getUserAndSystemDisplays($this->user),
                 'placeholder' => 'Choose a display',
                 'required' => false,
-                'label' => 'Display')
+                'label' => 'Display',
+                'attr' => array('class' => 'displayList'))
                 )
             ->add('file', 'file', array('label' => 'File (max ' . ini_get('upload_max_filesize') . ')'))
             ->add('check', 'submit', array('attr' => array('class' => 'btn-warning'), 'label' => 'Check file'));

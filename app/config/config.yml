@@ -109,8 +109,18 @@ vich_uploader:
             namer:              vich_uploader.namer_origname
             directory_namer:    mco.directory_namer.policy
 
+# FOSJsRoutingBundle
+fos_js_routing:
+    routes_to_expose: [ 'app_checker_checkerajaxform', 'app_checker_checkerstatus', 'app_checker_checkerimplemstatus', 'app_checker_checkerreport', 'app_checker_checkerdownloadreport', 'app_checker_checkerpolicystatus' ]
+
 services:
     twig.extension.text:
         class: Twig_Extensions_Extension_Text
         tags:
             - { name: twig.extension }
+
+app:
+    mediaconch:
+        address: 127.0.0.1
+        port: 4242
+        api_version: 1.2

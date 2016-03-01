@@ -79,6 +79,9 @@ footer .navbar {
     padding-bottom: 80px;
 }
 
+.content .col-lg-offset-1 {
+    margin-left: 4.16666667%;
+}
 
 .panel {
     background-color: #F5F5F5;
@@ -106,6 +109,11 @@ footer .navbar {
     font-size: inherit;
     padding: 0 0 0 10px;
     float: right;
+    border: 0px;
+}
+
+#result-table td p {
+    margin: 0;
 }
 
 .tab-pane {
@@ -121,7 +129,7 @@ footer .navbar {
     padding-right: 0;
 }
 
-.results-dld, .results-dld-trace, .results-dld-trace-ajax, .results-dld-info, .results-dld-info-ajax {
+.results-dld, .implem-dld, .policy-dld, .mi-dld, .mt-dld {
     margin-left: 10px;
 }
 
@@ -129,12 +137,8 @@ footer .navbar {
     font-family: monospace;
 }
 
-#checkerResultTitle h1 {
+#checkerResultTitle h2 {
     display: inline-block;
-}
-
-#checkerResultTitle .close {
-    margin-top: 40px;
 }
 
 #fos_user_registration_form .required:after, #fos_user_profile_form .required:after, #xslPolicyRule .required:after {
