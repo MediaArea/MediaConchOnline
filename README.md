@@ -49,7 +49,7 @@ All open source digital assets for the software developed by MediaArea during th
     * Optional packages for RedHat-like distributions : php-pecl-apc or php-opcache
     * date.timezone parameter should be set in your php.ini (both cli and apache module)
 * MySQL >= 5.1
-* [MediaConch-cli](https://mediaarea.net/MediaConch/download.html) >= 15.10 (depends on [libmediainfo >= 0.7.79](https://mediaarea.net/en/MediaInfo/Download) and [libzen >= 0.4.31](https://mediaarea.net/en/MediaInfo/Download)) 
+* [MediaConch-Server](https://mediaarea.net/MediaConch/download.html) >= 16.02 (depends on [libmediainfo >= 0.7.83](https://mediaarea.net/en/MediaInfo/Download) and [libzen >= 0.4.33](https://mediaarea.net/en/MediaInfo/Download)) 
 * [Composer](https://getcomposer.org/download/)
 
 ## Get MediaConchOnline sourcecode
@@ -63,7 +63,11 @@ git clone https://github.com/MediaArea/MediaConchOnline.git
 
 ### From tarball
 
-@TODO
+Download and extract tarball
+```
+wget "https://mediaarea.net/download/source/mediaconch/16.02/MediaConchOnline_16.02.tar.xz"
+tar -Jxf MediaConchOnline_16.02.tar.xz
+```
 
 ## Configure MediaConchOnline
 
@@ -82,12 +86,19 @@ GRANT ALL PRIVILEGES ON `YOUR_DATABASE` . * TO 'YOUR_USER'@'localhost';
 
 ### Project configuration
 
-Enter project directory and run composer to install dependencies and configure the project
+#### From git
+
+Enter project directory and run composer to install dependencies and configure the project (parameters are explained below)
 ```
 cd YOUR_PATH/MediaConchOnline/
 composer install
 ```
-Parameters :
+
+#### From tarball
+
+Edit the parameters (explanation below) in parameters.yml file : app/config/parameters.yml
+
+#### Parameters
 
 * database_driver (pdo_mysql): driver to access database server, leave blank to use MySQL
 * database_host (127.0.0.1): host of the database server, leave blank if the database server is on the same host than the web server
@@ -106,18 +117,18 @@ Parameters :
 
 You can change these parameters after by editing this file : app/config/parameters.yml
 
-__Create database tables__
+#### Create database tables
 
 ```
 app/console doctrine:schema:update --force
 ```
 
-__Add an admin user__
+#### Add an admin user
 ```
 app/console fos:user:create YOUR_ADMIN_USER YOUR_EMAIL@domain.com --super-admin
 ```
 
-__Create a directory to store user policies files and give it rights to apache user__
+#### Create a directory to store user policies files and give it rights to apache user
 ```
 mkdir files && sudo chown YOUR_APACHE_USER files
 ```
@@ -147,4 +158,17 @@ Add a vhost to access MediaConchOnline, like this minimal example :
 ```
 Allow apache user to write in cache and log directory, some methods are explain in [Symfony documentation](https://symfony.com/doc/current/book/installation.html#checking-symfony-application-configuration-and-setup)
 
+### MediaConch-Server
+
+To configure MediaConch-Server refer to the [config documentation](https://github.com/MediaArea/MediaConch_SourceCode/blob/master/Documentation/Config.md) and [server configuration](https://github.com/MediaArea/MediaConch_SourceCode/blob/master/Documentation/Daemon.md)
+
+Update MediaConchOnline confif according to your MediaConch-server config :
+```
+# app/config/config.yml
+app:
+    mediaconch:
+        address: 127.0.0.1
+        port: 4242
+        api_version: 1.2
+```
 
