@@ -169,6 +169,9 @@ $(document).ready(function() {
                                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> \
                                     <h4 class="modal-title">Implementation report</h4> \
                                 </div> \
+                                <div class="modal-header form-horizontal"> \
+                                    <div class="form-group"><label class="col-sm-2 control-label">Display</label><div class="col-sm-10"><select id="modalConformanceDisplay' + resultId + '"></select></div></div> \
+                                </div> \
                                 <div class="modal-body"></div> \
                                 <div class="modal-footer"> \
                                     <button type="button" class="btn btn-primary implem-dld" data-target="#modalConformance' + resultId + '" data-save-name="' + resultId + '_ImplementationReport.txt">Download implementation report</button> \
@@ -185,6 +188,18 @@ $(document).ready(function() {
                     $('#modalConformance' + resultId + ' .implem-dld').on('click', function(e) {
                         e.preventDefault();
                         window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'implem',  displayName: 'html'});
+                    });
+
+                    // Update report when display is changed
+                    displayList = $('.tab-content .active .displayList').clone();
+                    displayList.attr('id', 'modalConformanceDisplay' + resultId);
+                    displayList.find("option[value = '" + $(node).data('display') + "']").attr('selected', 'selected');
+                    $('#modalConformanceDisplay' + resultId).replaceWith(displayList);
+                    $('#modalConformanceDisplay' + resultId).on('change', function(e) {
+                        modalDisplay = $('#modalConformanceDisplay' + resultId).val();
+                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: modalDisplay}), function(data) {
+                            $('#modalConformance' + resultId + ' .modal-body').html(data.report);
+                        });
                     });
                 }
             });
@@ -235,6 +250,14 @@ $(document).ready(function() {
                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> \
                                 <h4 class="modal-title">Policy report</h4> \
                             </div> \
+                            <div class="modal-header form-horizontal"> \
+                                <div class="col-md-6"> \
+                                    <div class="form-group"><label class="col-sm-2 control-label">Display</label><div class="col-sm-10"><select id="modalPolicyDisplay' + resultId + '"></select></div></div> \
+                                </div> \
+                                <div class="col-md-6"> \
+                                    <div class="form-group"><label class="col-sm-2 control-label">Policy</label><div class="col-sm-10"><select id="modalPolicyPolicy' + resultId + '"></select></div></div> \
+                                </div> \
+                            </div> \
                             <div class="modal-body"></div> \
                             <div class="modal-footer"> \
                                 <button type="button" class="btn btn-primary policy-dld" data-target="#modalPolicy' + resultId + '" data-save-name="' + resultId + '_PolicyReport.txt">Download policy report</button> \
@@ -253,6 +276,32 @@ $(document).ready(function() {
                 $('#modalPolicy' + resultId + ' .policy-dld').on('click', function(e) {
                     e.preventDefault();
                     window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: $(node).data('policy'), display: $(node).data('display')});
+                });
+
+                // Update report when display is changed
+                displayList = $('.tab-content .active .displayList').clone();
+                displayList.attr('id', 'modalPolicyDisplay' + resultId);
+                displayList.find("option[value = '" + $(node).data('display') + "']").attr('selected', 'selected');
+                $('#modalPolicyDisplay' + resultId).replaceWith(displayList);
+                $('#modalPolicyDisplay' + resultId).on('change', function(e) {
+                    modalDisplay = $('#modalPolicyDisplay' + resultId).val();
+                    modalPolicy = $('#modalPolicyPolicy' + resultId).val();
+                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
+                        $('#modalPolicy' + resultId + ' .modal-body').html(data.report);
+                    });
+                });
+
+                // Update report when policy is changed
+                policyList = $('.tab-content .active .policyList').clone();
+                policyList.attr('id', 'modalPolicyPolicy' + resultId);
+                policyList.find("option[value = '" + $(node).data('policy') + "']").attr('selected', 'selected');
+                $('#modalPolicyPolicy' + resultId).replaceWith(policyList);
+                $('#modalPolicyPolicy' + resultId).on('change', function(e) {
+                    modalDisplay = $('#modalPolicyDisplay' + resultId).val();
+                    modalPolicy = $('#modalPolicyPolicy' + resultId).val();
+                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
+                        $('#modalPolicy' + resultId + ' .modal-body').html(data.report);
+                    });
                 });
             }
         });
