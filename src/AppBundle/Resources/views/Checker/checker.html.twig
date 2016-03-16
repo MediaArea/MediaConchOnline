@@ -21,8 +21,9 @@ MediaConch checker
             {% if formUpload is defined and formUpload %}
                 {% form_theme formUpload 'bootstrap_3_horizontal_layout.html.twig' %}
                 {{ form_start(formUpload) }}
-                <div class="col-md-6">{{ form_row(formUpload.policy) }}</div>
-                <div class="col-md-6">{{ form_row(formUpload.display) }}</div>
+                <div class="col-md-4">{{ form_row(formUpload.policy) }}</div>
+                <div class="col-md-4">{{ form_row(formUpload.display) }}</div>
+                <div class="col-md-4">{{ form_row(formUpload.verbosity) }}</div>
                 <div class="col-md-10">{{ form_row(formUpload.file) }}</div>
                 <div class="col-md-2">{{ form_row(formUpload.check) }}</div>
                 {{ form_end(formUpload) }}
@@ -34,8 +35,9 @@ MediaConch checker
             {% if formOnline is defined and formOnline %}
                 {% form_theme formOnline 'bootstrap_3_horizontal_layout.html.twig' %}
                 {{ form_start(formOnline) }}
-                <div class="col-md-6">{{ form_row(formOnline.policy) }}</div>
-                <div class="col-md-6">{{ form_row(formOnline.display) }}</div>
+                <div class="col-md-4">{{ form_row(formOnline.policy) }}</div>
+                <div class="col-md-4">{{ form_row(formOnline.display) }}</div>
+                <div class="col-md-4">{{ form_row(formOnline.verbosity) }}</div>
                 <div class="col-md-10">{{ form_row(formOnline.file) }}</div>
                 <div class="col-md-2">{{ form_row(formOnline.check) }}</div>
                 {{ form_end(formOnline) }}
@@ -47,8 +49,9 @@ MediaConch checker
             {% if formRepository is defined and formRepository %}
                 {% form_theme formRepository 'bootstrap_3_horizontal_layout.html.twig' %}
                 {{ form_start(formRepository) }}
-                <div class="col-md-6">{{ form_row(formRepository.policy) }}</div>
-                <div class="col-md-6">{{ form_row(formRepository.display) }}</div>
+                <div class="col-md-4">{{ form_row(formRepository.policy) }}</div>
+                <div class="col-md-4">{{ form_row(formRepository.display) }}</div>
+                <div class="col-md-4">{{ form_row(formRepository.verbosity) }}</div>
                 <div class="col-md-10"></div>
                 <div class="col-md-2">{{ form_widget(formRepository.check) }}</div>
                 {{ form_end(formRepository) }}

@@ -33,9 +33,9 @@ class MediaConchServer
         return $statusReponse;
     }
 
-    public function report($id, $report, $displayName, $display = null, $policy = null)
+    public function report($id, $report, $displayName, $display = null, $policy = null, $verbosity = -1)
     {
-        $request = array('REPORT' => array('ids' => array((int) $id), 'reports' => array($report)));
+        $request = array('REPORT' => array('ids' => array((int) $id), 'reports' => array($report), 'verbosity' => (int) $verbosity));
         if ($display && file_exists($display) && is_readable($display)) {
             $request['REPORT']['display_content'] = file_get_contents($display);
         }

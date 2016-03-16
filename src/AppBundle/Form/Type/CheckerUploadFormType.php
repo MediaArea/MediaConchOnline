@@ -42,6 +42,13 @@ class CheckerUploadFormType extends AbstractType
                 'label' => 'Display',
                 'attr' => array('class' => 'displayList'))
                 )
+            ->add('verbosity', 'choice', array('choices' => array('Default level' => -1, 0 => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5),
+                'choices_as_values' => true,
+                'placeholder' => false,
+                'required' => false,
+                'label' => 'Verbosity',
+                'attr' => array('class' => 'verbosityList'))
+                )
             ->add('file', 'file', array('label' => 'File (max ' . ini_get('upload_max_filesize') . ')'))
             ->add('check', 'submit', array('attr' => array('class' => 'btn-warning'), 'label' => 'Check file'));
     }

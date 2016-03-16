@@ -77,10 +77,11 @@ $(document).ready(function() {
         $(node).prop('id', resultId);
         $(node).addClass('fileId-' + fileId);
 
-        // Add policy and display
+        // Add policy, display and verbosity
         $(node).data('policy', $('.tab-content .active .policyList').val());
         $(node).data('policyName', $('.tab-content .active .policyList option:selected').text());
         $(node).data('display', $('.tab-content .active .displayList').val());
+        $(node).data('verbosity', $('.tab-content .active .verbosityList').val());
 
         // Change status class
         $(result.cell(node, 5).node()).addClass('info');
@@ -170,7 +171,12 @@ $(document).ready(function() {
                                     <h4 class="modal-title">Implementation report</h4> \
                                 </div> \
                                 <div class="modal-header form-horizontal"> \
-                                    <div class="form-group"><label class="col-sm-2 control-label">Display</label><div class="col-sm-10"><select id="modalConformanceDisplay' + resultId + '"></select></div></div> \
+                                    <div class="col-md-6"> \
+                                        <div class="form-group"><label class="col-sm-2 control-label">Display</label><div class="col-sm-10"><select id="modalConformanceDisplay' + resultId + '"></select></div></div> \
+                                    </div> \
+                                    <div class="col-md-6"> \
+                                        <div class="form-group"><label class="col-sm-2 control-label">Verbosity</label><div class="col-sm-10"><select id="modalConformanceVerbosity' + resultId + '"></select></div></div> \
+                                    </div> \
                                 </div> \
                                 <div class="modal-body"></div> \
                                 <div class="modal-footer"> \
@@ -181,14 +187,15 @@ $(document).ready(function() {
                         </div> \
                     </div>');
 
-                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: $(node).data('display')}), function(data) {
+                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')}), function(data) {
                         displayReport('#modalConformance' + resultId, data);
                     });
 
                     $('#modalConformance' + resultId + ' .implem-dld').on('click', function(e) {
                         e.preventDefault();
                         modalDisplay = $('#modalConformanceDisplay' + resultId).val();
-                        window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: modalDisplay});
+                        modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
+                        window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity});
                     });
 
                     // Update report when display is changed
@@ -198,7 +205,21 @@ $(document).ready(function() {
                     $('#modalConformanceDisplay' + resultId).replaceWith(displayList);
                     $('#modalConformanceDisplay' + resultId).on('change', function(e) {
                         modalDisplay = $('#modalConformanceDisplay' + resultId).val();
-                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: modalDisplay}), function(data) {
+                        modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
+                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
+                            displayReport('#modalConformance' + resultId, data);
+                        });
+                    });
+
+                    // Update report when verbosity is changed
+                    verbosityList = $('.tab-content .active .verbosityList').clone();
+                    verbosityList.attr('id', 'modalConformanceVerbosity' + resultId);
+                    verbosityList.find("option[value = '" + $(node).data('verbosity') + "']").attr('selected', 'selected');
+                    $('#modalConformanceVerbosity' + resultId).replaceWith(verbosityList);
+                    $('#modalConformanceVerbosity' + resultId).on('change', function(e) {
+                        modalDisplay = $('#modalConformanceDisplay' + resultId).val();
+                        modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
+                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
                             displayReport('#modalConformance' + resultId, data);
                         });
                     });
@@ -207,7 +228,7 @@ $(document).ready(function() {
 
             nodeImplem.find('.implem-dld').on('click', function(e) {
                 e.preventDefault();
-                window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: $(node).data('display')});
+                window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')});
             });
 
         });
