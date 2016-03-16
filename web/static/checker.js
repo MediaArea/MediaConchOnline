@@ -256,7 +256,9 @@ $(document).ready(function() {
         else {
             nodePolicy = $(result.cell('#' + resultId, 2).node());
             nodePolicy.addClass('info');
-            result.cell('#' + resultId, 2).data('N/A');
+            result.cell('#' + resultId, 2).data('N/A' + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a></p>');
+
+            policyModal(resultId, fileId, nodePolicy);
         }
     }
 
@@ -299,7 +301,9 @@ $(document).ready(function() {
                     e.preventDefault();
                     modalDisplay = $('#modalPolicyDisplay' + resultId).val();
                     modalPolicy = $('#modalPolicyPolicy' + resultId).val();
-                    window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay});
+                    if (modalPolicy) {
+                        window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay});
+                    }
                 });
 
                 // Update report when display is changed
@@ -310,9 +314,11 @@ $(document).ready(function() {
                 $('#modalPolicyDisplay' + resultId).on('change', function(e) {
                     modalDisplay = $('#modalPolicyDisplay' + resultId).val();
                     modalPolicy = $('#modalPolicyPolicy' + resultId).val();
-                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
+                    if (modalPolicy) {
+                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
                         displayReport('#modalPolicy' + resultId, data);
-                    });
+                        });
+                    }
                 });
 
                 // Update report when policy is changed
@@ -323,9 +329,11 @@ $(document).ready(function() {
                 $('#modalPolicyPolicy' + resultId).on('change', function(e) {
                     modalDisplay = $('#modalPolicyDisplay' + resultId).val();
                     modalPolicy = $('#modalPolicyPolicy' + resultId).val();
-                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
-                        displayReport('#modalPolicy' + resultId, data);
-                    });
+                    if (modalPolicy) {
+                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
+                            displayReport('#modalPolicy' + resultId, data);
+                        });
+                    }
                 });
             }
         });
