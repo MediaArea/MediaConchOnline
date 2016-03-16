@@ -187,7 +187,6 @@ class CheckerController extends Controller
             if ($display) {
                 $helper = $this->container->get('vich_uploader.storage');
                 $displayFile = $helper->resolvePath($display, 'displayFile');
-                $displayName = 'txt';
             }
         }
 

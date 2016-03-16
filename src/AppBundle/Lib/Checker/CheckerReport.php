@@ -33,7 +33,8 @@ class CheckerReport
 
     public function getResponseAsArray()
     {
-        return array('report' => $this->isHtmlReport() ? $this->getReport() : nl2br($this->getReport()),
+        return array('report' => $this->getReport(),
+            'isHtmlReport' => $this->isHtmlReport(),
             'error' => $this->response->getError(),
             );
     }
@@ -81,7 +82,7 @@ class CheckerReport
 
     public function getDownloadReportExtension()
     {
-        switch ($this->displayName) {
+        switch ($this->guessReportFormatType()) {
             case 'xml':
             case 'ma':
                 return 'xml';
@@ -100,7 +101,7 @@ class CheckerReport
 
     public function getDownloadReportMimeType()
     {
-        switch ($this->displayName) {
+        switch ($this->guessReportFormatType()) {
             case 'xml':
             case 'ma':
                 return 'text/xml';
@@ -120,6 +121,29 @@ class CheckerReport
     protected function isHtmlReport()
     {
         return preg_match('/<!doctype/i', $this->response->getReport());
+    }
+
+    protected function isXmlReport()
+    {
+        return preg_match('/<?xml/i', $this->response->getReport());
+    }
+
+    protected function guessReportFormatType()
+    {
+        if (null !== $this->displayName) {
+            return $this->displayName;
+        }
+
+        if ($this->isHtmlReport()) {
+            return 'html';
+        }
+        else if ($this->isXmlReport()) {
+            return 'xml';
+        }
+        else {
+            return null;
+        }
+
     }
 
     protected function getReportType()
