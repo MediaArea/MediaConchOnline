@@ -182,12 +182,13 @@ $(document).ready(function() {
                     </div>');
 
                     $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: $(node).data('display')}), function(data) {
-                        $('#modalConformance' + resultId + ' .modal-body').html(data.report);
+                        displayReport('#modalConformance' + resultId, data);
                     });
 
                     $('#modalConformance' + resultId + ' .implem-dld').on('click', function(e) {
                         e.preventDefault();
-                        window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'implem',  displayName: 'html'});
+                        modalDisplay = $('#modalConformanceDisplay' + resultId).val();
+                        window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: modalDisplay});
                     });
 
                     // Update report when display is changed
@@ -198,7 +199,7 @@ $(document).ready(function() {
                     $('#modalConformanceDisplay' + resultId).on('change', function(e) {
                         modalDisplay = $('#modalConformanceDisplay' + resultId).val();
                         $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: modalDisplay}), function(data) {
-                            $('#modalConformance' + resultId + ' .modal-body').html(data.report);
+                            displayReport('#modalConformance' + resultId, data);
                         });
                     });
                 }
@@ -206,7 +207,7 @@ $(document).ready(function() {
 
             nodeImplem.find('.implem-dld').on('click', function(e) {
                 e.preventDefault();
-                window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'implem',  displayName: 'html'});
+                window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: $(node).data('display')});
             });
 
         });
@@ -252,10 +253,10 @@ $(document).ready(function() {
                             </div> \
                             <div class="modal-header form-horizontal"> \
                                 <div class="col-md-6"> \
-                                    <div class="form-group"><label class="col-sm-2 control-label">Display</label><div class="col-sm-10"><select id="modalPolicyDisplay' + resultId + '"></select></div></div> \
+                                    <div class="form-group"><label class="col-sm-2 control-label">Policy</label><div class="col-sm-10"><select id="modalPolicyPolicy' + resultId + '"></select></div></div> \
                                 </div> \
                                 <div class="col-md-6"> \
-                                    <div class="form-group"><label class="col-sm-2 control-label">Policy</label><div class="col-sm-10"><select id="modalPolicyPolicy' + resultId + '"></select></div></div> \
+                                    <div class="form-group"><label class="col-sm-2 control-label">Display</label><div class="col-sm-10"><select id="modalPolicyDisplay' + resultId + '"></select></div></div> \
                                 </div> \
                             </div> \
                             <div class="modal-body"></div> \
@@ -269,13 +270,15 @@ $(document).ready(function() {
 
                 if ($(node).data('policy')) {
                     $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: $(node).data('policy'), display: $(node).data('display')}), function(data) {
-                        $('#modalPolicy' + resultId + ' .modal-body').html(data.report);
+                        displayReport('#modalPolicy' + resultId, data);
                     });
                 }
 
                 $('#modalPolicy' + resultId + ' .policy-dld').on('click', function(e) {
                     e.preventDefault();
-                    window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: $(node).data('policy'), display: $(node).data('display')});
+                    modalDisplay = $('#modalPolicyDisplay' + resultId).val();
+                    modalPolicy = $('#modalPolicyPolicy' + resultId).val();
+                    window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay});
                 });
 
                 // Update report when display is changed
@@ -287,7 +290,7 @@ $(document).ready(function() {
                     modalDisplay = $('#modalPolicyDisplay' + resultId).val();
                     modalPolicy = $('#modalPolicyPolicy' + resultId).val();
                     $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
-                        $('#modalPolicy' + resultId + ' .modal-body').html(data.report);
+                        displayReport('#modalPolicy' + resultId, data);
                     });
                 });
 
@@ -300,7 +303,7 @@ $(document).ready(function() {
                     modalDisplay = $('#modalPolicyDisplay' + resultId).val();
                     modalPolicy = $('#modalPolicyPolicy' + resultId).val();
                     $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
-                        $('#modalPolicy' + resultId + ' .modal-body').html(data.report);
+                        displayReport('#modalPolicy' + resultId, data);
                     });
                 });
             }
@@ -533,6 +536,17 @@ $(document).ready(function() {
         });
 
         return findRows;
+    }
+
+    // Display report in the modal
+    function displayReport(elemId, dataReport) {
+        if (dataReport.isHtmlReport) {
+            $(elemId + ' .modal-body').html(dataReport.report);
+        }
+        else {
+            $(elemId + ' .modal-body').html('<pre class="report-content">');
+            $(elemId + ' .report-content').text(dataReport.report);
+        }
     }
 
     // Remove all results blocks
