@@ -42,6 +42,13 @@ class CheckerRepositoryFormType extends AbstractType
                 'label' => 'Display',
                 'attr' => array('class' => 'displayList'))
                 )
+            ->add('verbosity', 'choice', array('choices' => array('Default level' => -1, 0 => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5),
+                'choices_as_values' => true,
+                'placeholder' => false,
+                'required' => false,
+                'label' => 'Verbosity',
+                'attr' => array('class' => 'verbosityList'))
+                )
             ->add('check', 'submit', array('attr' => array('class' => 'btn-warning'), 'label' => 'Check files'));
     }
 

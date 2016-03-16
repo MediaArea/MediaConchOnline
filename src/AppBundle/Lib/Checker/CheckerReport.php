@@ -18,7 +18,7 @@ class CheckerReport
         $this->mc = $mc;
     }
 
-    public function report($id, $report, $displayName, $display = null, $policy = null)
+    public function report($id, $report, $displayName, $display = null, $policy = null, $verbosity = -1)
     {
         $this->report = $report;
         if ($display && file_exists($display) && is_readable($display)) {
@@ -28,7 +28,7 @@ class CheckerReport
             $this->displayName = $displayName;
         }
 
-        $this->response = $this->mc->report($id, $this->getReportType(), $this->getDisplayName(), $display, $policy);
+        $this->response = $this->mc->report($id, $this->getReportType(), $this->getDisplayName(), $display, $policy, $verbosity);
     }
 
     public function getResponseAsArray()

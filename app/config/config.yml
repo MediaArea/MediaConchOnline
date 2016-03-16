@@ -123,4 +123,4 @@ app:
     mediaconch:
         address: 127.0.0.1
         port: 4242
-        api_version: 1.2
+        api_version: 1.3

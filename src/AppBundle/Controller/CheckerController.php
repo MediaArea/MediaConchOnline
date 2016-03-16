@@ -143,7 +143,7 @@ class CheckerController extends Controller
             $file->fileFromId($id);
 
             $report = $this->get('mco.checker.report');
-            $report->report($id, $reportType, $displayName, $displayFile, $policyFile);
+            $report->report($id, $reportType, $displayName, $displayFile, $policyFile, $request->query->get('verbosity'));
             $report->setFullPath(false, $file->getFilename(true));
 
             if (($reportType == 'mi' || $reportType == 'mt') && $displayName == 'jstree') {
@@ -194,7 +194,7 @@ class CheckerController extends Controller
         $file->fileFromId($id);
 
         $report = $this->get('mco.checker.report');
-        $report->report($id, $reportType, $displayName, $displayFile, $policyFile);
+        $report->report($id, $reportType, $displayName, $displayFile, $policyFile, $request->query->get('verbosity'));
         $report->setFullPath(false, $file->getFilename(true));
 
         $response = new Response($report->getReport());

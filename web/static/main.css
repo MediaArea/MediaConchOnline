@@ -125,7 +125,12 @@ footer .navbar {
     text-align: left;
 }
 
-#file div.col-md-10 label.col-sm-2 {
+#file label.col-sm-2, #url label.col-sm-2, #repository label.col-sm-2 {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+#file, #url, #repository {
     padding-right: 0;
 }
 
