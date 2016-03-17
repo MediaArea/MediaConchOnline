@@ -57,15 +57,14 @@ class CheckerController extends Controller
      */
     public function checkerStatusAction($id, Request $request)
     {
-        if ($request->isXmlHttpRequest()) {
-            $status = $this->get('mco.checker.status');
-            $status->getStatus($id);
-
-            return new JsonResponse($status->getResponseAsArray());
-        }
-        else {
+        if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
+
+        $status = $this->get('mco.checker.status');
+        $status->getStatus($id);
+
+        return new JsonResponse($status->getResponseAsArray());
     }
 
     /**
@@ -73,15 +72,14 @@ class CheckerController extends Controller
      */
     public function checkerImplemStatusAction($id, Request $request)
     {
-        if ($request->isXmlHttpRequest()) {
-            $validate = $this->get('mco.checker.validate');
-            $validate->validate($id, 'IMPLEMENTATION');
-
-            return new JsonResponse($validate->getResponseAsArray());
-        }
-        else {
+        if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
+
+        $validate = $this->get('mco.checker.validate');
+        $validate->validate($id, 'IMPLEMENTATION');
+
+        return new JsonResponse($validate->getResponseAsArray());
     }
 
     /**
@@ -89,26 +87,25 @@ class CheckerController extends Controller
      */
     public function checkerPolicyStatusAction($id, Request $request)
     {
-        if ($request->isXmlHttpRequest()) {
-            $policyFile = null;
-            if (ctype_digit($request->query->get('policy'))) {
-                $policy = $this->getDoctrine()
-                    ->getRepository('AppBundle:XslPolicyFile')
-                    ->findOneByUserOrSystem($request->query->get('policy'), $this->getUser());
-                if ($policy) {
-                    $helper = $this->container->get('vich_uploader.storage');
-                    $policyFile = $helper->resolvePath($policy, 'policyFile');
-                }
-            }
-
-            $validate = $this->get('mco.checker.validate');
-            $validate->validate($id, 'POLICY', $policyFile);
-
-            return new JsonResponse($validate->getResponseAsArray());
-        }
-        else {
+        if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
+
+        $policyFile = null;
+        if (ctype_digit($request->query->get('policy'))) {
+            $policy = $this->getDoctrine()
+                ->getRepository('AppBundle:XslPolicyFile')
+                ->findOneByUserOrSystem($request->query->get('policy'), $this->getUser());
+            if ($policy) {
+                $helper = $this->container->get('vich_uploader.storage');
+                $policyFile = $helper->resolvePath($policy, 'policyFile');
+            }
+        }
+
+        $validate = $this->get('mco.checker.validate');
+        $validate->validate($id, 'POLICY', $policyFile);
+
+        return new JsonResponse($validate->getResponseAsArray());
     }
 
     /**
@@ -116,45 +113,44 @@ class CheckerController extends Controller
      */
     public function checkerReportAction($id, $reportType, $displayName, Request $request)
     {
-        if ($request->isXmlHttpRequest()) {
-            $policyFile = null;
-            if (ctype_digit($request->query->get('policy'))) {
-                $policy = $this->getDoctrine()
-                    ->getRepository('AppBundle:XslPolicyFile')
-                    ->findOneByUserOrSystem($request->query->get('policy'), $this->getUser());
-               if ($policy) {
-                    $helper = $this->container->get('vich_uploader.storage');
-                    $policyFile = $helper->resolvePath($policy, 'policyFile');
-                }
-            }
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
 
-            $displayFile = null;
-            if (ctype_digit($request->query->get('display'))) {
-                $display = $this->getDoctrine()
-                    ->getRepository('AppBundle:DisplayFile')
-                    ->findOneByUserOrSystem($request->query->get('display'), $this->getUser());
-                if ($display) {
-                    $helper = $this->container->get('vich_uploader.storage');
-                    $displayFile = $helper->resolvePath($display, 'displayFile');
-                }
-            }
-
-            $file = $this->get('mco.checker.filename');
-            $file->fileFromId($id);
-
-            $report = $this->get('mco.checker.report');
-            $report->report($id, $reportType, $displayName, $displayFile, $policyFile, $request->query->get('verbosity'));
-            $report->setFullPath(false, $file->getFilename(true));
-
-            if (($reportType == 'mi' || $reportType == 'mt') && $displayName == 'jstree') {
-                return new Response($report->getReport());
-            }
-            else {
-                return new JsonResponse($report->getResponseAsArray());
+        $policyFile = null;
+        if (ctype_digit($request->query->get('policy'))) {
+            $policy = $this->getDoctrine()
+                ->getRepository('AppBundle:XslPolicyFile')
+                ->findOneByUserOrSystem($request->query->get('policy'), $this->getUser());
+            if ($policy) {
+                $helper = $this->container->get('vich_uploader.storage');
+                $policyFile = $helper->resolvePath($policy, 'policyFile');
             }
         }
+
+        $displayFile = null;
+        if (ctype_digit($request->query->get('display'))) {
+            $display = $this->getDoctrine()
+                ->getRepository('AppBundle:DisplayFile')
+                ->findOneByUserOrSystem($request->query->get('display'), $this->getUser());
+            if ($display) {
+                $helper = $this->container->get('vich_uploader.storage');
+                $displayFile = $helper->resolvePath($display, 'displayFile');
+            }
+        }
+
+        $file = $this->get('mco.checker.filename');
+        $file->fileFromId($id);
+
+        $report = $this->get('mco.checker.report');
+        $report->report($id, $reportType, $displayName, $displayFile, $policyFile, $request->query->get('verbosity'));
+        $report->setFullPath(false, $file->getFilename(true));
+
+        if (($reportType == 'mi' || $reportType == 'mt') && $displayName == 'jstree') {
+            return new Response($report->getReport());
+        }
         else {
-            throw new NotFoundHttpException();
+            return new JsonResponse($report->getResponseAsArray());
         }
     }
 

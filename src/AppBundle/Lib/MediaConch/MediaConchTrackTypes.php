@@ -19,12 +19,11 @@ class MediaConchTrackTypes extends MediaConch
 
         $process->run();
 
-        /* Comment until MC fix (return 255 instead of 0 for now)
         if ($process->isSuccessful()) {
             $this->success = true;
             $this->output = trim($process->getOutput());
         }
-        */
+
         $this->output = trim($process->getOutput());
 
         return $this;
