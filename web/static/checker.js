@@ -102,6 +102,9 @@ $(document).ready(function() {
                 if (!$(result.cell('#' + resultId, 5).node()).hasClass('success')) {
                     $.get(Routing.generate('app_checker_checkerstatus', { id: fileId }), function(data) {
                         if (data.finish) {
+                            // Report type
+                            $(node).data('tool', data.tool);
+
                             // Status
                             statusCell(resultId, fileId);
 
@@ -146,7 +149,7 @@ $(document).ready(function() {
     };
 
     function implementationCell(resultId, fileId) {
-        $.get(Routing.generate('app_checker_checkerimplemstatus', { id: fileId }), function(data) {
+        $.get(Routing.generate('app_checker_checkerreportstatus', { id: fileId, reportType: $(node).data('tool') }), function(data) {
             nodeImplem = $(result.cell('#' + resultId, 1).node());
             if (data.valid) {
                 nodeImplem.addClass('success');
@@ -187,7 +190,7 @@ $(document).ready(function() {
                         </div> \
                     </div>');
 
-                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')}), function(data) {
+                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: $(node).data('tool'),  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')}), function(data) {
                         displayReport('#modalConformance' + resultId, data);
                     });
 
@@ -195,7 +198,7 @@ $(document).ready(function() {
                         e.preventDefault();
                         modalDisplay = $('#modalConformanceDisplay' + resultId).val();
                         modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
-                        window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity});
+                        window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: $(node).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity});
                     });
 
                     // Update report when display is changed
@@ -206,7 +209,7 @@ $(document).ready(function() {
                     $('#modalConformanceDisplay' + resultId).on('change', function(e) {
                         modalDisplay = $('#modalConformanceDisplay' + resultId).val();
                         modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
-                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
+                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: $(node).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
                             displayReport('#modalConformance' + resultId, data);
                         });
                     });
@@ -219,46 +222,58 @@ $(document).ready(function() {
                     $('#modalConformanceVerbosity' + resultId).on('change', function(e) {
                         modalDisplay = $('#modalConformanceDisplay' + resultId).val();
                         modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
-                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
+                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: $(node).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
                             displayReport('#modalConformance' + resultId, data);
                         });
                     });
+
+                    if (2 != $(node).data('tool')) {
+                        $('#modalConformance' + resultId + ' .modal-header.form-horizontal').hide();
+                    }
                 }
             });
 
             nodeImplem.find('.implem-dld').on('click', function(e) {
                 e.preventDefault();
-                window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'implem',  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')});
+                window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: $(node).data('tool'),  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')});
             });
 
         });
     }
 
     function policyCell(resultId, fileId) {
-        if ($(node).data('policy')) {
-            $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: $(node).data('policy') }), function(data) {
-                nodePolicy = $(result.cell('#' + resultId, 2).node());
-                if (data.valid) {
-                    nodePolicy.addClass('success');
-                    policyResultText = '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> '
-                }
-                else {
-                    nodePolicy.addClass('danger');
-                    policyResultText = '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> ';
-                }
-                policyResultText += '<span title="' + $(node).data('policyName') + '">' + truncateString($(node).data('policyName'), 25) + '</span>';
+        if (2 == $(node).data('tool')) {
+            if ($(node).data('policy')) {
+                $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: $(node).data('policy') }), function(data) {
+                    nodePolicy = $(result.cell('#' + resultId, 2).node());
+                    if (data.valid) {
+                        nodePolicy.addClass('success');
+                        policyResultText = '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> '
+                    }
+                    else {
+                        nodePolicy.addClass('danger');
+                        policyResultText = '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> ';
+                    }
+                    policyResultText += '<span title="' + $(node).data('policyName') + '">' + truncateString($(node).data('policyName'), 25) + '</span>';
 
-                result.cell('#' + resultId, 2).data(policyResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" data-target="#modalPolicy' + resultId + '" data-save-name="' + resultId + '_PolicyReport.txt" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
+                    result.cell('#' + resultId, 2).data(policyResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" data-target="#modalPolicy' + resultId + '" data-save-name="' + resultId + '_PolicyReport.txt" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
+
+                    policyModal(resultId, fileId, nodePolicy);
+                });
+            }
+            else {
+                nodePolicy = $(result.cell('#' + resultId, 2).node());
+                nodePolicy.addClass('info');
+                result.cell('#' + resultId, 2).data('N/A' + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a></p>');
 
                 policyModal(resultId, fileId, nodePolicy);
-            });
+            }
+
         }
         else {
             nodePolicy = $(result.cell('#' + resultId, 2).node());
             nodePolicy.addClass('info');
-            result.cell('#' + resultId, 2).data('N/A' + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a></p>');
-
-            policyModal(resultId, fileId, nodePolicy);
+            result.cell('#' + resultId, 2).data('N/A');
         }
     }
 

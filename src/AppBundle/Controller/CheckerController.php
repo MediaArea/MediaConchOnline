@@ -68,16 +68,16 @@ class CheckerController extends Controller
     }
 
     /**
-     * @Route("/checkerImplemStatus/{id}", requirements={"id": "\d+"})
+     * @Route("/checkerReportStatus/{id}/{reportType}", requirements={"id": "\d+", "reportType"})
      */
-    public function checkerImplemStatusAction($id, Request $request)
+    public function checkerReportStatusAction($id, $reportType, Request $request)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
         $validate = $this->get('mco.checker.validate');
-        $validate->validate($id, 'IMPLEMENTATION');
+        $validate->validate($id, $reportType);
 
         return new JsonResponse($validate->getResponseAsArray());
     }

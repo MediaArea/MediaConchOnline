@@ -22,6 +22,7 @@ class CheckerStatus
     {
         return array('finish' => $this->response->getFinish(),
             'percent' => $this->response->getPercent(),
+            'tool' => $this->response->getTool(),
             'error' => $this->response->getError(),
             );
     }
