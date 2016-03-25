@@ -103,7 +103,7 @@ $(document).ready(function() {
                     $.get(Routing.generate('app_checker_checkerstatus', { id: fileId }), function(data) {
                         if (data.finish) {
                             // Report type
-                            $(node).data('tool', data.tool);
+                            result.$('#' + resultId).data('tool', data.tool);
 
                             // Status
                             statusCell(resultId, fileId);
@@ -149,7 +149,7 @@ $(document).ready(function() {
     };
 
     function implementationCell(resultId, fileId) {
-        $.get(Routing.generate('app_checker_checkerreportstatus', { id: fileId, reportType: $(node).data('tool') }), function(data) {
+        $.get(Routing.generate('app_checker_checkerreportstatus', { id: fileId, reportType: result.$('#' + resultId).data('tool') }), function(data) {
             nodeImplem = $(result.cell('#' + resultId, 1).node());
             if (data.valid) {
                 nodeImplem.addClass('success');
@@ -190,7 +190,7 @@ $(document).ready(function() {
                         </div> \
                     </div>');
 
-                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: $(node).data('tool'),  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')}), function(data) {
+                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')}), function(data) {
                         displayReport('#modalConformance' + resultId, data);
                     });
 
@@ -198,7 +198,7 @@ $(document).ready(function() {
                         e.preventDefault();
                         modalDisplay = $('#modalConformanceDisplay' + resultId).val();
                         modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
-                        window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: $(node).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity});
+                        window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity});
                     });
 
                     // Update report when display is changed
@@ -209,7 +209,7 @@ $(document).ready(function() {
                     $('#modalConformanceDisplay' + resultId).on('change', function(e) {
                         modalDisplay = $('#modalConformanceDisplay' + resultId).val();
                         modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
-                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: $(node).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
+                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
                             displayReport('#modalConformance' + resultId, data);
                         });
                     });
@@ -222,12 +222,12 @@ $(document).ready(function() {
                     $('#modalConformanceVerbosity' + resultId).on('change', function(e) {
                         modalDisplay = $('#modalConformanceDisplay' + resultId).val();
                         modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
-                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: $(node).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
+                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
                             displayReport('#modalConformance' + resultId, data);
                         });
                     });
 
-                    if (2 != $(node).data('tool')) {
+                    if (2 != result.$('#' + resultId).data('tool')) {
                         $('#modalConformance' + resultId + ' .modal-header.form-horizontal').hide();
                     }
                 }
@@ -235,7 +235,7 @@ $(document).ready(function() {
 
             nodeImplem.find('.implem-dld').on('click', function(e) {
                 e.preventDefault();
-                window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: $(node).data('tool'),  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')});
+                window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')});
             });
 
         });
