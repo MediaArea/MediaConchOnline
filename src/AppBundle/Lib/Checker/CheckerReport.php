@@ -28,6 +28,11 @@ class CheckerReport
             $this->displayName = $displayName;
         }
 
+        // Force XML report for VERAPDF and DPFMANAGER
+        if (in_array($this->report, array(5, 6))) {
+            $this->displayName = 'xml';
+        }
+
         $this->response = $this->mc->report($id, $this->getReportType(), $this->getDisplayName(), $display, $policy, $verbosity);
     }
 
@@ -149,7 +154,7 @@ class CheckerReport
     protected function getReportType()
     {
         switch ($this->report) {
-            case 'implem':
+            case '2':
                 return 'IMPLEMENTATION';
                 break;
             case 'policy':
@@ -160,6 +165,12 @@ class CheckerReport
                 break;
             case 'mt':
                 return 'MEDIATRACE';
+                break;
+            case '5':
+                return 'VERAPDF';
+                break;
+            case '6':
+                return 'DPFMANAGER';
                 break;
             default:
                 return 'NO_REPORT';
