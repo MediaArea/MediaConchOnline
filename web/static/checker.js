@@ -242,7 +242,7 @@ $(document).ready(function() {
     }
 
     function policyCell(resultId, fileId) {
-        if (2 == $(node).data('tool')) {
+        if (2 == result.$('#' + resultId).data('tool')) {
             if ($(node).data('policy')) {
                 $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: $(node).data('policy') }), function(data) {
                     nodePolicy = $(result.cell('#' + resultId, 2).node());
