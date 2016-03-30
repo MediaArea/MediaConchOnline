@@ -5,6 +5,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Validator\Constraints\File;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\EntityManager;
 
@@ -49,7 +50,7 @@ class CheckerUploadFormType extends AbstractType
                 'label' => 'Verbosity',
                 'attr' => array('class' => 'verbosityList'))
                 )
-            ->add('file', 'file', array('label' => 'File (max ' . ini_get('upload_max_filesize') . ')'))
+            ->add('file', 'file', array('label' => 'File (max ' . ini_get('upload_max_filesize') . ')', 'constraints' => array(new File(array('maxSize' => ini_get('upload_max_filesize')))), 'attr' => array('data-file-max-size' => ini_get('upload_max_filesize'))))
             ->add('check', 'submit', array('attr' => array('class' => 'btn-warning'), 'label' => 'Check file'));
     }
 
