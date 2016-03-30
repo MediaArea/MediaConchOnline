@@ -242,6 +242,10 @@ class CheckerController extends Controller
                         return new JsonResponse($response, 200);
                     }
                 }
+                else {
+                    return new JsonResponse(array('message', 'Error'), 400);
+                }
+
             }
         }
 
@@ -259,6 +263,9 @@ class CheckerController extends Controller
                     $this->get('mediaconch_user.quotas')->hitUrls();
 
                     return new JsonResponse($response, 200);
+                }
+                else {
+                    return new JsonResponse(array('message', 'Error'), 400);
                 }
             }
         }
@@ -283,6 +290,9 @@ class CheckerController extends Controller
                         $this->get('mediaconch_user.quotas')->hitPolicyChecks(count($finder));
 
                         return new JsonResponse($response, 200);
+                    }
+                    else {
+                        return new JsonResponse(array('message', 'Error'), 400);
                     }
                 }
             }

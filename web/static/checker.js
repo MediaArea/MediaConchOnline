@@ -15,6 +15,18 @@ $(document).ready(function() {
     // Upload form
     $('#file form').on('submit', function (e) {
         e.preventDefault();
+
+        // Check file size
+        if ( window.File )
+        {
+            uploadFiles = $(this).find(':file');
+
+            if (uploadFiles[0].files[0].size > humanSizeToBytes(uploadFiles.data('file-max-size'))) {
+                errorMessage('The file is too big (max ' + uploadFiles.data('file-max-size')  + ')');
+                return;
+            }
+        }
+
         $.ajax({
             type: $(this).attr('method'),
                 url: Routing.generate('app_checker_checkerajaxform'),
@@ -25,7 +37,11 @@ $(document).ready(function() {
         .done(function (data) {
             if (data.success) {
                 addFile(data.filename, data.transactionId);
+                successMessage('File added successfuly');
             };
+        })
+        .fail(function () {
+            errorMessage('An error has occured, please try again later');
         })
     });
 
@@ -42,7 +58,11 @@ $(document).ready(function() {
         .done(function (data) {
             if (data.success) {
                 addFile(data.filename, data.transactionId);
+                successMessage('File added successfuly');
             };
+        })
+        .fail(function () {
+            errorMessage('An error has occured, please try again later');
         })
     });
 
@@ -62,6 +82,10 @@ $(document).ready(function() {
                     addFile(value.filename, value.transactionId);
                 };
             });
+            successMessage('Files added successfuly');
+        })
+        .fail(function () {
+            errorMessage('An error has occured, please try again later');
         })
     });
 
@@ -616,4 +640,31 @@ $(document).ready(function() {
             });
         };
     });
+
+    // Display success message
+    function successMessage(message) {
+        $('#checkerInfo div').replaceWith('<div class="alert alert-success">' + message + '</div>');
+        $('#checkerInfo div').delay(5000).fadeOut();
+    }
+
+    // Display error message
+    function errorMessage(message) {
+        $('#checkerInfo div').replaceWith('<div class="alert alert-danger">' + message + '</div>')
+        $('#checkerInfo div').delay(10000).fadeOut();
+    }
+
+    // Convert human readable size to bytes
+    function humanSizeToBytes(size) {
+        var powers = {'k': 1, 'm': 2, 'g': 3, 't': 4};
+        var regex = /(\d+(?:\.\d+)?)\s?(k|m|g|t)?b?/i;
+
+        var res = regex.exec(size);
+
+        if (res[2] !== undefined) {
+            return res[1] * Math.pow(1024, powers[res[2].toLowerCase()]);
+        }
+        else {
+            return size;
+        }
+    }
 });
