@@ -20,7 +20,7 @@ This repository hosts the source code for MediaConch, the GUI.
 This is the source code for MediaConchOnline, the online version of the MediaConch shell.
 
 #### [MediaConch-Website](https://github.com/MediaArea/MediaConch-Website)
-This is the repository for content hosted on [https://mediaarea.net/MediaConch/](https://mediaarea.net/MediaConch/). 
+This is the repository for content hosted on [https://mediaarea.net/MediaConch/](https://mediaarea.net/MediaConch/).
 
 #### [MediaAreaXml](https://github.com/MediaArea/MediaAreaXml)
 This repository holds XSD (XML Schema Definitions) for MediaConch, MediaInfo, and MediaTrace.
@@ -49,7 +49,7 @@ All open source digital assets for the software developed by MediaArea during th
     * Optional packages for RedHat-like distributions : php-pecl-apc or php-opcache
     * date.timezone parameter should be set in your php.ini (both cli and apache module)
 * MySQL >= 5.1
-* [MediaConch-Server](https://mediaarea.net/MediaConch/download.html) >= 16.02 (depends on [libmediainfo >= 0.7.83](https://mediaarea.net/en/MediaInfo/Download) and [libzen >= 0.4.33](https://mediaarea.net/en/MediaInfo/Download)) 
+* [MediaConch-Server](https://mediaarea.net/MediaConch/download.html) >= 16.03 (depends on [libmediainfo >= 0.7.84](https://mediaarea.net/en/MediaInfo/Download) and [libzen >= 0.4.33](https://mediaarea.net/en/MediaInfo/Download))
 * [Composer](https://getcomposer.org/download/)
 
 ## Get MediaConchOnline sourcecode
@@ -65,8 +65,8 @@ git clone https://github.com/MediaArea/MediaConchOnline.git
 
 Download and extract tarball
 ```
-wget "https://mediaarea.net/download/source/mediaconch/16.02/MediaConchOnline_16.02.tar.xz"
-tar -Jxf MediaConchOnline_16.02.tar.xz
+wget "https://mediaarea.net/download/source/mediaconch/16.03/MediaConchOnline_16.03.tar.xz"
+tar -Jxf MediaConchOnline_16.03.tar.xz
 ```
 
 ## Configure MediaConchOnline
@@ -169,6 +169,6 @@ app:
     mediaconch:
         address: 127.0.0.1
         port: 4242
-        api_version: 1.2
+        api_version: 1.3
 ```
 
