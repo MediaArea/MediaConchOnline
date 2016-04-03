@@ -44,7 +44,7 @@ All open source digital assets for the software developed by MediaArea during th
 * Apache web server >= 2.2 (should also work on nginx and lighttpd)
     * mod rewrite is recommended
 * Php >= 5.4
-    * Mandatory packages for debian-like distributions : libapache2-mod-php5, php5-cli, php5-intl, php5-mysqlnd
+    * Mandatory packages for debian-like distributions : libapache2-mod-php5, php5-cli, php5-intl, php5-mysqlnd, php5-curl
     * Mandatory packages for RedHat-like distributions : php, php-cli, php-intl, php-mbstring, php-mysql, php-pdo, php-process, php-xml
     * Optional packages for RedHat-like distributions : php-pecl-apc or php-opcache
     * date.timezone parameter should be set in your php.ini (both cli and apache module)
@@ -156,7 +156,7 @@ Add a vhost to access MediaConchOnline, like this minimal example :
 </VirtualHost>
 
 ```
-Allow apache user to write in cache and log directory, some methods are explain in [Symfony documentation](https://symfony.com/doc/current/book/installation.html#checking-symfony-application-configuration-and-setup)
+Allow apache user to write in cache and log directory, some methods are explain in [Symfony documentation](https://symfony.com/doc/2.7/book/installation.html#checking-symfony-application-configuration-and-setup)
 
 ### MediaConch-Server
 
