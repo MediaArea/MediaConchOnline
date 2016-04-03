@@ -103,7 +103,7 @@ class CheckerController extends Controller
         }
 
         $validate = $this->get('mco.checker.validate');
-        $validate->validate($id, 'POLICY', $policyFile);
+        $validate->validate($id, 1, $policyFile);
 
         return new JsonResponse($validate->getResponseAsArray());
     }

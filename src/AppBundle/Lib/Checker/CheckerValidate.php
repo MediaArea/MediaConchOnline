@@ -34,6 +34,9 @@ class CheckerValidate
             case '6':
                 return 'DPFMANAGER';
                 break;
+            case '1':
+                return 'POLICY';
+                break;
             case '2':
             default:
                 return 'IMPLEMENTATION';
