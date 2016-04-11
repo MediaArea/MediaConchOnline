@@ -357,6 +357,9 @@ $(document).ready(function() {
                         displayReport('#modalPolicy' + resultId, data);
                         });
                     }
+                    else {
+                        $('#modalPolicy' + resultId + ' .modal-body').empty('');
+                    }
                 });
 
                 // Update report when policy is changed
@@ -371,6 +374,9 @@ $(document).ready(function() {
                         $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
                             displayReport('#modalPolicy' + resultId, data);
                         });
+                    }
+                    else {
+                        $('#modalPolicy' + resultId + ' .modal-body').empty('');
                     }
                 });
             }
