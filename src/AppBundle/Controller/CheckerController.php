@@ -215,12 +215,12 @@ class CheckerController extends Controller
             throw new NotFoundHttpException();
         }
 
-        if ($this->get('mediaconch_user.quotas')->hasUploadsRights()) {
-            $formUpload = $this->createForm('checkerUpload');
-            $formUpload->handleRequest($request);
-
-            if (null !== $data = $formUpload->getData()) {
+        $formUpload = $this->createForm('checkerUpload');
+        $formUpload->handleRequest($request);
+        if ($formUpload->isSubmitted()) {
+            if ($this->get('mediaconch_user.quotas')->hasUploadsRights()) {
                 if ($formUpload->isValid()) {
+                    $data = $formUpload->getData();
                     if ($data['file']->isValid()) {
                         $path = $this->container->getParameter('kernel.root_dir').'/../files/upload/' . $this->getUser()->getId();
                         $filename =  $data['file']->getClientOriginalName();
@@ -243,19 +243,21 @@ class CheckerController extends Controller
                     }
                 }
                 else {
-                    return new JsonResponse(array('message', 'Error'), 400);
+                    return new JsonResponse(array('message' => 'Error'), 400);
                 }
-
+            }
+            else {
+                return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
             }
         }
 
-        if ($this->get('mediaconch_user.quotas')->hasUrlsRights()) {
-            $formOnline = $this->createForm('checkerOnline');
-            $formOnline->handleRequest($request);
+        $formOnline = $this->createForm('checkerOnline');
+        $formOnline->handleRequest($request);
 
-            if (null !== $data = $formOnline->getData()) {
+        if ($formOnline->isSubmitted()) {
+            if ($this->get('mediaconch_user.quotas')->hasUrlsRights()) {
                 if ($formOnline->isValid()) {
-
+                    $data = $formOnline->getData();
                     $checks = $this->get('mco.checker.analyze');
                     $checks->analyse(str_replace(' ', '%20', $data['file']));
                     $response = $checks->getResponseAsArray();
@@ -265,18 +267,22 @@ class CheckerController extends Controller
                     return new JsonResponse($response, 200);
                 }
                 else {
-                    return new JsonResponse(array('message', 'Error'), 400);
+                    return new JsonResponse(array('message' => 'Error'), 400);
                 }
+            }
+            else {
+                return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
             }
         }
 
         if (null != $this->container->getParameter('mco_check_folder') && file_exists($this->container->getParameter('mco_check_folder'))) {
-            if ($this->get('mediaconch_user.quotas')->hasPolicyChecksRights()) {
-                $formRepository = $this->createForm('checkerRepository');
-                $formRepository->handleRequest($request);
+            $formRepository = $this->createForm('checkerRepository');
+            $formRepository->handleRequest($request);
 
-                if (null !== $data = $formRepository->getData()) {
+            if ($formRepository->isSubmitted()) {
+                if ($this->get('mediaconch_user.quotas')->hasPolicyChecksRights()) {
                     if ($formRepository->isValid()) {
+                        $data = $formRepository->getData();
                         $response = array();
 
                         $finder = new Finder();
@@ -292,10 +298,15 @@ class CheckerController extends Controller
                         return new JsonResponse($response, 200);
                     }
                     else {
-                        return new JsonResponse(array('message', 'Error'), 400);
+                        return new JsonResponse(array('message' => 'Error'), 400);
                     }
+                }
+                else {
+                    return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
                 }
             }
         }
+
+        return new JsonResponse(array('message' => 'No form selected'), 400);
     }
 }
