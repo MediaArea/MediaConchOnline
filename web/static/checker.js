@@ -40,8 +40,8 @@ $(document).ready(function() {
                 successMessage('File added successfuly');
             };
         })
-        .fail(function () {
-            errorMessage('An error has occured, please try again later');
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, 'file');
         })
     });
 
@@ -61,8 +61,8 @@ $(document).ready(function() {
                 successMessage('File added successfuly');
             };
         })
-        .fail(function () {
-            errorMessage('An error has occured, please try again later');
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, 'url');
         })
     });
 
@@ -84,8 +84,8 @@ $(document).ready(function() {
             });
             successMessage('Files added successfuly');
         })
-        .fail(function () {
-            errorMessage('An error has occured, please try again later');
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, 'repository');
         })
     });
 
@@ -137,7 +137,6 @@ $(document).ready(function() {
 
                             // Policy
                             policyCell(resultId, fileId);
-
 
                             // MediaInfo
                             mediaInfoCell(resultId, fileId);
@@ -651,6 +650,34 @@ $(document).ready(function() {
     function errorMessage(message) {
         $('#checkerInfo div').replaceWith('<div class="alert alert-danger">' + message + '</div>')
         $('#checkerInfo div').delay(10000).fadeOut();
+    }
+
+    // Handle fail ajax response
+    function failResponse(jqXHR, formType) {
+        if (typeof jqXHR.responseJSON !== 'undefined') {
+            if (jqXHR.responseJSON.hasOwnProperty('quota')) {
+                $('#' + formType).html(jqXHR.responseJSON.quota);
+            }
+            else if ('file' == formType) {
+                uploadFiles = $('#file form :file');
+                errorMessage('The file is too big (max ' + uploadFiles.data('file-max-size')  + ')');
+            }
+            else if (jqXHR.responseJSON.hasOwnProperty('message')) {
+                errorMessage(jqXHR.responseJSON.message);
+            }
+            else {
+                errorMessage('An error has occured, please try again later');
+            }
+        }
+        else {
+            if ('file' == formType && 400 == jqXHR.status) {
+                uploadFiles = $('#file form :file');
+                errorMessage('The file is too big (max ' + uploadFiles.data('file-max-size')  + ')');
+            }
+            else {
+                errorMessage('An error has occured, please try again later');
+            }
+        }
     }
 
     // Convert human readable size to bytes
