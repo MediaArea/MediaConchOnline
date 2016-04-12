@@ -10,16 +10,19 @@ MediaConch checker
 <div class="col-md-12">
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="{% if selectForm == 'upload' %}active{% endif %}"><a href="#file" aria-controls="file" role="tab" data-toggle="tab">Check by file upload</a></li>
-        <li role="presentation" class="{% if selectForm == 'online' %}active{% endif %}"><a href="#url" aria-controls="url" role="tab" data-toggle="tab">Check online files</a></li>
-        <li role="presentation" class="{% if selectForm == 'repository' or not selectForm %}active{% endif %}"><a href="#repository" aria-controls="repository" role="tab" data-toggle="tab">Check server files</a></li>
+        <li role="presentation"><a href="#file" aria-controls="file" role="tab" data-toggle="tab">Check by file upload</a></li>
+        <li role="presentation" class="{% if repositoryEnable is not defined or not repositoryEnable %}active{% endif %}"><a href="#url" aria-controls="url" role="tab" data-toggle="tab">Check online files</a></li>
+        {% if repositoryEnable is defined and repositoryEnable %}
+            <li role="presentation" class="active"><a href="#repository" aria-controls="repository" role="tab" data-toggle="tab">Check server files</a></li>
+        {% endif %}
     </ul>
 
     <!-- Tab panes -->
     <div class="tab-content">
-        <div role="tabpanel" class="tab-pane panel col-md-12{% if selectForm == 'upload' %} active{% endif %}" id="file">
+        <div role="tabpanel" class="tab-pane panel col-md-12" id="file">
             {% if formUpload is defined and formUpload %}
                 {% form_theme formUpload 'bootstrap_3_horizontal_layout.html.twig' %}
+                {% form_theme formUpload.verbosity 'AppBundle:Form:verbosity_row.html.twig' %}
                 {{ form_start(formUpload) }}
                 <div class="col-md-4">{{ form_row(formUpload.policy) }}</div>
                 <div class="col-md-4">{{ form_row(formUpload.display) }}</div>
@@ -31,9 +34,10 @@ MediaConch checker
                 {{ include('AppBundle:Default:quotaExceeded.html.twig') }}
             {% endif %}
         </div>
-        <div role="tabpanel" class="tab-pane panel col-md-12{% if selectForm == 'online' %} active{% endif %}" id="url">
+        <div role="tabpanel" class="tab-pane panel col-md-12{% if repositoryEnable is not defined or not repositoryEnable %} active{% endif %}" id="url">
             {% if formOnline is defined and formOnline %}
                 {% form_theme formOnline 'bootstrap_3_horizontal_layout.html.twig' %}
+                {% form_theme formOnline.verbosity 'AppBundle:Form:verbosity_row.html.twig' %}
                 {{ form_start(formOnline) }}
                 <div class="col-md-4">{{ form_row(formOnline.policy) }}</div>
                 <div class="col-md-4">{{ form_row(formOnline.display) }}</div>
@@ -45,20 +49,23 @@ MediaConch checker
                 {{ include('AppBundle:Default:quotaExceeded.html.twig') }}
             {% endif %}
         </div>
-        <div role="tabpanel" class="tab-pane panel col-md-12{% if selectForm == 'repository' or not selectForm %} active{% endif %}" id="repository">
-            {% if formRepository is defined and formRepository %}
-                {% form_theme formRepository 'bootstrap_3_horizontal_layout.html.twig' %}
-                {{ form_start(formRepository) }}
-                <div class="col-md-4">{{ form_row(formRepository.policy) }}</div>
-                <div class="col-md-4">{{ form_row(formRepository.display) }}</div>
-                <div class="col-md-4">{{ form_row(formRepository.verbosity) }}</div>
-                <div class="col-md-10"></div>
-                <div class="col-md-2">{{ form_widget(formRepository.check) }}</div>
-                {{ form_end(formRepository) }}
-            {% elseif repositoryEnable is defined and repositoryEnable %}
-                {{ include('AppBundle:Default:quotaExceeded.html.twig') }}
-            {% endif %}
-        </div>
+        {% if repositoryEnable is defined and repositoryEnable %}
+            <div role="tabpanel" class="tab-pane panel col-md-12 active" id="repository">
+                {% if formRepository is defined and formRepository %}
+                    {% form_theme formRepository 'bootstrap_3_horizontal_layout.html.twig' %}
+                    {% form_theme formRepository.verbosity 'AppBundle:Form:verbosity_row.html.twig' %}
+                    {{ form_start(formRepository) }}
+                    <div class="col-md-4">{{ form_row(formRepository.policy) }}</div>
+                    <div class="col-md-4">{{ form_row(formRepository.display) }}</div>
+                    <div class="col-md-4">{{ form_row(formRepository.verbosity) }}</div>
+                    <div class="col-md-10"></div>
+                    <div class="col-md-2">{{ form_row(formRepository.check) }}</div>
+                    {{ form_end(formRepository) }}
+                {% else %}
+                    {{ include('AppBundle:Default:quotaExceeded.html.twig') }}
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
 </div>
 

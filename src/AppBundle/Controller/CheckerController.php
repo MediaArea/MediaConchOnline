@@ -25,8 +25,6 @@ class CheckerController extends Controller
      */
     public function checkerAction(Request $request)
     {
-        $selectForm = false;
-
         if ($this->get('mediaconch_user.quotas')->hasUploadsRights()) {
             $formUpload = $this->createForm('checkerUpload');
         }
@@ -48,8 +46,7 @@ class CheckerController extends Controller
         return array('formUpload' => isset($formUpload) ? $formUpload->createView() : false,
             'formOnline' => isset($formOnline) ? $formOnline->createView() : false,
             'formRepository' => isset($formRepository) ? $formRepository->createView() : false,
-            'repositoryEnable' => $repositoryEnable,
-            'selectForm' => $selectForm);
+            'repositoryEnable' => $repositoryEnable);
     }
 
     /**
@@ -259,6 +256,7 @@ class CheckerController extends Controller
                 if ($formOnline->isValid()) {
                     $data = $formOnline->getData();
                     $checks = $this->get('mco.checker.analyze');
+                    $checks->setFullPath(true);
                     $checks->analyse(str_replace(' ', '%20', $data['file']));
                     $response = $checks->getResponseAsArray();
 

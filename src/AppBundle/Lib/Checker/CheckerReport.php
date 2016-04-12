@@ -68,17 +68,17 @@ class CheckerReport
     public function getDownloadReportName()
     {
         switch ($this->report) {
-            case 'implem':
+            case '2':
                 return 'ImplementationReport';
                 break;
             case 'policy':
                 return 'MediaConchReport';
                 break;
             case 'mi':
-                return 'MediaInfo';
+                return 'MediaInfoReport';
                 break;
             case 'mt':
-                return 'MediaTrace';
+                return 'MediaTraceReport';
                 break;
             default:
                 return 'Report';

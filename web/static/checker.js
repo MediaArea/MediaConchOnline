@@ -94,7 +94,7 @@ $(document).ready(function() {
             return;
         }
 
-        node = result.row.add( [ '<span title="' + fileName + '">' + truncateString(fileName, 35) + '</span>', '', '', '', '', '<span class="status-text">In queue</span><button type="button" class="btn btn-link result-close" title="Close result"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button><button type="button" class="btn btn-link hidden" title="Reload result"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>' ] ).draw(false).node();
+        node = result.row.add( [ '<span title="' + fileName + '">' + truncateString(fileName.split('/').pop(), 35) + '</span>', '', '', '', '', '<span class="status-text">In queue</span><button type="button" class="btn btn-link result-close" title="Close result"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button><button type="button" class="btn btn-link hidden" title="Reload result"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>' ] ).draw(false).node();
 
         // Add id
         resultId = 'result-' + nbResults++;
@@ -201,7 +201,7 @@ $(document).ready(function() {
                                         <div class="form-group"><label class="col-sm-2 control-label">Display</label><div class="col-sm-10"><select id="modalConformanceDisplay' + resultId + '"></select></div></div> \
                                     </div> \
                                     <div class="col-md-6"> \
-                                        <div class="form-group"><label class="col-sm-2 control-label">Verbosity</label><div class="col-sm-10"><select id="modalConformanceVerbosity' + resultId + '"></select></div></div> \
+                                        <div class="form-group"><label class="col-sm-3 control-label">Verbosity</label><div class="col-sm-9"><select id="modalConformanceVerbosity' + resultId + '"></select></div></div> \
                                     </div> \
                                 </div> \
                                 <div class="modal-body"></div> \
@@ -357,6 +357,9 @@ $(document).ready(function() {
                         displayReport('#modalPolicy' + resultId, data);
                         });
                     }
+                    else {
+                        $('#modalPolicy' + resultId + ' .modal-body').empty('');
+                    }
                 });
 
                 // Update report when policy is changed
@@ -371,6 +374,9 @@ $(document).ready(function() {
                         $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
                             displayReport('#modalPolicy' + resultId, data);
                         });
+                    }
+                    else {
+                        $('#modalPolicy' + resultId + ' .modal-body').empty('');
                     }
                 });
             }
