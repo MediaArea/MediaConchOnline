@@ -8,6 +8,7 @@ class CheckerAnalyze
 {
     protected $response;
     protected $source;
+    protected $fullPath = false;
 
     public function __construct(MediaConchServer $mc)
     {
@@ -34,8 +35,18 @@ class CheckerAnalyze
             );
     }
 
-    public function getFilename()
+    public function setFullPath($fullPath)
     {
-        return pathinfo($this->source, PATHINFO_BASENAME);
+        $this->fullPath = $fullPath;
+    }
+
+    protected function getFilename()
+    {
+        if ($this->fullPath) {
+            return $this->source;
+        }
+        else {
+            return pathinfo($this->source, PATHINFO_BASENAME);
+        }
     }
 }

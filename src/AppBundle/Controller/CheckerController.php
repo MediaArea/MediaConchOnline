@@ -256,6 +256,7 @@ class CheckerController extends Controller
                 if ($formOnline->isValid()) {
                     $data = $formOnline->getData();
                     $checks = $this->get('mco.checker.analyze');
+                    $checks->setFullPath(true);
                     $checks->analyse(str_replace(' ', '%20', $data['file']));
                     $response = $checks->getResponseAsArray();
 
