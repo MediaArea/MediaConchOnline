@@ -29,10 +29,10 @@ $(document).ready(function() {
 
         $.ajax({
             type: $(this).attr('method'),
-                url: Routing.generate('app_checker_checkerajaxform'),
-                data: new FormData($(this)[0]),
-                processData: false,
-                contentType: false
+            url: Routing.generate('app_checker_checkerajaxform'),
+            data: new FormData($(this)[0]),
+            processData: false,
+            contentType: false
         })
         .done(function (data) {
             if (data.success) {
@@ -50,10 +50,10 @@ $(document).ready(function() {
         e.preventDefault();
         $.ajax({
             type: $(this).attr('method'),
-                url: Routing.generate('app_checker_checkerajaxform'),
-                data: new FormData($(this)[0]),
-                processData: false,
-                contentType: false
+            url: Routing.generate('app_checker_checkerajaxform'),
+            data: new FormData($(this)[0]),
+            processData: false,
+            contentType: false
         })
         .done(function (data) {
             if (data.success) {
@@ -71,10 +71,10 @@ $(document).ready(function() {
         e.preventDefault();
         $.ajax({
             type: $(this).attr('method'),
-                url: Routing.generate('app_checker_checkerajaxform'),
-                data: new FormData($(this)[0]),
-                processData: false,
-                contentType: false
+            url: Routing.generate('app_checker_checkerajaxform'),
+            data: new FormData($(this)[0]),
+            processData: false,
+            contentType: false
         })
         .done(function (data) {
             $.each(data, function( index, value ) {
@@ -124,32 +124,8 @@ $(document).ready(function() {
         (function theLoop(resultId, time, i) {
             setTimeout(function () {
                 if (!$(result.cell('#' + resultId, 5).node()).hasClass('success')) {
-                    $.get(Routing.generate('app_checker_checkerstatus', { id: fileId }), function(data) {
-                        if (data.finish) {
-                            // Report type
-                            result.$('#' + resultId).data('tool', data.tool);
-
-                            // Status
-                            statusCell(resultId, fileId);
-
-                            // Implementation
-                            implementationCell(resultId, fileId);
-
-                            // Policy
-                            policyCell(resultId, fileId);
-
-                            // MediaInfo
-                            mediaInfoCell(resultId, fileId);
-
-                            // MediaTrace
-                            mediaTraceCell(resultId, fileId);
-
-                            //stop timer
-                            //i = 0;
-                        }
-                        else if (data.percent > 0) {
-                            $(result.cell('#' + resultId, 5).node()).find('.status-text').text('Analyzing');
-                        }
+                    $.get(Routing.generate('app_checker_checkerstatus', { id: fileId }), function (data) {
+                        processCheckerStatusRequest(data, resultId, fileId)
                     });
                 }
                 // If i > 0, keep going
@@ -165,139 +141,175 @@ $(document).ready(function() {
         }
     };
 
+    function processCheckerStatusRequest(data, resultId, fileId) {
+        if (data.finish) {
+            // Report type
+            result.$('#' + resultId).data('tool', data.tool);
+
+            // Status
+            statusCell(resultId, fileId);
+
+            // Implementation
+            $.get(Routing.generate('app_checker_checkerreportstatus', { id: fileId, reportType: result.$('#' + resultId).data('tool') }), function(data) {
+                implementationCell(data, resultId, fileId);
+            });
+
+            // Policy
+            if (2 == result.$('#' + resultId).data('tool')) {
+                if ($(node).data('policy')) {
+                    $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: $(node).data('policy') }), function(data) {
+                        policyCell(data, resultId, fileId)
+                    });
+                }
+                else {
+                    policyCellEmptyWithModal(resultId, fileId)
+                }
+            }
+            else {
+                policyCellEmptyWithoutModal(resultId)
+            }
+
+            // MediaInfo
+            mediaInfoCell(resultId, fileId);
+
+            // MediaTrace
+            mediaTraceCell(resultId, fileId);
+
+            //stop timer
+            //i = 0;
+        }
+        else if (data.percent > 0) {
+            $(result.cell('#' + resultId, 5).node()).find('.status-text').text('Analyzing');
+        }
+    }
+
     function statusCell(resultId, fileId) {
         nodeStatus = $(result.cell('#' + resultId, 5).node());
         nodeStatus.removeClass().addClass('success');
         nodeStatus.find('.status-text').text('Analyzed');
     };
 
-    function implementationCell(resultId, fileId) {
-        $.get(Routing.generate('app_checker_checkerreportstatus', { id: fileId, reportType: result.$('#' + resultId).data('tool') }), function(data) {
-            nodeImplem = $(result.cell('#' + resultId, 1).node());
-            if (data.valid) {
-                nodeImplem.addClass('success');
-                implemResultText = '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> Valid'
-            }
-            else {
-                nodeImplem.addClass('danger');
-                implemResultText = '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Not valid';
-            }
+    function implementationCell(data, resultId, fileId) {
+        nodeImplem = $(result.cell('#' + resultId, 1).node());
+        if (data.valid) {
+            nodeImplem.addClass('success');
+            implemResultText = '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> Valid'
+        }
+        else {
+            nodeImplem.addClass('danger');
+            implemResultText = '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Not valid';
+        }
 
-            result.cell('#' + resultId, 1).data(implemResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalConformance' + resultId + '" title="View implementation report"><span class="glyphicon glyphicon-eye-open implem-view" aria-hidden="true"></span></a><a href="#" class="implem-dld" data-target="#modalConformance' + resultId + '" data-save-name="' + resultId + '_ImplementationReport.txt" title="Download implementation report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
+        result.cell('#' + resultId, 1).data(implemResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalConformance' + resultId + '" title="View implementation report"><span class="glyphicon glyphicon-eye-open implem-view" aria-hidden="true"></span></a><a href="#" class="implem-dld" data-target="#modalConformance' + resultId + '" data-save-name="' + resultId + '_ImplementationReport.txt" title="Download implementation report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
 
-            nodeImplem.find('.implem-view').on('click', function(e) {
-                e.preventDefault();
-                if (!$('#modalConformance' + resultId).length) {
-                    $('.result-container').append(' \
-                    <div id="modalConformance' + resultId + '" \ class="modal fade"> \
-                        <div class="modal-dialog modal-lg"> \
-                            <div class="modal-content"> \
-                                <div class="modal-header"> \
-                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> \
-                                    <h4 class="modal-title">Implementation report</h4> \
+        nodeImplem.find('.implem-view').on('click', function(e) {
+            e.preventDefault();
+            if (!$('#modalConformance' + resultId).length) {
+                $('.result-container').append(' \
+                <div id="modalConformance' + resultId + '" \ class="modal fade"> \
+                    <div class="modal-dialog modal-lg"> \
+                        <div class="modal-content"> \
+                            <div class="modal-header"> \
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> \
+                                <h4 class="modal-title">Implementation report</h4> \
+                            </div> \
+                            <div class="modal-header form-horizontal"> \
+                                <div class="col-md-6"> \
+                                    <div class="form-group"><label class="col-sm-2 control-label">Display</label><div class="col-sm-10"><select id="modalConformanceDisplay' + resultId + '"></select></div></div> \
                                 </div> \
-                                <div class="modal-header form-horizontal"> \
-                                    <div class="col-md-6"> \
-                                        <div class="form-group"><label class="col-sm-2 control-label">Display</label><div class="col-sm-10"><select id="modalConformanceDisplay' + resultId + '"></select></div></div> \
-                                    </div> \
-                                    <div class="col-md-6"> \
-                                        <div class="form-group"><label class="col-sm-3 control-label">Verbosity</label><div class="col-sm-9"><select id="modalConformanceVerbosity' + resultId + '"></select></div></div> \
-                                    </div> \
-                                </div> \
-                                <div class="modal-body"></div> \
-                                <div class="modal-footer"> \
-                                    <button type="button" class="btn btn-primary implem-dld" data-target="#modalConformance' + resultId + '" data-save-name="' + resultId + '_ImplementationReport.txt">Download implementation report</button> \
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> \
+                                <div class="col-md-6"> \
+                                    <div class="form-group"><label class="col-sm-3 control-label">Verbosity</label><div class="col-sm-9"><select id="modalConformanceVerbosity' + resultId + '"></select></div></div> \
                                 </div> \
                             </div> \
+                            <div class="modal-body"></div> \
+                            <div class="modal-footer"> \
+                                <button type="button" class="btn btn-primary implem-dld" data-target="#modalConformance' + resultId + '" data-save-name="' + resultId + '_ImplementationReport.txt">Download implementation report</button> \
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> \
+                            </div> \
                         </div> \
-                    </div>');
+                    </div> \
+                </div>');
 
-                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')}), function(data) {
+                $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')}), function(data) {
+                    displayReport('#modalConformance' + resultId, data);
+                });
+
+                $('#modalConformance' + resultId + ' .implem-dld').on('click', function(e) {
+                    e.preventDefault();
+                    modalDisplay = $('#modalConformanceDisplay' + resultId).val();
+                    modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
+                    window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity});
+                });
+
+                // Update report when display is changed
+                displayList = $('.tab-content .active .displayList').clone();
+                displayList.attr('id', 'modalConformanceDisplay' + resultId);
+                displayList.find("option[value = '" + $(node).data('display') + "']").attr('selected', 'selected');
+                $('#modalConformanceDisplay' + resultId).replaceWith(displayList);
+                $('#modalConformanceDisplay' + resultId).on('change', function(e) {
+                    modalDisplay = $('#modalConformanceDisplay' + resultId).val();
+                    modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
+                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
                         displayReport('#modalConformance' + resultId, data);
                     });
+                });
 
-                    $('#modalConformance' + resultId + ' .implem-dld').on('click', function(e) {
-                        e.preventDefault();
-                        modalDisplay = $('#modalConformanceDisplay' + resultId).val();
-                        modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
-                        window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity});
+                // Update report when verbosity is changed
+                verbosityList = $('.tab-content .active .verbosityList').clone();
+                verbosityList.attr('id', 'modalConformanceVerbosity' + resultId);
+                verbosityList.find("option[value = '" + $(node).data('verbosity') + "']").attr('selected', 'selected');
+                $('#modalConformanceVerbosity' + resultId).replaceWith(verbosityList);
+                $('#modalConformanceVerbosity' + resultId).on('change', function(e) {
+                    modalDisplay = $('#modalConformanceDisplay' + resultId).val();
+                    modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
+                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
+                        displayReport('#modalConformance' + resultId, data);
                     });
+                });
 
-                    // Update report when display is changed
-                    displayList = $('.tab-content .active .displayList').clone();
-                    displayList.attr('id', 'modalConformanceDisplay' + resultId);
-                    displayList.find("option[value = '" + $(node).data('display') + "']").attr('selected', 'selected');
-                    $('#modalConformanceDisplay' + resultId).replaceWith(displayList);
-                    $('#modalConformanceDisplay' + resultId).on('change', function(e) {
-                        modalDisplay = $('#modalConformanceDisplay' + resultId).val();
-                        modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
-                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
-                            displayReport('#modalConformance' + resultId, data);
-                        });
-                    });
-
-                    // Update report when verbosity is changed
-                    verbosityList = $('.tab-content .active .verbosityList').clone();
-                    verbosityList.attr('id', 'modalConformanceVerbosity' + resultId);
-                    verbosityList.find("option[value = '" + $(node).data('verbosity') + "']").attr('selected', 'selected');
-                    $('#modalConformanceVerbosity' + resultId).replaceWith(verbosityList);
-                    $('#modalConformanceVerbosity' + resultId).on('change', function(e) {
-                        modalDisplay = $('#modalConformanceDisplay' + resultId).val();
-                        modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
-                        $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
-                            displayReport('#modalConformance' + resultId, data);
-                        });
-                    });
-
-                    if (2 != result.$('#' + resultId).data('tool')) {
-                        $('#modalConformance' + resultId + ' .modal-header.form-horizontal').hide();
-                    }
+                if (2 != result.$('#' + resultId).data('tool')) {
+                    $('#modalConformance' + resultId + ' .modal-header.form-horizontal').hide();
                 }
-            });
+            }
+        });
 
-            nodeImplem.find('.implem-dld').on('click', function(e) {
-                e.preventDefault();
-                window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')});
-            });
-
+        nodeImplem.find('.implem-dld').on('click', function(e) {
+            e.preventDefault();
+            window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')});
         });
     }
 
-    function policyCell(resultId, fileId) {
-        if (2 == result.$('#' + resultId).data('tool')) {
-            if ($(node).data('policy')) {
-                $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: $(node).data('policy') }), function(data) {
-                    nodePolicy = $(result.cell('#' + resultId, 2).node());
-                    if (data.valid) {
-                        nodePolicy.addClass('success');
-                        policyResultText = '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> '
-                    }
-                    else {
-                        nodePolicy.addClass('danger');
-                        policyResultText = '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> ';
-                    }
-                    policyResultText += '<span title="' + $(node).data('policyName') + '">' + truncateString($(node).data('policyName'), 25) + '</span>';
-
-                    result.cell('#' + resultId, 2).data(policyResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" data-target="#modalPolicy' + resultId + '" data-save-name="' + resultId + '_PolicyReport.txt" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
-
-                    policyModal(resultId, fileId, nodePolicy);
-                });
-            }
-            else {
-                nodePolicy = $(result.cell('#' + resultId, 2).node());
-                nodePolicy.addClass('info');
-                result.cell('#' + resultId, 2).data('N/A' + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a></p>');
-
-                policyModal(resultId, fileId, nodePolicy);
-            }
-
+    function policyCell(data, resultId, fileId) {
+        nodePolicy = $(result.cell('#' + resultId, 2).node());
+        policyResultText = '<span class="policyResult">';
+        if (data.valid) {
+            nodePolicy.addClass('success');
+            policyResultText += '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> '
         }
         else {
-            nodePolicy = $(result.cell('#' + resultId, 2).node());
-            nodePolicy.addClass('info');
-            result.cell('#' + resultId, 2).data('N/A');
+            nodePolicy.addClass('danger');
+            policyResultText += '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> ';
         }
+        policyResultText += '<span title="' + $(node).data('policyName') + '">' + truncateString($(node).data('policyName'), 25) + '</span>';
+        policyResultText += '</span>';
+
+        result.cell('#' + resultId, 2).data(policyResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" data-target="#modalPolicy' + resultId + '" data-save-name="' + resultId + '_PolicyReport.txt" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
+
+        policyModal(resultId, fileId, nodePolicy);
+    }
+
+    function policyCellEmptyWithModal(resultId, fileId) {
+        nodePolicy = $(result.cell('#' + resultId, 2).node());
+        nodePolicy.addClass('info');
+        result.cell('#' + resultId, 2).data('<span class="policyResult">N/A</span><p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a></p>');
+
+        policyModal(resultId, fileId, nodePolicy);
+    }
+
+    function policyCellEmptyWithoutModal(resultId) {
+        nodePolicy = $(result.cell('#' + resultId, 2).node());
+        nodePolicy.addClass('info');
+        result.cell('#' + resultId, 2).data('N/A');
     }
 
     function policyModal(resultId, fileId, nodePolicy) {
