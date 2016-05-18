@@ -94,12 +94,13 @@ $(document).ready(function() {
             return;
         }
 
-        node = result.row.add( [ '<span title="' + fileName + '">' + truncateString(fileName.split('/').pop(), 35) + '</span>', '', '', '', '', '<span class="status-text">In queue</span><button type="button" class="btn btn-link result-close" title="Close result"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button><button type="button" class="btn btn-link hidden" title="Reload result"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>' ] ).draw(false).node();
+        node = result.row.add( [ '<span title="' + fileName + '">' + truncateString(fileName.split('/').pop(), 28) + '</span>', '', '', '', '', '<span class="status-text">In queue</span><button type="button" class="btn btn-link result-close" title="Close result"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button><button type="button" class="btn btn-link hidden" title="Reload result"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>' ] ).draw(false).node();
 
         // Add id
         resultId = 'result-' + nbResults++;
         $(node).prop('id', resultId);
         $(node).addClass('fileId-' + fileId);
+        $(node).data('fileId', fileId);
 
         // Add policy, display and verbosity
         $(node).data('policy', $('.tab-content .active .policyList').val());
@@ -283,14 +284,14 @@ $(document).ready(function() {
         nodePolicy = $(result.cell('#' + resultId, 2).node());
         policyResultText = '<span class="policyResult">';
         if (data.valid) {
-            nodePolicy.addClass('success');
+            nodePolicy.removeClass().addClass('success');
             policyResultText += '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> '
         }
         else {
-            nodePolicy.addClass('danger');
+            nodePolicy.removeClass().addClass('danger');
             policyResultText += '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> ';
         }
-        policyResultText += '<span title="' + $(node).data('policyName') + '">' + truncateString($(node).data('policyName'), 25) + '</span>';
+        policyResultText += '<span title="' + $(node).data('policyName') + '">' + truncateString($(node).data('policyName'), 17) + '</span>';
         policyResultText += '</span>';
 
         result.cell('#' + resultId, 2).data(policyResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" data-target="#modalPolicy' + resultId + '" data-save-name="' + resultId + '_PolicyReport.txt" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
@@ -300,7 +301,7 @@ $(document).ready(function() {
 
     function policyCellEmptyWithModal(resultId, fileId) {
         nodePolicy = $(result.cell('#' + resultId, 2).node());
-        nodePolicy.addClass('info');
+        nodePolicy.removeClass().addClass('info');
         result.cell('#' + resultId, 2).data('<span class="policyResult">N/A</span><p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a></p>');
 
         policyModal(resultId, fileId, nodePolicy);
@@ -308,7 +309,7 @@ $(document).ready(function() {
 
     function policyCellEmptyWithoutModal(resultId) {
         nodePolicy = $(result.cell('#' + resultId, 2).node());
-        nodePolicy.addClass('info');
+        nodePolicy.removeClass().addClass('info');
         result.cell('#' + resultId, 2).data('N/A');
     }
 
@@ -603,6 +604,51 @@ $(document).ready(function() {
 
         $('#trace' + resultId).on('select_node.jstree', function (e, data) {
             data.instance.toggle_node(data.node);
+        });
+    }
+
+    // Apply policy to all
+    $('#checkerApplyAll').html('<div class="applyAll form-horizontal"></div>');
+    $('#checkerApplyAll').addClass('tab-pane');
+
+    // Duplicate policy list
+    policyList = $('.tab-content .active .policyList').clone();
+    policyList.attr('id', 'applyAllPolicy');
+    $('#checkerApplyAll div.applyAll').append('<div class="col-md-6"><div class="form-group"><label class="col-sm-6 control-label">Apply a policy to all results</label><div class="col-sm-6 policy">')
+    $('#checkerApplyAll div.applyAll div.policy').html(policyList);
+
+    $('#applyAllPolicy').on('change', function(e) {
+        applyPolictyToAll();
+    });
+
+    function applyPolictyToAll() {
+        result.$('tr').each(function () {
+            node = result.$('#' + $(this).prop('id'));
+            oldPolicy = node.data('policy');
+
+            // Update policy
+            node.data('policy', $('#applyAllPolicy').val());
+            node.data('policyName', $('#applyAllPolicy option:selected').text());
+
+            if (2 == node.data('tool')) {
+                if (oldPolicy != node.data('policy')) {
+                    // Update policy list in modal
+                    if ($('#modalPolicy' + node.attr('id')).length) {
+                        $('#modalPolicy' + node.attr('id')).remove();
+                        //$('#modalPolicyPolicy' + node.attr('id') + ' option').removeAttr('selected');
+                        //$('#modalPolicyPolicy' + node.attr('id')).find("option[value = '" + node.data('policy') + "']").attr('selected', true);
+                    }
+
+                    if (node.data('policy')) {
+                        $.get(Routing.generate('app_checker_checkerpolicystatus', { id: node.data('fileId'), policy: node.data('policy') }), function (data) {
+                            policyCell(data, 'result-' + data.id, data.id);
+                        });
+                    }
+                    else {
+                        policyCellEmptyWithModal(node.attr('id'), node.data('fileId'))
+                    }
+                }
+            }
         });
     }
 

@@ -125,7 +125,7 @@ footer .navbar {
     text-align: left;
 }
 
-#file label.col-sm-2, #url label.col-sm-2, #repository label.col-sm-2 {
+#file label.col-sm-2, #url label.col-sm-2, #repository label.col-sm-2, #checkerApplyAll label.col-sm-6 {
     padding-right: 0;
     padding-left: 0;
 }
