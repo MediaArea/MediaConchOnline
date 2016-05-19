@@ -1,5 +1,4 @@
 $(document).ready(function() {
-    nbResults = 0;
     result = $('#result-table').DataTable({
         'order': [],
         'autoWidth': false,
@@ -15,6 +14,7 @@ $(document).ready(function() {
     // Upload form
     $('#file form').on('submit', function (e) {
         e.preventDefault();
+        formValues = getDataFromForm($(this));
 
         // Check file size
         if ( window.File )
@@ -36,7 +36,7 @@ $(document).ready(function() {
         })
         .done(function (data) {
             if (data.success) {
-                addFile(data.filename, data.transactionId);
+                updateFileOrAddFile(data.filename, data.transactionId, formValues);
                 successMessage('File added successfuly');
             };
         })
@@ -48,6 +48,7 @@ $(document).ready(function() {
     // Online form
     $('#url form').on('submit', function (e) {
         e.preventDefault();
+        formValues = getDataFromForm($(this));
         $.ajax({
             type: $(this).attr('method'),
             url: Routing.generate('app_checker_checkerajaxform'),
@@ -57,7 +58,7 @@ $(document).ready(function() {
         })
         .done(function (data) {
             if (data.success) {
-                addFile(data.filename, data.transactionId);
+                updateFileOrAddFile(data.filename, data.transactionId, formValues);
                 successMessage('File added successfuly');
             };
         })
@@ -69,6 +70,7 @@ $(document).ready(function() {
     // Repository form
     $('#repository form').on('submit', function (e) {
         e.preventDefault();
+        formValues = getDataFromForm($(this));
         $.ajax({
             type: $(this).attr('method'),
             url: Routing.generate('app_checker_checkerajaxform'),
@@ -79,7 +81,7 @@ $(document).ready(function() {
         .done(function (data) {
             $.each(data, function( index, value ) {
                 if (value.success) {
-                    addFile(value.filename, value.transactionId);
+                    updateFileOrAddFile(value.filename, value.transactionId, formValues);
                 };
             });
             successMessage('Files added successfuly');
@@ -89,24 +91,66 @@ $(document).ready(function() {
         })
     });
 
-    function addFile(fileName, fileId) {
-        if (findDuplicateRow(fileId)) {
-            return;
+    function getDataFromForm(form) {
+        formValues = {policy:form.find('.policyList').val(),
+            policyText:form.find('.policyList option:selected').text(),
+            display:form.find('.displayList').val(),
+            verbosity:form.find('.verbosityList').val()
+        };
+
+        return formValues;
+    }
+
+    function updateFileOrAddFile(fileName, fileId, formValues) {
+        if (!result.$('tr.fileId-' + fileId).length) {
+            addFile(fileName, fileId, formValues)
+        }
+        else {
+            updateFile(fileId, formValues)
+        }
+    }
+
+    function updateFile(fileId, formValues) {
+        node = result.$('#result-' + fileId);
+
+        // Update policy if it has changed
+        if (node.data('policy') != formValues.policy && 2 == node.data('tool')) {
+            node.data('policy', formValues.policy);
+            node.data('policyName', formValues.policyText);
+
+            updatePolicyCell(fileId, node.data('policy'));
         }
 
+        // Update display if it has changed
+        if (node.data('display') != formValues.display && 2 == node.data('tool')) {
+            node.data('display', formValues.display);
+
+            removeImplemModalIfExists(fileId);
+            removePolicyModalIfExists(fileId);
+        }
+
+        // Update verbosity if it has changed
+        if (node.data('verbosity') != formValues.verbosity && 2 == node.data('tool')) {
+            node.data('verbosity', formValues.verbosity);
+
+            removeImplemModalIfExists(fileId);
+        }
+    }
+
+    function addFile(fileName, fileId, formValues) {
         node = result.row.add( [ '<span title="' + fileName + '">' + truncateString(fileName.split('/').pop(), 28) + '</span>', '', '', '', '', '<span class="status-text">In queue</span><button type="button" class="btn btn-link result-close" title="Close result"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button><button type="button" class="btn btn-link hidden" title="Reload result"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>' ] ).draw(false).node();
 
         // Add id
-        resultId = 'result-' + nbResults++;
+        resultId = 'result-' + fileId;
         $(node).prop('id', resultId);
         $(node).addClass('fileId-' + fileId);
         $(node).data('fileId', fileId);
 
         // Add policy, display and verbosity
-        $(node).data('policy', $('.tab-content .active .policyList').val());
-        $(node).data('policyName', $('.tab-content .active .policyList option:selected').text());
-        $(node).data('display', $('.tab-content .active .displayList').val());
-        $(node).data('verbosity', $('.tab-content .active .verbosityList').val());
+        $(node).data('policy', formValues.policy);
+        $(node).data('policyName', formValues.policyText);
+        $(node).data('display', formValues.display);
+        $(node).data('verbosity', formValues.verbosity);
 
         // Change status class
         $(result.cell(node, 5).node()).addClass('info');
@@ -401,6 +445,31 @@ $(document).ready(function() {
         });
     }
 
+    function removePolicyModalIfExists(fileId) {
+        if ($('#modalPolicyresult-' + fileId).length) {
+            $('#modalPolicyresult-' + fileId).remove();
+        }
+    }
+
+    function removeImplemModalIfExists(fileId) {
+        if ($('#modalConformanceresult-' + fileId).length) {
+            $('#modalConformanceresult-' + fileId).remove();
+        }
+    }
+
+    function updatePolicyCell(fileId, policyId) {
+        removePolicyModalIfExists(fileId);
+
+        if (policyId) {
+            $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: policyId }), function (data) {
+                policyCell(data, 'result-' + data.id, data.id);
+            });
+        }
+        else {
+            policyCellEmptyWithModal('result-' + fileId, fileId)
+        }
+    }
+
     function mediaInfoCell(resultId, fileId) {
         nodeMI = $(result.cell('#' + resultId, 3).node());
         nodeMI.addClass('text-center');
@@ -624,29 +693,14 @@ $(document).ready(function() {
     function applyPolictyToAll() {
         result.$('tr').each(function () {
             node = result.$('#' + $(this).prop('id'));
-            oldPolicy = node.data('policy');
-
-            // Update policy
-            node.data('policy', $('#applyAllPolicy').val());
-            node.data('policyName', $('#applyAllPolicy option:selected').text());
 
             if (2 == node.data('tool')) {
-                if (oldPolicy != node.data('policy')) {
-                    // Update policy list in modal
-                    if ($('#modalPolicy' + node.attr('id')).length) {
-                        $('#modalPolicy' + node.attr('id')).remove();
-                        //$('#modalPolicyPolicy' + node.attr('id') + ' option').removeAttr('selected');
-                        //$('#modalPolicyPolicy' + node.attr('id')).find("option[value = '" + node.data('policy') + "']").attr('selected', true);
-                    }
+                if (node.data('policy') != $('#applyAllPolicy').val()) {
+                    // Update policy
+                    node.data('policy', $('#applyAllPolicy').val());
+                    node.data('policyName', $('#applyAllPolicy option:selected').text());
 
-                    if (node.data('policy')) {
-                        $.get(Routing.generate('app_checker_checkerpolicystatus', { id: node.data('fileId'), policy: node.data('policy') }), function (data) {
-                            policyCell(data, 'result-' + data.id, data.id);
-                        });
-                    }
-                    else {
-                        policyCellEmptyWithModal(node.attr('id'), node.data('fileId'))
-                    }
+                    updatePolicyCell(node.data('fileId'), node.data('policy'));
                 }
             }
         });
@@ -654,19 +708,6 @@ $(document).ready(function() {
 
     function truncateString(str, length) {
         return str.length > length ? str.substring(0, length) + '&hellip;' : str
-    }
-
-
-    function findDuplicateRow(fileId) {
-        findRows = 0;
-
-        result.$('tr.fileId-' + fileId).each(function () {
-            if ($(this).data('policy') == $('.tab-content .active .policyList').val()) {
-                findRows++;
-            }
-        });
-
-        return findRows;
     }
 
     // Display report in the modal
