@@ -6,7 +6,6 @@ use AppBundle\Lib\MediaConch\MediaConchServer;
 
 class CheckerValidate
 {
-    protected $id;
     protected $response;
 
     public function __construct(MediaConchServer $mc)
@@ -16,7 +15,6 @@ class CheckerValidate
 
     public function validate($id, $report, $policy = null)
     {
-        $this->id = $id;
         $this->response = $this->mc->validate($id, $this->getReportType($report), $policy);
     }
 
@@ -24,7 +22,6 @@ class CheckerValidate
     {
         return array('valid' => $this->response->getValid(),
             'error' => $this->response->getError(),
-            'id' => $this->id,
             );
     }
 

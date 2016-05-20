@@ -114,7 +114,7 @@ $(document).ready(function() {
         node = result.$('#result-' + fileId);
 
         // Update policy if it has changed
-        if (node.data('policy') != formValues.policy && 2 == node.data('tool')) {
+        if (node.data('policy') != formValues.policy && (2 == node.data('tool') || undefined == node.data('tool'))) {
             node.data('policy', formValues.policy);
             node.data('policyName', formValues.policyText);
 
@@ -122,7 +122,7 @@ $(document).ready(function() {
         }
 
         // Update display if it has changed
-        if (node.data('display') != formValues.display && 2 == node.data('tool')) {
+        if (node.data('display') != formValues.display && (2 == node.data('tool') || undefined == node.data('tool'))) {
             node.data('display', formValues.display);
 
             removeImplemModalIfExists(fileId);
@@ -130,7 +130,7 @@ $(document).ready(function() {
         }
 
         // Update verbosity if it has changed
-        if (node.data('verbosity') != formValues.verbosity && 2 == node.data('tool')) {
+        if (node.data('verbosity') != formValues.verbosity && (2 == node.data('tool') || undefined == node.data('tool'))) {
             node.data('verbosity', formValues.verbosity);
 
             removeImplemModalIfExists(fileId);
@@ -156,7 +156,7 @@ $(document).ready(function() {
         $(result.cell(node, 5).node()).addClass('info');
 
         // Close button
-        result.$('#' + resultId).find('.result-close').click(node, function (e) {
+        $(node).find('.result-close').click(node, function (e) {
             result.row(e.data).remove().draw(false);
 
             // Remove close all button
@@ -188,21 +188,19 @@ $(document).ready(function() {
 
     function processCheckerStatusRequest(data, resultId, fileId) {
         if (data.finish) {
+            node = result.$('#' + resultId);
             // Report type
-            result.$('#' + resultId).data('tool', data.tool);
-
-            // Status
-            statusCell(resultId, fileId);
+            node.data('tool', data.tool);
 
             // Implementation
-            $.get(Routing.generate('app_checker_checkerreportstatus', { id: fileId, reportType: result.$('#' + resultId).data('tool') }), function(data) {
+            $.get(Routing.generate('app_checker_checkerreportstatus', { id: fileId, reportType: data.tool }), function(data) {
                 implementationCell(data, resultId, fileId);
             });
 
             // Policy
-            if (2 == result.$('#' + resultId).data('tool')) {
-                if ($(node).data('policy')) {
-                    $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: $(node).data('policy') }), function(data) {
+            if (2 == data.tool) {
+                if (node.data('policy')) {
+                    $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: node.data('policy') }), function(data) {
                         policyCell(data, resultId, fileId)
                     });
                 }
@@ -220,6 +218,9 @@ $(document).ready(function() {
             // MediaTrace
             mediaTraceCell(resultId, fileId);
 
+            // Status
+            statusCell(resultId, fileId);
+
             //stop timer
             //i = 0;
         }
@@ -235,7 +236,8 @@ $(document).ready(function() {
     };
 
     function implementationCell(data, resultId, fileId) {
-        nodeImplem = $(result.cell('#' + resultId, 1).node());
+        nodeCell = result.$('#' + resultId);
+        nodeImplem = $(result.cell(nodeCell, 1).node());
         if (data.valid) {
             nodeImplem.addClass('success');
             implemResultText = '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> Valid'
@@ -245,10 +247,11 @@ $(document).ready(function() {
             implemResultText = '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Not valid';
         }
 
-        result.cell('#' + resultId, 1).data(implemResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalConformance' + resultId + '" title="View implementation report"><span class="glyphicon glyphicon-eye-open implem-view" aria-hidden="true"></span></a><a href="#" class="implem-dld" data-target="#modalConformance' + resultId + '" title="Download implementation report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
+        result.cell(nodeCell, 1).data(implemResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalConformance' + resultId + '" title="View implementation report"><span class="glyphicon glyphicon-eye-open implem-view" aria-hidden="true"></span></a><a href="#" class="implem-dld" data-target="#modalConformance' + resultId + '" title="Download implementation report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
 
         nodeImplem.find('.implem-view').on('click', function(e) {
             e.preventDefault();
+            nodeModal = result.$('#' + resultId);
             if (!$('#modalConformance' + resultId).length) {
                 $('.result-container').append(' \
                 <div id="modalConformance' + resultId + '" \ class="modal fade"> \
@@ -275,7 +278,7 @@ $(document).ready(function() {
                     </div> \
                 </div>');
 
-                $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')}), function(data) {
+                $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: nodeModal.data('tool'),  displayName: 'html', display: nodeModal.data('display'), verbosity: nodeModal.data('verbosity')}), function(data) {
                     displayReport('#modalConformance' + resultId, data);
                 });
 
@@ -283,18 +286,18 @@ $(document).ready(function() {
                     e.preventDefault();
                     modalDisplay = $('#modalConformanceDisplay' + resultId).val();
                     modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
-                    window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity});
+                    window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: nodeModal.data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity});
                 });
 
                 // Update report when display is changed
                 displayList = $('.tab-content .active .displayList').clone();
                 displayList.attr('id', 'modalConformanceDisplay' + resultId);
-                displayList.find("option[value = '" + $(node).data('display') + "']").attr('selected', 'selected');
+                displayList.find("option[value = '" + nodeModal.data('display') + "']").attr('selected', 'selected');
                 $('#modalConformanceDisplay' + resultId).replaceWith(displayList);
                 $('#modalConformanceDisplay' + resultId).on('change', function(e) {
                     modalDisplay = $('#modalConformanceDisplay' + resultId).val();
                     modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
-                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
+                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: nodeModal.data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
                         displayReport('#modalConformance' + resultId, data);
                     });
                 });
@@ -302,17 +305,17 @@ $(document).ready(function() {
                 // Update report when verbosity is changed
                 verbosityList = $('.tab-content .active .verbosityList').clone();
                 verbosityList.attr('id', 'modalConformanceVerbosity' + resultId);
-                verbosityList.find("option[value = '" + $(node).data('verbosity') + "']").attr('selected', 'selected');
+                verbosityList.find("option[value = '" + nodeModal.data('verbosity') + "']").attr('selected', 'selected');
                 $('#modalConformanceVerbosity' + resultId).replaceWith(verbosityList);
                 $('#modalConformanceVerbosity' + resultId).on('change', function(e) {
                     modalDisplay = $('#modalConformanceDisplay' + resultId).val();
                     modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
-                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
+                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: nodeModal.data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
                         displayReport('#modalConformance' + resultId, data);
                     });
                 });
 
-                if (2 != result.$('#' + resultId).data('tool')) {
+                if (2 != nodeModal.data('tool')) {
                     $('#modalConformance' + resultId + ' .modal-header.form-horizontal').hide();
                 }
             }
@@ -320,12 +323,14 @@ $(document).ready(function() {
 
         nodeImplem.find('.implem-dld').on('click', function(e) {
             e.preventDefault();
-            window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: result.$('#' + resultId).data('tool'),  displayName: 'html', display: $(node).data('display'), verbosity: $(node).data('verbosity')});
+            nodeDld = result.$('#' + resultId);
+            window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: nodeDld.data('tool'),  displayName: 'html', display: nodeDld.data('display'), verbosity: nodeDld.data('verbosity')});
         });
     }
 
     function policyCell(data, resultId, fileId) {
-        nodePolicy = $(result.cell('#' + resultId, 2).node());
+        nodeCell = result.$('#' + resultId);
+        nodePolicy = $(result.cell(nodeCell, 2).node());
         policyResultText = '<span class="policyResult">';
         if (data.valid) {
             nodePolicy.removeClass().addClass('success');
@@ -335,12 +340,13 @@ $(document).ready(function() {
             nodePolicy.removeClass().addClass('danger');
             policyResultText += '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> ';
         }
-        policyResultText += '<span title="' + $(node).data('policyName') + '">' + truncateString($(node).data('policyName'), 17) + '</span>';
+
+        policyResultText += '<span title="' + nodeCell.data('policyName') + '">' + truncateString(nodeCell.data('policyName'), 16) + '</span>';
         policyResultText += '</span>';
 
-        result.cell('#' + resultId, 2).data(policyResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" data-target="#modalPolicy' + resultId + '" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
+        result.cell(nodeCell, 2).data(policyResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" data-target="#modalPolicy' + resultId + '" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
 
-        policyModal(resultId, fileId, nodePolicy);
+        policyModal(resultId, fileId);
     }
 
     function policyCellEmptyWithModal(resultId, fileId) {
@@ -348,7 +354,7 @@ $(document).ready(function() {
         nodePolicy.removeClass().addClass('info');
         result.cell('#' + resultId, 2).data('<span class="policyResult">N/A</span><p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a></p>');
 
-        policyModal(resultId, fileId, nodePolicy);
+        policyModal(resultId, fileId);
     }
 
     function policyCellEmptyWithoutModal(resultId) {
@@ -357,9 +363,11 @@ $(document).ready(function() {
         result.cell('#' + resultId, 2).data('N/A');
     }
 
-    function policyModal(resultId, fileId, nodePolicy) {
+    function policyModal(resultId, fileId) {
+        nodePolicy = $(result.cell('#' + resultId, 2).node());
         nodePolicy.find('.policy-view').on('click', function(e) {
             e.preventDefault();
+            nodeModal = result.$('#' + resultId);
             if (!$('#modalPolicy' + resultId).length) {
                 $('.result-container').append(' \
                 <div id="modalPolicy' + resultId + '" \ class="modal fade"> \
@@ -386,8 +394,8 @@ $(document).ready(function() {
                     </div> \
                 </div>');
 
-                if ($(node).data('policy')) {
-                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: $(node).data('policy'), display: $(node).data('display')}), function(data) {
+                if (nodeModal.data('policy')) {
+                    $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: nodeModal.data('policy'), display: nodeModal.data('display')}), function(data) {
                         displayReport('#modalPolicy' + resultId, data);
                     });
                 }
@@ -404,7 +412,7 @@ $(document).ready(function() {
                 // Update report when display is changed
                 displayList = $('.tab-content .active .displayList').clone();
                 displayList.attr('id', 'modalPolicyDisplay' + resultId);
-                displayList.find("option[value = '" + $(node).data('display') + "']").attr('selected', 'selected');
+                displayList.find("option[value = '" + nodeModal.data('display') + "']").attr('selected', 'selected');
                 $('#modalPolicyDisplay' + resultId).replaceWith(displayList);
                 $('#modalPolicyDisplay' + resultId).on('change', function(e) {
                     modalDisplay = $('#modalPolicyDisplay' + resultId).val();
@@ -422,7 +430,7 @@ $(document).ready(function() {
                 // Update report when policy is changed
                 policyList = $('.tab-content .active .policyList').clone();
                 policyList.attr('id', 'modalPolicyPolicy' + resultId);
-                policyList.find("option[value = '" + $(node).data('policy') + "']").attr('selected', 'selected');
+                policyList.find("option[value = '" + nodeModal.data('policy') + "']").attr('selected', 'selected');
                 $('#modalPolicyPolicy' + resultId).replaceWith(policyList);
                 $('#modalPolicyPolicy' + resultId).on('change', function(e) {
                     modalDisplay = $('#modalPolicyDisplay' + resultId).val();
@@ -441,7 +449,8 @@ $(document).ready(function() {
 
         nodePolicy.find('.policy-dld').on('click', function(e) {
             e.preventDefault();
-            window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: $(node).data('policy'), display: $(node).data('display')});
+            nodeDld = result.$('#' + resultId);
+            window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: nodeDld.data('policy'), display: nodeDld.data('display')});
         });
     }
 
@@ -460,13 +469,16 @@ $(document).ready(function() {
     function updatePolicyCell(fileId, policyId) {
         removePolicyModalIfExists(fileId);
 
-        if (policyId) {
-            $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: policyId }), function (data) {
-                policyCell(data, 'result-' + data.id, data.id);
-            });
-        }
-        else {
-            policyCellEmptyWithModal('result-' + fileId, fileId)
+        // Update cell if analysis of file is succeeded
+        if ($(result.cell('#result-' + fileId, 5).node()).hasClass('success')) {
+            if (policyId) {
+                $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: policyId }), function (data) {
+                    policyCell(data, 'result-' + fileId, fileId);
+                });
+            }
+            else {
+                policyCellEmptyWithModal('result-' + fileId, fileId)
+            }
         }
     }
 
@@ -694,7 +706,7 @@ $(document).ready(function() {
         result.$('tr').each(function () {
             node = result.$('#' + $(this).prop('id'));
 
-            if (2 == node.data('tool')) {
+            if (2 == node.data('tool') || undefined == node.data('tool')) {
                 if (node.data('policy') != $('#applyAllPolicy').val()) {
                     // Update policy
                     node.data('policy', $('#applyAllPolicy').val());
