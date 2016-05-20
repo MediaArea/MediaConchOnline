@@ -245,7 +245,7 @@ $(document).ready(function() {
             implemResultText = '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Not valid';
         }
 
-        result.cell('#' + resultId, 1).data(implemResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalConformance' + resultId + '" title="View implementation report"><span class="glyphicon glyphicon-eye-open implem-view" aria-hidden="true"></span></a><a href="#" class="implem-dld" data-target="#modalConformance' + resultId + '" data-save-name="' + resultId + '_ImplementationReport.txt" title="Download implementation report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
+        result.cell('#' + resultId, 1).data(implemResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalConformance' + resultId + '" title="View implementation report"><span class="glyphicon glyphicon-eye-open implem-view" aria-hidden="true"></span></a><a href="#" class="implem-dld" data-target="#modalConformance' + resultId + '" title="Download implementation report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
 
         nodeImplem.find('.implem-view').on('click', function(e) {
             e.preventDefault();
@@ -268,7 +268,7 @@ $(document).ready(function() {
                             </div> \
                             <div class="modal-body"></div> \
                             <div class="modal-footer"> \
-                                <button type="button" class="btn btn-primary implem-dld" data-target="#modalConformance' + resultId + '" data-save-name="' + resultId + '_ImplementationReport.txt">Download implementation report</button> \
+                                <button type="button" class="btn btn-primary implem-dld" data-target="#modalConformance' + resultId + '">Download implementation report</button> \
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> \
                             </div> \
                         </div> \
@@ -338,7 +338,7 @@ $(document).ready(function() {
         policyResultText += '<span title="' + $(node).data('policyName') + '">' + truncateString($(node).data('policyName'), 17) + '</span>';
         policyResultText += '</span>';
 
-        result.cell('#' + resultId, 2).data(policyResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" data-target="#modalPolicy' + resultId + '" data-save-name="' + resultId + '_PolicyReport.txt" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
+        result.cell('#' + resultId, 2).data(policyResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" data-target="#modalPolicy' + resultId + '" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
 
         policyModal(resultId, fileId, nodePolicy);
     }
@@ -379,7 +379,7 @@ $(document).ready(function() {
                             </div> \
                             <div class="modal-body"></div> \
                             <div class="modal-footer"> \
-                                <button type="button" class="btn btn-primary policy-dld" data-target="#modalPolicy' + resultId + '" data-save-name="' + resultId + '_PolicyReport.txt">Download policy report</button> \
+                                <button type="button" class="btn btn-primary policy-dld" data-target="#modalPolicy' + resultId + '">Download policy report</button> \
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> \
                             </div> \
                         </div> \
@@ -473,7 +473,7 @@ $(document).ready(function() {
     function mediaInfoCell(resultId, fileId) {
         nodeMI = $(result.cell('#' + resultId, 3).node());
         nodeMI.addClass('text-center');
-        result.cell('#' + resultId, 3).data('<a href="#" class="mi-view" data-toggle="modal" data-target="#modalInfo' + resultId + '" title="View MediaInfo report"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a><a href="#" class="mi-dld" data-target="#infoXml' + resultId + '" data-save-name="' + resultId + '_MediaInfo.xml" title="Download MediaInfo report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a>');
+        result.cell('#' + resultId, 3).data('<a href="#" class="mi-view" data-toggle="modal" data-target="#modalInfo' + resultId + '" title="View MediaInfo report"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a><a href="#" class="mi-dld" data-target="#infoXml' + resultId + '" title="Download MediaInfo report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a>');
 
         nodeMI.find('.mi-view').on('click', function(e) {
             e.preventDefault();
@@ -497,7 +497,7 @@ $(document).ready(function() {
                             </div> \
                         </div> \
                             <div class="modal-footer"> \
-                                <button type="button" class="btn btn-primary mi-dld" data-target="#modalInfo' + resultId + '" data-save-name="' + resultId + '_MediaInfoReport.txt">Download MediaInfo report</button> \
+                                <button type="button" class="btn btn-primary mi-dld" data-target="#modalInfo' + resultId + '">Download MediaInfo report</button> \
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> \
                             </div> \
                         </div> \
@@ -575,7 +575,7 @@ $(document).ready(function() {
     function mediaTraceCell(resultId, fileId) {
         nodeMT = $(result.cell('#' + resultId, 4).node());
         nodeMT.addClass('text-center');
-        result.cell('#' + resultId, 4).data('<a href="#" class="mt-view" data-toggle="modal" data-target="#modalTrace' + resultId + '" title="View MediaTrace report"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a><a href="#" class="mt-dld" data-target="#traceXml' + resultId + '" data-save-name="' + resultId + '_MediaTrace.xml" title="Download MediaTrace report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a>');
+        result.cell('#' + resultId, 4).data('<a href="#" class="mt-view" data-toggle="modal" data-target="#modalTrace' + resultId + '" title="View MediaTrace report"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a><a href="#" class="mt-dld" data-target="#traceXml' + resultId + '" title="Download MediaTrace report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a>');
 
         nodeMT.find('.mt-view').on('click', function(e) {
             e.preventDefault();
@@ -599,7 +599,7 @@ $(document).ready(function() {
                                 </div> \
                             </div> \
                             <div class="modal-footer"> \
-                                <button type="button" class="btn btn-primary mt-dld" data-target="#modalTrace' + resultId + '" data-save-name="' + resultId + '_MediaTraceReport.txt">Download MediaTrace report</button> \
+                                <button type="button" class="btn btn-primary mt-dld" data-target="#modalTrace' + resultId + '">Download MediaTrace report</button> \
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> \
                             </div> \
                         </div> \
