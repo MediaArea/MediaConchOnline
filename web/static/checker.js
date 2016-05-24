@@ -474,6 +474,7 @@ $(document).ready(function() {
         // Update cell if analysis of file is succeeded
         if ($(result.cell('#result-' + fileId, 5).node()).hasClass('success')) {
             if (policyId) {
+                resetPolicyCell(fileId);
                 $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: policyId }), function (data) {
                     policyCell(data, 'result-' + fileId, fileId);
                 });
@@ -482,6 +483,11 @@ $(document).ready(function() {
                 policyCellEmptyWithModal('result-' + fileId, fileId)
             }
         }
+    }
+
+    function resetPolicyCell(fileId) {
+        $(result.cell('#result-' + fileId, 2).node()).removeClass();
+        $(result.cell('#result-' + fileId, 2).node()).empty();
     }
 
     function mediaInfoCell(resultId, fileId) {
