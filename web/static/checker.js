@@ -162,6 +162,7 @@ $(document).ready(function() {
             // Remove close all button
             if (1 == $('table.checker-results tbody tr').length && $('table.checker-results tbody tr .dataTables_empty').length) {
                 $('#checkerResultTitle .close').addClass('hidden');
+                $('#checkerApplyAll').addClass('hidden');
             };
         });
 
@@ -182,7 +183,8 @@ $(document).ready(function() {
         })(resultId, 100, 15);
 
         if ($('#checkerResultTitle .close').hasClass('hidden')) {
-            $('#checkerResultTitle .close').removeClass('hidden')
+            $('#checkerResultTitle .close').removeClass('hidden');
+            $('#checkerApplyAll').removeClass('hidden');
         }
     };
 
@@ -695,11 +697,13 @@ $(document).ready(function() {
     // Duplicate policy list
     policyList = $('.tab-content .active .policyList').clone();
     policyList.attr('id', 'applyAllPolicy');
-    $('#checkerApplyAll div.applyAll').append('<div class="col-md-6"><div class="form-group"><label class="col-sm-6 control-label">Apply a policy to all results</label><div class="col-sm-6 policy">')
+    policyList.children('option:first').text('Choose a new policy to apply');
+    $('#checkerApplyAll div.applyAll').append('<div class="col-md-12"><div class="form-group"><label class="pull-left control-label">Apply a policy to all results</label><div class="col-sm-4 policy">')
     $('#checkerApplyAll div.applyAll div.policy').html(policyList);
 
     $('#applyAllPolicy').on('change', function(e) {
         applyPolictyToAll();
+        resetSelectList('applyAllPolicy');
     });
 
     function applyPolictyToAll() {
@@ -716,6 +720,10 @@ $(document).ready(function() {
                 }
             }
         });
+    }
+
+    function resetSelectList(listId) {
+        $('#' + listId + ' option').removeAttr('selected');
     }
 
     function truncateString(str, length) {
@@ -739,6 +747,9 @@ $(document).ready(function() {
 
         // Remove close all button
         $(this).addClass('hidden');
+
+        // Remove apply to all
+        $('#checkerApplyAll').addClass('hidden');
     });
 
     // Alert user when they leave checker page with results
