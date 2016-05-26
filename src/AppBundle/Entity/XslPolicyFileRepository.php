@@ -26,6 +26,20 @@ class XslPolicyFileRepository extends EntityRepository
 
         return $list;
     }
+    public function getUserAndSystemPoliciesChoices($user)
+    {
+        $list = array();
+        $policy = $this->getEntityManager()->getRepository('AppBundle:XslPolicyFile')->findByUser($user);
+        foreach ($policy as $policy) {
+            $list['User policies'][$policy->getPolicyName()] = $policy->getId();
+        }
+        $policy = $this->getEntityManager()->getRepository('AppBundle:XslPolicyFile')->findByUser(null);
+        foreach ($policy as $policy) {
+            $list['System policies'][$policy->getPolicyName()] = $policy->getId();
+        }
+
+        return $list;
+    }
 
     public function findOneByUserOrSystem($policy, $user)
     {
@@ -37,6 +51,6 @@ class XslPolicyFileRepository extends EntityRepository
             ->setMaxResults(1)
             ->getQuery();
 
-        return $query->getSingleResult();
+        return $query->getOneOrNullResult();
     }
 }

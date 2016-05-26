@@ -44,6 +44,12 @@ class User extends BaseUser
     protected $quotasDefault;
 
     /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Settings", mappedBy="user", cascade={"persist", "remove"})
+     * @Assert\Valid()
+     */
+    protected $settings;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      *
      * @Assert\Length(
