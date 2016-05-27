@@ -203,3 +203,23 @@ p.registration {
 .panel-body a button.pull-right {
     margin-left: 10px;
 }
+
+.spinner-cell, .spinner-status {
+    background: transparent url("/static/ajax-spinner-small.gif");
+    width: 16px;
+    height: 14px;
+    display: block;
+    margin: 0 auto;
+}
+
+.spinner-status {
+    display: inline-block;
+}
+
+.spinner-modal {
+    background: transparent url("/static/ajax-spinner-big.gif");
+    width: 66px;
+    height: 66px;
+    display: block;
+    margin: 0 auto;
+}
