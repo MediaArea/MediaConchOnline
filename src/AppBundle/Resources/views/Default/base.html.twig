@@ -61,6 +61,7 @@
                         <a href="{{ path('fos_user_profile_show') }}" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{{ path('fos_user_profile_show') }}">Profile</a></li>
+                            <li><a href="{{ path('app_user_settings') }}">Settings</a></li>
                             {% if is_granted('ROLE_ADMIN') %}
                                 <li><a href="{{ path('admin') }}">Admin</a></li>
                             {% endif %}

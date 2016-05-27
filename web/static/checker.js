@@ -706,6 +706,7 @@ $(document).ready(function() {
     policyList.children('option:first').text('Choose a new policy to apply');
     $('#checkerApplyAll div.applyAll').append('<div class="col-md-12"><div class="form-group"><label class="pull-left control-label">Apply a policy to all results</label><div class="col-sm-4 policy">')
     $('#checkerApplyAll div.applyAll div.policy').html(policyList);
+    resetSelectList('applyAllPolicy');
 
     $('#applyAllPolicy').on('change', function(e) {
         applyPolictyToAll();

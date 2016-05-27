@@ -218,6 +218,12 @@ class CheckerController extends Controller
             if ($this->get('mediaconch_user.quotas')->hasUploadsRights()) {
                 if ($formUpload->isValid()) {
                     $data = $formUpload->getData();
+
+                    $settings = $this->get('mco.settings');
+                    $settings->setLastUsedPolicy($data['policy']);
+                    $settings->setLastUsedDisplay($data['display']);
+                    $settings->setLastUsedVerbosity($data['verbosity']);
+
                     if ($data['file']->isValid()) {
                         $path = $this->container->getParameter('kernel.root_dir').'/../files/upload/' . $this->getUser()->getId();
                         $filename =  $data['file']->getClientOriginalName();
@@ -255,6 +261,12 @@ class CheckerController extends Controller
             if ($this->get('mediaconch_user.quotas')->hasUrlsRights()) {
                 if ($formOnline->isValid()) {
                     $data = $formOnline->getData();
+
+                    $settings = $this->get('mco.settings');
+                    $settings->setLastUsedPolicy($data['policy']);
+                    $settings->setLastUsedDisplay($data['display']);
+                    $settings->setLastUsedVerbosity($data['verbosity']);
+
                     $checks = $this->get('mco.checker.analyze');
                     $checks->setFullPath(true);
                     $checks->analyse(str_replace(' ', '%20', $data['file']));
@@ -282,6 +294,11 @@ class CheckerController extends Controller
                     if ($formRepository->isValid()) {
                         $data = $formRepository->getData();
                         $response = array();
+
+                        $settings = $this->get('mco.settings');
+                        $settings->setLastUsedPolicy($data['policy']);
+                        $settings->setLastUsedDisplay($data['display']);
+                        $settings->setLastUsedVerbosity($data['verbosity']);
 
                         $finder = new Finder();
                         $finder->files()->in($this->container->getParameter('mco_check_folder'));

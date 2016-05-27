@@ -9,11 +9,15 @@ use Symfony\Component\Validator\Constraints\File;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\EntityManager;
 
+use AppBundle\Lib\Settings\SettingsManager;
+
 class CheckerUploadFormType extends AbstractType
 {
     private $user;
+    private $em;
+    private $settings;
 
-    public function __construct(TokenStorageInterface $tokenStorage, EntityManager $em)
+    public function __construct(TokenStorageInterface $tokenStorage, EntityManager $em, SettingsManager $settings)
     {
         $token = $tokenStorage->getToken();
         if ($token !== null && $token->getUser() instanceof \AppBundle\Entity\User) {
@@ -24,6 +28,7 @@ class CheckerUploadFormType extends AbstractType
         }
 
         $this->em = $em;
+        $this->settings = $settings;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -34,6 +39,7 @@ class CheckerUploadFormType extends AbstractType
                 'placeholder' => 'Choose a policy',
                 'required' => false,
                 'label' => 'Policy',
+                'data' => $this->settings->getDefaultPolicy(),
                 'attr' => array('class' => 'policyList'))
                 )
             ->add('display', 'entity', array('class' => 'AppBundle:DisplayFile',
@@ -41,6 +47,7 @@ class CheckerUploadFormType extends AbstractType
                 'placeholder' => 'Choose a display',
                 'required' => false,
                 'label' => 'Display',
+                'data' => $this->settings->getDefaultDisplay(),
                 'attr' => array('class' => 'displayList'))
                 )
             ->add('verbosity', 'choice', array('choices' => array('Default level' => -1, '0 (least verbose)' => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4, '5 (most verbose)' => 5),
@@ -48,6 +55,7 @@ class CheckerUploadFormType extends AbstractType
                 'placeholder' => false,
                 'required' => false,
                 'label' => 'Verbosity',
+                'data' => $this->settings->getDefaultVerbosity(),
                 'attr' => array('class' => 'verbosityList'))
                 )
             ->add('file', 'file', array('label' => 'File (max ' . ini_get('upload_max_filesize') . ')', 'constraints' => array(new File(array('maxSize' => ini_get('upload_max_filesize')))), 'attr' => array('data-file-max-size' => ini_get('upload_max_filesize'))))

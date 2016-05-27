@@ -1,0 +1,18 @@
+{% extends 'AppBundle:Default:base.html.twig' %}
+
+{% block title %}
+MediaConch settings
+{% endblock %}
+
+{% block body %}
+<div class="col-md-12">
+    <h1>Settings</h1>
+</div>
+
+<div class="col-md-12">
+    {% form_theme form 'bootstrap_3_horizontal_layout.html.twig' %}
+    {{ form(form) }}
+</div>
+
+{% endblock %}
+

@@ -27,6 +27,21 @@ class DisplayFileRepository extends EntityRepository
         return $list;
     }
 
+    public function getUserAndSystemDisplaysChoices($user)
+    {
+        $list = array();
+        $displays = $this->getEntityManager()->getRepository('AppBundle:DisplayFile')->findByUser($user);
+        foreach ($displays as $display) {
+            $list['User displays'][$display->getDisplayName()] = $display->getId();
+        }
+        $displays = $this->getEntityManager()->getRepository('AppBundle:DisplayFile')->findByUser(null);
+        foreach ($displays as $display) {
+            $list['System displays'][$display->getDisplayName()] = $display->getId();
+        }
+
+        return $list;
+    }
+
     public function findOneByUserOrSystem($display, $user)
     {
         $query = $this->getEntityManager()->getRepository('AppBundle:DisplayFile')->createQueryBuilder('d')
@@ -37,6 +52,6 @@ class DisplayFileRepository extends EntityRepository
             ->setMaxResults(1)
             ->getQuery();
 
-        return $query->getSingleResult();
+        return $query->getOneOrNullResult();
     }
 }
