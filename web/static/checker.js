@@ -196,6 +196,7 @@ $(document).ready(function() {
             node.data('tool', data.tool);
 
             // Implementation
+            addSpinnerToCell(result.cell(node, 1));
             $.get(Routing.generate('app_checker_checkerreportstatus', { id: fileId, reportType: data.tool }), function(data) {
                 implementationCell(data, resultId, fileId);
             });
@@ -203,6 +204,7 @@ $(document).ready(function() {
             // Policy
             if (2 == data.tool) {
                 if (node.data('policy')) {
+                    addSpinnerToCell(result.cell(node, 2));
                     $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: node.data('policy') }), function(data) {
                         policyCell(data, resultId, fileId)
                     });
@@ -228,7 +230,7 @@ $(document).ready(function() {
             //i = 0;
         }
         else if (data.percent > 0) {
-            $(result.cell('#' + resultId, 5).node()).find('.status-text').text('Analyzing');
+            $(result.cell('#' + resultId, 5).node()).find('.status-text').html('Analyzing <span class="spinner-status"></span>');
         }
     }
 
@@ -281,6 +283,7 @@ $(document).ready(function() {
                     </div> \
                 </div>');
 
+                addSpinnerToModal('#modalConformance' + resultId);
                 $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: nodeModal.data('tool'),  displayName: 'html', display: nodeModal.data('display'), verbosity: nodeModal.data('verbosity')}), function(data) {
                     displayReport('#modalConformance' + resultId, data);
                 });
@@ -300,6 +303,7 @@ $(document).ready(function() {
                 $('#modalConformanceDisplay' + resultId).on('change', function(e) {
                     modalDisplay = $('#modalConformanceDisplay' + resultId).val();
                     modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
+                    addSpinnerToModal('#modalConformance' + resultId);
                     $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: nodeModal.data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
                         displayReport('#modalConformance' + resultId, data);
                     });
@@ -313,6 +317,7 @@ $(document).ready(function() {
                 $('#modalConformanceVerbosity' + resultId).on('change', function(e) {
                     modalDisplay = $('#modalConformanceDisplay' + resultId).val();
                     modalVerbosity = $('#modalConformanceVerbosity' + resultId).val();
+                    addSpinnerToModal('#modalConformance' + resultId);
                     $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: nodeModal.data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
                         displayReport('#modalConformance' + resultId, data);
                     });
@@ -398,6 +403,7 @@ $(document).ready(function() {
                 </div>');
 
                 if (nodeModal.data('policy')) {
+                    addSpinnerToModal('#modalPolicy' + resultId);
                     $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: nodeModal.data('policy'), display: nodeModal.data('display')}), function(data) {
                         displayReport('#modalPolicy' + resultId, data);
                     });
@@ -421,6 +427,7 @@ $(document).ready(function() {
                     modalDisplay = $('#modalPolicyDisplay' + resultId).val();
                     modalPolicy = $('#modalPolicyPolicy' + resultId).val();
                     if (modalPolicy) {
+                        addSpinnerToModal('#modalPolicy' + resultId);
                         $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
                         displayReport('#modalPolicy' + resultId, data);
                         });
@@ -439,6 +446,7 @@ $(document).ready(function() {
                     modalDisplay = $('#modalPolicyDisplay' + resultId).val();
                     modalPolicy = $('#modalPolicyPolicy' + resultId).val();
                     if (modalPolicy) {
+                        addSpinnerToModal('#modalPolicy' + resultId);
                         $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
                             displayReport('#modalPolicy' + resultId, data);
                         });
@@ -476,6 +484,7 @@ $(document).ready(function() {
         if ($(result.cell('#result-' + fileId, 5).node()).hasClass('success')) {
             if (policyId) {
                 resetPolicyCell(fileId);
+                addSpinnerToCell(result.cell('#result-' + fileId, 2));
                 $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: policyId }), function (data) {
                     policyCell(data, 'result-' + fileId, fileId);
                 });
@@ -732,6 +741,14 @@ $(document).ready(function() {
 
     function resetSelectList(listId) {
         $('#' + listId + ' option').removeAttr('selected');
+    }
+
+    function addSpinnerToCell(cell) {
+        cell.data('<span class="spinner-cell"></span>');
+    }
+
+    function addSpinnerToModal(modal) {
+        $(modal + ' .modal-body').html('<span class="spinner-modal"></span>');
     }
 
     function truncateString(str, length) {
