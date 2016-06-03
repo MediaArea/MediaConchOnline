@@ -223,3 +223,9 @@ p.registration {
     display: block;
     margin: 0 auto;
 }
+
+.alert-modal-create-policy {
+    display: inline-block;
+    margin-top: inherit;
+    margin-bottom: inherit;
+}

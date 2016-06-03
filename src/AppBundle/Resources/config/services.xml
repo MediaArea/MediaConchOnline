@@ -115,6 +115,10 @@
             <argument type="service" id="mco.mediaconch.server"/>
         </service>
 
+        <service id="mco.policy.fromFile" class="AppBundle\Lib\XslPolicy\XslPolicyFromFile">
+            <argument type="service" id="mco.mediaconch.server"/>
+        </service>
+
         <service id="mco.settings" class="AppBundle\Lib\Settings\SettingsManager">
             <argument type="service" id="security.token_storage" />
             <argument type="service" id="doctrine.orm.entity_manager" />
