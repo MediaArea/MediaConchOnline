@@ -177,7 +177,7 @@ class CheckerController extends Controller
 
             $policy = new XslPolicyFile();
             $policy->setUser($this->getUser());
-            $policy->setPolicyName($file->getFilename())->setPolicyDescription('Policy created from ' . $file->getFilename());
+            $policy->setPolicyName($file->getFilename())->setPolicyDescription('Policy created from MediaInfo report of ' . $file->getFilename());
             $policy->setPolicyFile($tmpFile);
 
             $em->persist($policy);

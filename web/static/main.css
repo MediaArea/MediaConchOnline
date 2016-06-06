@@ -228,4 +228,10 @@ p.registration {
     display: inline-block;
     margin-top: inherit;
     margin-bottom: inherit;
+    font-size: 16px;
+    padding: 6px 12px;
+}
+
+.alert-modal-create-policy a {
+    text-decoration: underline;
 }
