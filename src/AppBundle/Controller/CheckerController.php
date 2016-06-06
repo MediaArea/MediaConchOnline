@@ -183,7 +183,7 @@ class CheckerController extends Controller
             $em->persist($policy);
             $em->flush();
 
-            return new JsonResponse(array('result' => true, 'policyId' => $policy->getId()));
+            return new JsonResponse(array('result' => true, 'policyId' => $policy->getId(), 'policyName' => $file->getFilename()));
         }
         else {
             return new JsonResponse(array('result' => false));

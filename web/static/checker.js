@@ -612,7 +612,16 @@ $(document).ready(function() {
     function mediaInfoCreatePolicy(createPolicy, resultId, fileId) {
         if (createPolicy.result) {
             $('#modalInfo' + resultId + ' .mi-create-report').fadeOut(200).replaceWith('<div class="alert alert-success alert-modal-create-policy" role="alert"><span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <a href="' + Routing.generate('app_xslpolicy_xslpolicyruleedit', { id: createPolicy.policyId }) + '" target="_blank" title="View the new policy" class="alert-link">Policy</a> successfuly created</div>');
-            /** @TODO : update policy lists  */
+
+            // Add new policy to all select lists
+            $('.policyList').each(function () {
+                if ('User policies' == $(this).children('optgroup:first').attr('label')) {
+                    $(this).children('optgroup:first').append('<option value="' + createPolicy.policyId + '">' + createPolicy.policyName + '</option>');
+                }
+                else {
+                    $(this).append('<optgroup label="User policies"><option value="' + createPolicy.policyId + '">' + createPolicy.policyName + '</option></optgroup>')
+                }
+            });
         }
         else {
             $('#modalInfo' + resultId + ' .mi-create-report').fadeOut(200).replaceWith('<div class="alert alert-danger alert-modal-create-policy" role="alert"><span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Error policy not created</div>');
