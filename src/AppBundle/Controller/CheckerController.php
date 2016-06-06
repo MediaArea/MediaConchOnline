@@ -11,8 +11,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Finder\Finder;
+
+use AppBundle\Entity\XslPolicyFile;
 
 /**
  * @Route("/")
@@ -148,6 +151,42 @@ class CheckerController extends Controller
         }
         else {
             return new JsonResponse($report->getResponseAsArray());
+        }
+    }
+
+    /**
+     * @Route("/checkerCreatePolicy/{id}", requirements={"id": "\d+"})
+     */
+    public function checkerCreatePolicyAction($id, Request $request)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
+
+        $policyFromFile = $this->get('mco.policy.fromFile');
+        $policyFromFile->getPolicy($id);
+
+        if (null !== $policyFromFile->getPolicyContent()) {
+            $em = $this->getDoctrine()->getManager();
+            $file = $this->get('mco.checker.filename');
+            $file->fileFromId($id);
+
+            $tmpFileName = tempnam(sys_get_temp_dir(), 'policy' . $this->getUser());
+            file_put_contents($tmpFileName, $policyFromFile->getPolicyContent());
+            $tmpFile = new UploadedFile($tmpFileName, $file->getFilename() . '.xsl', null, null, null, true);
+
+            $policy = new XslPolicyFile();
+            $policy->setUser($this->getUser());
+            $policy->setPolicyName($file->getFilename())->setPolicyDescription('Policy created from ' . $file->getFilename());
+            $policy->setPolicyFile($tmpFile);
+
+            $em->persist($policy);
+            $em->flush();
+
+            return new JsonResponse(array('result' => true, 'policyId' => $policy->getId()));
+        }
+        else {
+            return new JsonResponse(array('result' => false));
         }
     }
 

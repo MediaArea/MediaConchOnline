@@ -111,7 +111,7 @@ vich_uploader:
 
 # FOSJsRoutingBundle
 fos_js_routing:
-    routes_to_expose: [ 'app_checker_checkerajaxform', 'app_checker_checkerstatus', 'app_checker_checkerimplemstatus', 'app_checker_checkerreport', 'app_checker_checkerdownloadreport', 'app_checker_checkerpolicystatus' ]
+    routes_to_expose: [ 'app_checker_checkerajaxform', 'app_checker_checkerstatus', 'app_checker_checkerimplemstatus', 'app_checker_checkerreport', 'app_checker_checkerdownloadreport', 'app_checker_checkerpolicystatus', 'app_checker_checkercreatepolicy', 'app_xslpolicy_xslpolicyruleedit' ]
 
 services:
     twig.extension.text:
@@ -123,4 +123,4 @@ app:
     mediaconch:
         address: 127.0.0.1
         port: 4242
-        api_version: 1.4
+        api_version: 1.5

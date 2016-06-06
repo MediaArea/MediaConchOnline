@@ -527,7 +527,8 @@ $(document).ready(function() {
                             </div> \
                         </div> \
                             <div class="modal-footer"> \
-                                <button type="button" class="btn btn-primary mi-dld" data-target="#modalInfo' + resultId + '">Download MediaInfo report</button> \
+                                <button type="button" class="btn btn-warning mi-create-report">Create policy from MediaInfo report</button> \
+                                <button type="button" class="btn btn-primary mi-dld">Download MediaInfo report</button> \
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> \
                             </div> \
                         </div> \
@@ -539,6 +540,13 @@ $(document).ready(function() {
                 $('#modalInfo' + resultId + ' .mi-dld').on('click', function(e) {
                     e.preventDefault();
                     window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'mi',  displayName: 'xml'});
+                });
+
+                $('#modalInfo' + resultId + ' .mi-create-report').on('click', function(e) {
+                    e.preventDefault();
+                    $.get(Routing.generate('app_checker_checkercreatepolicy', { id: fileId }), function (data) {
+                        mediaInfoCreatePolicy(data, 'result-' + fileId, fileId);
+                    });
                 });
             }
         });
@@ -601,6 +609,15 @@ $(document).ready(function() {
         });
     }
 
+    function mediaInfoCreatePolicy(createPolicy, resultId, fileId) {
+        if (createPolicy.result) {
+            $('#modalInfo' + resultId + ' .mi-create-report').fadeOut(200).replaceWith('<div class="alert alert-success alert-modal-create-policy" role="alert"><span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <a href="' + Routing.generate('app_xslpolicy_xslpolicyruleedit', { id: createPolicy.policyId }) + '" target="_blank" title="View the new policy" class="alert-link">Policy</a> successfuly created</div>');
+            /** @TODO : update policy lists  */
+        }
+        else {
+            $('#modalInfo' + resultId + ' .mi-create-report').fadeOut(200).replaceWith('<div class="alert alert-danger alert-modal-create-policy" role="alert"><span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Error policy not created</div>');
+        }
+    }
 
     function mediaTraceCell(resultId, fileId) {
         nodeMT = $(result.cell('#' + resultId, 4).node());

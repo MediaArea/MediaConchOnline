@@ -81,6 +81,17 @@ class MediaConchServer
         return $reportResponse;
     }
 
+    public function policyFromFile($id)
+    {
+        $request = array('id' => $id);
+        $response = $this->callApi('create_policy_from_file', 'GET', $request);
+        $response = $response->CREATE_POLICY_FROM_FILE_RESULT;
+
+        $statusReponse = new PolicyFromFileResponse($response);
+
+        return $statusReponse;
+    }
+
     protected function callApi($uri, $method, $params)
     {
         $url = 'http://' . $this->address . '/' . $this->apiVersion . '/' . $uri;
