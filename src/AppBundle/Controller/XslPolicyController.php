@@ -2,7 +2,6 @@
 
 namespace AppBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -11,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+use AppBundle\Controller\BaseController;
 use AppBundle\Entity\XslPolicy;
 use AppBundle\Entity\XslPolicyFile;
 use AppBundle\Entity\XslPolicyRule;
@@ -20,7 +20,7 @@ use AppBundle\Lib\XslPolicy\XslPolicyWriter;
 /**
  * @Route("/")
  */
-class XslPolicyController extends Controller
+class XslPolicyController extends BaseController
 {
     /**
      * @Route("/xslPolicy/")
@@ -51,10 +51,8 @@ class XslPolicyController extends Controller
                 $em->persist($policy);
                 $em->flush();
 
-                $this->get('session')->getFlashBag()->add(
-                    'success',
-                    'Policy successfully added'
-                    );
+                $this->addFlashBag('success', 'Policy successfully added');
+
                 return $this->redirect($this->generateUrl('app_xslpolicy_xslpolicyruleedit', array('id' => $policy->getId())));
             }
 
@@ -79,10 +77,8 @@ class XslPolicyController extends Controller
                 $em->persist($policy);
                 $em->flush();
 
-                $this->get('session')->getFlashBag()->add(
-                    'success',
-                    'Policy successfully added'
-                    );
+                $this->addFlashBag('success', 'Policy successfully added');
+
                 return $this->redirect($this->generateUrl('app_xslpolicy_xslpolicyruleedit', array('id' => $policy->getId())));
             }
         }
@@ -105,20 +101,14 @@ class XslPolicyController extends Controller
             ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
 
         if (!$policy) {
-             $this->get('session')->getFlashBag()->add(
-                'danger',
-                'Policy not found'
-                );
+             $this->addFlashBag('danger', 'Policy not found');
         }
         else {
             $em = $this->getDoctrine()->getManager();
             $em->remove($policy);
             $em->flush();
 
-            $this->get('session')->getFlashBag()->add(
-                'success',
-                'Policy successfully removed'
-                );
+            $this->addFlashBag('success', 'Policy successfully removed');
         }
 
         return $this->redirect($this->generateUrl('app_xslpolicy_xslpolicy'));
@@ -135,10 +125,7 @@ class XslPolicyController extends Controller
             ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
 
         if (!$policy) {
-             $this->get('session')->getFlashBag()->add(
-                'danger',
-                'Policy not found'
-                );
+            $this->addFlashBag('danger', 'Policy not found');
 
             return $this->redirect($this->generateUrl('app_xslpolicy_xslpolicy'));
         }
@@ -159,10 +146,7 @@ class XslPolicyController extends Controller
             ->findOneBy(array('id' => $id, 'user' => null));
 
         if (!$policy) {
-             $this->get('session')->getFlashBag()->add(
-                'danger',
-                'Policy not found'
-                );
+            $this->addFlashBag('danger', 'Policy not found');
 
             return $this->redirect($this->generateUrl('app_xslpolicy_xslpolicy'));
         }
@@ -183,10 +167,7 @@ class XslPolicyController extends Controller
             ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
 
         if (!$policy) {
-             $this->get('session')->getFlashBag()->add(
-                'danger',
-                'Policy not found'
-                );
+            $this->addFlashBag('danger', 'Policy not found');
         }
         else {
             $duplicatePolicy = clone $policy;
@@ -202,10 +183,7 @@ class XslPolicyController extends Controller
             $em->persist($duplicatePolicy);
             $em->flush();
 
-            $this->get('session')->getFlashBag()->add(
-                'success',
-                'Policy successfully duplicated'
-                );
+            $this->addFlashBag('success', 'Policy successfully duplicated');
         }
 
         return $this->redirect($this->generateUrl('app_xslpolicy_xslpolicy'));
@@ -222,10 +200,7 @@ class XslPolicyController extends Controller
             ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
 
         if (!$policy) {
-             $this->get('session')->getFlashBag()->add(
-                'danger',
-                'Policy not found'
-                );
+            $this->addFlashBag('danger', 'Policy not found');
 
             return $this->redirect($this->generateUrl('app_xslpolicy_xslpolicy'));
         }
@@ -245,10 +220,7 @@ class XslPolicyController extends Controller
                 $originalRule = clone $rule;
             }
             else {
-                $this->get('session')->getFlashBag()->add(
-                    'danger',
-                    'Policy rule not found'
-                    );
+                $this->addFlashBag('danger', 'Policy rule not found');
 
                 return $this->redirect($this->generateUrl('app_xslpolicy_xslpolicyruleedit', array('id' => $id)));
             }
@@ -273,10 +245,7 @@ class XslPolicyController extends Controller
             $writer->setPolicy($parser->getPolicy());
             $writer->writeXsl($policyFile);
 
-            $this->get('session')->getFlashBag()->add(
-                'success',
-                'Policy rule successfully saved'
-                );
+            $this->addFlashBag('success', 'Policy rule successfully saved');
 
             return $this->redirect($this->generateUrl('app_xslpolicy_xslpolicyruleedit', array('id' => $id)));
         }
@@ -296,10 +265,7 @@ class XslPolicyController extends Controller
             ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
 
         if (!$policy) {
-             $this->get('session')->getFlashBag()->add(
-                'danger',
-                'Policy not found'
-                );
+            $this->addFlashBag('danger', 'Policy not found');
 
             return $this->redirect($this->generateUrl('app_xslpolicy_xslpolicy'));
         }
@@ -317,16 +283,10 @@ class XslPolicyController extends Controller
             $writer->setPolicy($parser->getPolicy());
             $writer->writeXsl($policyFile);
 
-            $this->get('session')->getFlashBag()->add(
-                'success',
-                'Policy rule successfully removed'
-                );
+            $this->addFlashBag('success', 'Policy rule successfully removed');
         }
         else {
-            $this->get('session')->getFlashBag()->add(
-                'danger',
-                'Policy rule not found'
-                );
+            $this->addFlashBag('danger', 'Policy rule not found');
         }
 
         return $this->redirect($this->generateUrl('app_xslpolicy_xslpolicyruleedit', array('id' => $policy->getId())));

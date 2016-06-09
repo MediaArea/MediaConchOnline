@@ -2,7 +2,6 @@
 
 namespace AppBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -10,12 +9,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+use AppBundle\Controller\BaseController;
 use AppBundle\Entity\DisplayFile;
 
 /**
  * @Route("/")
  */
-class DisplayController extends Controller
+class DisplayController extends BaseController
 {
     /**
      * @Route("/display/")
@@ -46,10 +46,8 @@ class DisplayController extends Controller
                 $em->persist($display);
                 $em->flush();
 
-                $this->get('session')->getFlashBag()->add(
-                    'success',
-                    'Display successfully added'
-                    );
+                $this->addFlashBag('success', 'Display successfully added');
+
                 return $this->redirect($this->generateUrl('app_display_display'));
             }
         }
@@ -73,20 +71,14 @@ class DisplayController extends Controller
             ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
 
         if (!$policy) {
-             $this->get('session')->getFlashBag()->add(
-                'danger',
-                'Policy display not found'
-                );
+            $this->addFlashBag('danger', 'Policy display not found');
         }
         else {
             $em = $this->getDoctrine()->getManager();
             $em->remove($policy);
             $em->flush();
 
-            $this->get('session')->getFlashBag()->add(
-                'success',
-                'Policy display successfully removed'
-                );
+            $this->addFlashBag('success', 'Policy display successfully removed');
         }
 
         return $this->redirect($this->generateUrl('app_display_display'));
@@ -103,10 +95,7 @@ class DisplayController extends Controller
             ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
 
         if (!$policy) {
-             $this->get('session')->getFlashBag()->add(
-                'danger',
-                'Policy display not found'
-                );
+            $this->addFlashBag('danger', 'Policy display not found');
 
             return $this->redirect($this->generateUrl('app_display_display'));
         }
@@ -127,10 +116,7 @@ class DisplayController extends Controller
             ->findOneBy(array('id' => $id, 'user' => null));
 
         if (!$policy) {
-             $this->get('session')->getFlashBag()->add(
-                'danger',
-                'Policy display not found'
-                );
+            $this->addFlashBag('danger', 'Policy display not found');
 
             return $this->redirect($this->generateUrl('app_display_display'));
         }
