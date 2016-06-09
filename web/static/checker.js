@@ -172,16 +172,28 @@ $(document).ready(function() {
             setTimeout(function () {
                 if (!$(result.cell('#' + resultId, 5).node()).hasClass('success')) {
                     $.get(Routing.generate('app_checker_checkerstatus', { id: fileId }), function (data) {
-                        processCheckerStatusRequest(data, resultId, fileId)
+                        processCheckerStatusRequest(data, resultId, fileId);
+
+                        // If i > 0, keep going
+                        if ($(result.cell('#' + resultId, 5).node()).hasClass('info') && --i > 0) {
+                            // Limit loop timer to 10s
+                            if ((time *= 2) > 10000) {
+                                time = 10000;
+                            }
+                            // Call the loop again
+                            theLoop(resultId, time, i);
+                        }
+                        // Stop the loop and display error
+                        else if (i <= 0) {
+                            statusCellError(resultId, fileId);
+                        }
+
+                    }).fail(function() {
+                        statusCellError(resultId, fileId);
                     });
                 }
-                // If i > 0, keep going
-                if ($(result.cell('#' + resultId, 5).node()).hasClass('info') && --i > 0) {
-                    // Call the loop again
-                    theLoop(resultId, time * 2, i);
-                }
             }, time);
-        })(resultId, 100, 15);
+        })(resultId, 100, 100);
 
         if ($('#checkerResultTitle .close').hasClass('hidden')) {
             $('#checkerResultTitle .close').removeClass('hidden');
@@ -194,6 +206,9 @@ $(document).ready(function() {
             node = result.$('#' + resultId);
             // Report type
             node.data('tool', data.tool);
+
+            // Status
+            statusCellSuccess(resultId, fileId);
 
             // Implementation
             addSpinnerToCell(result.cell(node, 1));
@@ -222,22 +237,27 @@ $(document).ready(function() {
 
             // MediaTrace
             mediaTraceCell(resultId, fileId);
-
-            // Status
-            statusCell(resultId, fileId);
-
-            //stop timer
-            //i = 0;
         }
         else if (data.percent > 0) {
-            $(result.cell('#' + resultId, 5).node()).find('.status-text').html('Analyzing <span class="spinner-status"></span>');
+            if (undefined == data.tool || 2 != data.tool || 100 == data.percent) {
+                $(result.cell('#' + resultId, 5).node()).find('.status-text').html('<span class="spinner-status"></span>');
+            }
+            else {
+                $(result.cell('#' + resultId, 5).node()).find('.status-text').html('<span class="spinner-status"></span>&nbsp;' + Math.round(data.percent) + '%');
+            }
         }
     }
 
-    function statusCell(resultId, fileId) {
+    function statusCellSuccess(resultId, fileId) {
         nodeStatus = $(result.cell('#' + resultId, 5).node());
         nodeStatus.removeClass().addClass('success');
-        nodeStatus.find('.status-text').text('Analyzed');
+        nodeStatus.find('.status-text').html('<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> Analyzed');
+    };
+
+    function statusCellError(resultId, fileId) {
+        nodeStatus = $(result.cell('#' + resultId, 5).node());
+        nodeStatus.removeClass().addClass('danger');
+        nodeStatus.find('.status-text').html('<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Error');
     };
 
     function implementationCell(data, resultId, fileId) {
