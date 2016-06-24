@@ -5,8 +5,12 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}MediaConchOnline{% endblock %}</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="/static/main.css" media="screen"/>
+        {% stylesheets filter='?scssphp' filter='cssrewrite' output='css/bootstrap-main.css'
+            'css/bootstrap.css'
+            '@AppBundle/Resources/public/css/main.css'
+        %}
+            <link rel="stylesheet" type="text/css" href="{{ asset_url }}"/>
+        {% endstylesheets %}
 
         <link rel="shortcut icon" href="/MediaConch/images/favicon.ico" />
         <link rel="apple-touch-icon" sizes="57x57" href="/MediaConch/images/apple-icon-57x57.png">
@@ -111,8 +115,13 @@
         </footer>
     </div> <!-- ends container -->
 
-        <script src="//code.jquery.com/jquery-1.12.4.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+        {% javascripts output='js/jquery-bootstrap.js'
+            'js/jquery.js'
+            'js/bootstrap.js'
+        %}
+            <script type="text/javascript" src="{{ asset_url }}"></script>
+        {% endjavascripts %}
+
         {% block javascripts %}{% endblock %}
         {# Google Analytics tracker #}
         {% if mco_ga_tracking is not empty and mco_ga_tracking is not same as(true) %}

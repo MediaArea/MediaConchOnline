@@ -25,7 +25,12 @@
         "javiereguiluz/easyadmin-bundle": "^1.5",
         "vich/uploader-bundle": "^1.0",
         "ircmaxell/password-compat": "^1.0",
-        "friendsofsymfony/jsrouting-bundle": "^1.6"
+        "friendsofsymfony/jsrouting-bundle": "^1.6",
+        "leafo/scssphp": "^0.6.3",
+        "patchwork/jsqueeze": "^2.0",
+        "components/jquery": "^1.12",
+        "vakata/jstree": "^3.3",
+        "twbs/bootstrap": "^3.3"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
