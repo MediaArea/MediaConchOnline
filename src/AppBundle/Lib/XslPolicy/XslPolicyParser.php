@@ -12,18 +12,18 @@ class XslPolicyParser
 
     public function __construct()
     {
-        $this->policy = new XslPolicy();
     }
 
     public function loadXsl($xsl)
     {
         if (file_exists($xsl)) {
+            $this->policy = new XslPolicy();
             $this->xsl = new \DomDocument();
             $this->xsl->load($xsl);
             $this->hydrate();
         }
         else {
-            throw new Exception('Policy does\'nt exists');
+            throw new \Exception('Policy does\'nt exists');
         }
     }
 

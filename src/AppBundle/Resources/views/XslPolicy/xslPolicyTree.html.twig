@@ -1,0 +1,89 @@
+{% extends 'AppBundle:Default:base.html.twig' %}
+
+{% block title %}
+MediaConchOnline Policy Management
+{% endblock %}
+
+{% block body %}
+<h1>Policy editor</h1>
+
+<div class="col-md-8">
+    <h2>Policy list:</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <i class="glyphicon glyphicon-search"></i><input type="text" value="" class="jstreeSearch" id="policiesTreeSearch" placeholder="Search" />
+        </div>
+        <div class="col-md-12">
+            <div id="policiesTree"></div>
+        </div>
+    </div>
+</div>
+<div class="col-md-4 policyRightCol">
+    <div id="policyFix" class="row">
+        <div id="policyInfo" class="row">
+            <div></div>
+        </div>
+        <div class="row policyManage">
+            <div>
+                <h2>Import a policy</h2>
+                {% if importPolicyForm is defined and importPolicyForm %}
+                    {{ form(importPolicyForm) }}
+                {% else %}
+                    {{ include('AppBundle:Default:quotaExceeded.html.twig') }}
+                {% endif %}
+            </div>
+
+            {% if createPolicyForm is defined and createPolicyForm %}
+            <div>
+                <h2>Create a policy</h2>
+                {{ form(createPolicyForm) }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="row policyEdit hidden">
+            <div>
+                <h4>Policy edition:</h4>
+                <span class="policyEditTitle"></span>
+            </div>
+
+            <div>
+                <h4>Policy actions:</h4>
+                <button id="policyDuplicate" class="btn btn-warning">Duplicate</button>
+                <button id="policyExport" class="btn btn-warning">Export</button>
+                <button id="policyDelete" class="btn btn-danger">Delete</button>
+            </div>
+
+            <div id="policyRuleCreateContainer">
+                <h4>Policy rule actions:</h4>
+                <button id="policyRuleCreate" class="btn btn-warning">Add a new rule</button>
+            </div>
+        </div>
+
+        <div class="row policyEditRule hidden">
+            {{ form(policyRuleForm) }}
+            <p>Fields marked by asterisks (*) are required</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', {'callback': 'fos.Router.setData'}) }}"></script>
+    {% javascripts filter='?jsqueeze' output='js/policy.js'
+        '@AppBundle/Resources/public/js/policy.js'
+        'js/jstree.min.js'
+    %}
+        <script src="{{ asset_url }}"></script>
+    {% endjavascripts %}
+{% endblock %}
+
+{% block stylesheets %}
+     {% stylesheets filter='?scssphp' output='css/policy.css'
+        'css/jstree.min.css'
+    %}
+        <link rel="stylesheet" type="text/css" href="{{ asset_url }}"/>
+    {% endstylesheets %}
+{% endblock %}
