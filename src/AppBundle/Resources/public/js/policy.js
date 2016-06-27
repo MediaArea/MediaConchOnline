@@ -218,7 +218,6 @@ $(document).ready(function() {
                     displayPolicyRule(data.node, true);
                 }
                 break;
-            case 'a':
             case 'up':
             case 'sp':
                 displayPolicyManage(data.node);
@@ -269,7 +268,7 @@ $(document).ready(function() {
     })
 
     function policyDuplicate(policy, selectedPolicyNode) {
-        policyNodeId = pTree.create_node('p_root', {text: policy.policyName, type: 'u', data: {policyId: policy.policyId}});
+        policyNodeId = pTree.create_node('p_u', {text: policy.policyName, type: 'u', data: {policyId: policy.policyId}});
         $.each(policy.policyRules, function(ruleId, policyRule) {
             pTree.create_node(policyNodeId, policyRule);
         });

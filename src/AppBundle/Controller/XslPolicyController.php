@@ -343,7 +343,7 @@ class XslPolicyController extends BaseController
         $parser = $this->get('mco.xslpolicy.parser');
 
         // System policies
-        $policiesSystem = array('id' => 's_p', 'text' => 'System policies', 'type' => 'sp', 'state' => array('opened' => true), 'children' => array());
+        $policiesSystem = array('id' => 's_p', 'text' => 'System policies', 'type' => 'sp', 'state' => array('opened' => true, 'selected' => true), 'children' => array());
         $policyList = $this->getDoctrine()
             ->getRepository('AppBundle:XslPolicyFile')
             ->findByUser(null);
@@ -372,7 +372,7 @@ class XslPolicyController extends BaseController
             $policiesUser['children'][] = array('text' => $policy->getPolicyName(), 'type' => 'u', 'data' => array('policyId' => $policy->getId()), 'children' => $rules);
         }
 
-        return new JsonResponse(array('policiesTree' => array('id' => 'p_root', 'text' => 'Policies', 'type' => 'a', 'state' => array('opened' => true), 'children' => array($policiesSystem, $policiesUser))), 200);
+        return new JsonResponse(array('policiesTree' => array($policiesSystem, $policiesUser)), 200);
     }
 
     /**
