@@ -376,6 +376,27 @@ class XslPolicyController extends BaseController
     }
 
     /**
+     * @Route("/xslPolicyTree/ajax/check/{id}", requirements={"id": "\d+"})
+     * @Method("GET")
+     */
+    public function xslPolicyTreeCheckAction($id, Request $request)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
+
+        $policy = $this->getDoctrine()
+            ->getRepository('AppBundle:XslPolicyFile')
+            ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
+
+        if (!$policy) {
+            return new JsonResponse(array('message' => 'Policy not found'), 400);
+        }
+
+        return new JsonResponse(array('policyId' => $id), 200);
+    }
+
+    /**
      * @Route("/xslPolicyTree/ajax/create")
      */
     public function xslPolicyTreeCreateAction(Request $request)

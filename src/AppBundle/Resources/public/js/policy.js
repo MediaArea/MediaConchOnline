@@ -298,8 +298,14 @@ $(document).ready(function() {
     }
 
     $('#policyRuleCreate').on('click', function() {
-        rule = {text: 'New rule', type: 'r', data: {ruleId: 'new', trackType: '', field: '', occurrence: 1, validator: '', value: '', }};
-        policyRuleCreate(rule, selectedPolicyNode);
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreecheck', {id: selectedPolicyNode.data.policyId}))
+        .done(function (data) {
+            rule = {text: 'New rule', type: 'r', data: {ruleId: 'new', trackType: '', field: '', occurrence: 1, validator: '', value: '', }};
+            policyRuleCreate(rule, selectedPolicyNode);
+        })
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, '#policyRuleCreate');
+        })
     })
 
     function policyRuleCreate(rule, policyNode) {

@@ -148,7 +148,7 @@ vich_uploader:
 
 # FOSJsRoutingBundle
 fos_js_routing:
-    routes_to_expose: [ 'app_checker_checkerajaxform', 'app_checker_checkerstatus', 'app_checker_checkerimplemstatus', 'app_checker_checkerreport', 'app_checker_checkerdownloadreport', 'app_checker_checkerpolicystatus', 'app_checker_checkercreatepolicy', 'app_xslpolicy_xslpolicyruleedit', 'app_xslpolicy_xslpolicyrulefieldslist', 'app_xslpolicy_xslpolicyexport', 'app_xslpolicy_xslpolicytreedata', 'app_xslpolicy_xslpolicytreecreate', 'app_xslpolicy_xslpolicytreeimport', 'app_xslpolicy_xslpolicytreeduplicate', 'app_xslpolicy_xslpolicytreedelete', 'app_xslpolicy_xslpolicytreeruleedit', 'app_xslpolicy_xslpolicytreeruledelete' ]
+    routes_to_expose: [ 'app_checker_checkerajaxform', 'app_checker_checkerstatus', 'app_checker_checkerimplemstatus', 'app_checker_checkerreport', 'app_checker_checkerdownloadreport', 'app_checker_checkerpolicystatus', 'app_checker_checkercreatepolicy', 'app_xslpolicy_xslpolicyruleedit', 'app_xslpolicy_xslpolicyrulefieldslist', 'app_xslpolicy_xslpolicyexport', 'app_xslpolicy_xslpolicytreedata', 'app_xslpolicy_xslpolicytreecheck', 'app_xslpolicy_xslpolicytreecreate', 'app_xslpolicy_xslpolicytreeimport', 'app_xslpolicy_xslpolicytreeduplicate', 'app_xslpolicy_xslpolicytreedelete', 'app_xslpolicy_xslpolicytreeruleedit', 'app_xslpolicy_xslpolicytreeruledelete' ]
 
 services:
     twig.extension.text:
