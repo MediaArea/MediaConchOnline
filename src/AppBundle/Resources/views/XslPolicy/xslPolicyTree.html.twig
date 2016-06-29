@@ -75,6 +75,7 @@ MediaConchOnline Policy Management
     {% javascripts filter='?jsqueeze' output='js/policy.js'
         '@AppBundle/Resources/public/js/policy.js'
         'js/jstree.min.js'
+        'js/select2.js'
     %}
         <script src="{{ asset_url }}"></script>
     {% endjavascripts %}
@@ -83,6 +84,8 @@ MediaConchOnline Policy Management
 {% block stylesheets %}
     {% stylesheets filter='?scssphp' output='css/policy.css'
         'css/jstree.min.css'
+        'css/select2.css'
+        '@AppBundle/Resources/public/css/select2-bootstrap.min.css'
     %}
         <link rel="stylesheet" type="text/css" href="{{ asset_url }}"/>
     {% endstylesheets %}

@@ -1,4 +1,11 @@
 $(document).ready(function() {
+    // Get policies data
+    $.get(Routing.generate('app_xslpolicy_xslpolicytreedata'))
+    .done(function(data) {
+        displayTree(data.policiesTree);
+    })
+
+    // Right col affix
     $('div.content').css('min-height', function () {
         return $('.policyRightCol').outerHeight(true);
     })
@@ -27,11 +34,6 @@ $(document).ready(function() {
 
     $('#policyFix').on('affixed-bottom.bs.affix', function() {
         $('.affix-bottom').css('position', 'relative');
-    })
-
-    $.get(Routing.generate('app_xslpolicy_xslpolicytreedata'))
-    .done(function(data) {
-        displayTree(data.policiesTree);
     })
 
     // Import policy form
@@ -300,7 +302,7 @@ $(document).ready(function() {
     $('#policyRuleCreate').on('click', function() {
         $.get(Routing.generate('app_xslpolicy_xslpolicytreecheck', {id: selectedPolicyNode.data.policyId}))
         .done(function (data) {
-            rule = {text: 'New rule', type: 'r', data: {ruleId: 'new', trackType: '', field: '', occurrence: 1, validator: '', value: '', }};
+            rule = {text: 'New rule', type: 'r', data: {ruleId: 'new', trackType: '', field: '', occurrence: 1, validator: '', value: ''}};
             policyRuleCreate(rule, selectedPolicyNode);
         })
         .fail(function (jqXHR) {
@@ -331,16 +333,47 @@ $(document).ready(function() {
     $('#xslPolicyRule_editor input[type=\'radio\']').parent().removeClass('required');
     $('#xslPolicyRule_editor').prev().removeClass('required');
 
+    // Use select2 jquery plugin
+    $('#xslPolicyRule_trackType').select2({
+        theme: 'bootstrap',
+        width: '100%',
+        minimumResultsForSearch: Infinity
+    });
+    $('#xslPolicyRule_validator').select2({
+        theme: 'bootstrap',
+        width: '100%',
+        minimumResultsForSearch: Infinity
+    });
+    $('#xslPolicyRule_field').select2({
+        tags: true,
+        theme: 'bootstrap',
+        width: '100%'
+    });
+    // Replace input text by select
+    $('#xslPolicyRule_value').replaceWith('<select id="' + $('#xslPolicyRule_value').prop('id') + '"  name="' + $('#xslPolicyRule_value').prop('name') + '"class="' + $('#xslPolicyRule_value').prop('class') + '">')
+    $('#xslPolicyRule_value').select2({
+        tags: true,
+        theme: 'bootstrap',
+        width: '100%'
+    });
+
     function displayPolicyRule(node, system) {
         $('.policyManage').addClass('hidden');
         $('.policyEdit').addClass('hidden');
         $('.policyEditRule').removeClass('hidden');
         $('#xslPolicyRule_title').val(node.text);
+
+        $('#xslPolicyRule_field option').remove();
+        $('#xslPolicyRule_field').append('<option value="' + node.data.field + '" selected>' + node.data.field + '</option>');
+        $('#xslPolicyRule_value option').remove();
+        $('#xslPolicyRule_value').append('<option value="' + node.data.value + '" selected>' + node.data.value + '</option>');
+
         $('#xslPolicyRule_trackType option[value="' + node.data.trackType + '"]').prop('selected', true);
-        loadFieldsList(node.data.trackType, node.data.field);
+        $('#xslPolicyRule_trackType').trigger('change');
         $('#xslPolicyRule_occurrence').val(node.data.occurrence);
         $('#xslPolicyRule_validator option[value="' + node.data.validator + '"]').prop('selected', true);
-        $('#xslPolicyRule_value').val(node.data.value);
+        $('#xslPolicyRule_validator').trigger('change');
+
         $('#xslPolicyRule_valueFreeText').val(node.data.value);
         if ('is_true' == node.data.validator) {
             hideEditor();
@@ -381,27 +414,58 @@ $(document).ready(function() {
         selectedRuleNode = node;
     }
 
-    function loadFieldsList(trackType, value = null) {
-        $.post(Routing.generate('app_xslpolicy_xslpolicyrulefieldslist'), {type: trackType})
+    function loadFieldsList(trackType, field = null) {
+        $.post(Routing.generate('app_xslpolicy_xslpolicyrulefieldslist'), {type: trackType, field: field})
         .done(function(data) {
-            $('#xslPolicyRule_field').html('');
+            $('#xslPolicyRule_field option').remove();
             $('#xslPolicyRule_field').append('<option value="">Choose a field</option>');
             $.each(data, function(k, v) {
                 $('#xslPolicyRule_field').append('<option value="' + k + '">' + v + '</option>');
             });
 
-            if (value) {
-                $('#xslPolicyRule_field option[value="' + value + '"]').prop('selected', true)
+            if (field) {
+                $('#xslPolicyRule_field option[value="' + field + '"]').prop('selected', true);
             }
         })
         .fail(function () {
             $('#xslPolicyRule_field').html('');
             $('#xslPolicyRule_field').append('<option value="">Choose a field</option>');
 
-            if (value) {
-                $('#xslPolicyRule_field').append('<option value="' + value + '" selected>' + value + '</option>');
+            if (field) {
+                $('#xslPolicyRule_field').append('<option value="' + field + '" selected>' + field + '</option>');
             }
         });
+
+        if (field) {
+            $('#xslPolicyRule_field').trigger('change');
+        }
+    }
+
+    function loadValuesList(trackType, field, value = null) {
+        if (trackType && field) {
+            $.post(Routing.generate('app_xslpolicy_xslpolicyrulevalueslist'), {type: trackType, field: field, value: value})
+            .done(function(data) {
+                $('#xslPolicyRule_value option').remove();
+                $.each(data.values, function(k, v) {
+                    $('#xslPolicyRule_value').append('<option value="' + v + '">' + v + '</option>');
+                });
+
+                if (value) {
+                    $('#xslPolicyRule_value option[value="' + value + '"]').prop('selected', true);
+                }
+                else {
+                    $('#xslPolicyRule_value').prepend('<option value="" selected></option>');
+                }
+            })
+            .fail(function () {
+                $('#xslPolicyRule_value').html('');
+                if (value) {
+                    $('#xslPolicyRule_value').append('<option value="' + value + '" selected>' + value + '</option>');
+                }
+            });
+
+            $('#xslPolicyRule_value').trigger('change');
+        }
     }
 
     $('#xslPolicyRule_editor input[type=\'radio\']').on('change', function() {
@@ -470,8 +534,12 @@ $(document).ready(function() {
     }
 
     $('#xslPolicyRule_trackType').on('change', function() {
-        loadFieldsList($('#xslPolicyRule_trackType').val());
+        loadFieldsList($('#xslPolicyRule_trackType').val(), $('#xslPolicyRule_field').val());
         displayOccurenceField($('#xslPolicyRule_trackType').val());
+    });
+
+    $('#xslPolicyRule_field').on('change', function() {
+        loadValuesList($('#xslPolicyRule_trackType').val(), $('#xslPolicyRule_field').val(), $('#xslPolicyRule_value').val());
     });
 
     function displayOccurenceField(trackType) {

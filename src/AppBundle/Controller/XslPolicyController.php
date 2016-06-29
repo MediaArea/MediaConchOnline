@@ -304,7 +304,10 @@ class XslPolicyController extends BaseController
         // Get the type value
         $type = $request->request->get('type');
 
-        return new JsonResponse(XslPolicyFormFields::getFields($type));
+        // Get the field value
+        $field = $request->request->get('field', null);
+
+        return new JsonResponse(XslPolicyFormFields::getFields($type, $field));
     }
 
     /**
@@ -676,5 +679,29 @@ class XslPolicyController extends BaseController
         else {
             return new JsonResponse(array('message' => 'Policy rule not found'), 400);
         }
+    }
+
+    /**
+     * @Route("/xslPolicyTree/ajax/valueListRule")
+     * @Method({"POST"})
+     */
+    public function xslPolicyRuleValuesListAction(Request $request) {
+        if (! $request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
+
+        // Get the type value
+        $type = $request->request->get('type');
+
+        // Get the field value
+        $field = $request->request->get('field');
+
+        // Get the value
+        $value = $request->request->get('value');
+
+        $valuesList = $this->get('mco.policy.form.values');
+        $valuesList->getValues($type, $field, $value);
+
+        return new JsonResponse($valuesList->getResponseAsArray());
     }
 }
