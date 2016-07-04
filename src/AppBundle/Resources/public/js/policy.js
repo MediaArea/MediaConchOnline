@@ -366,7 +366,9 @@ $(document).ready(function() {
         $('#xslPolicyRule_field option').remove();
         $('#xslPolicyRule_field').append('<option value="' + node.data.field + '" selected>' + node.data.field + '</option>');
         $('#xslPolicyRule_value option').remove();
-        $('#xslPolicyRule_value').append('<option value="' + node.data.value + '" selected>' + node.data.value + '</option>');
+        if (null != node.data.value) {
+            $('#xslPolicyRule_value').append('<option value="' + node.data.value + '" selected>' + node.data.value + '</option>');
+        }
 
         $('#xslPolicyRule_trackType option[value="' + node.data.trackType + '"]').prop('selected', true);
         $('#xslPolicyRule_trackType').trigger('change');
