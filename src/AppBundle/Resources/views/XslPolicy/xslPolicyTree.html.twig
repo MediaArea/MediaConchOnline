@@ -73,9 +73,10 @@ MediaConchOnline Policy Management
     <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
     <script src="{{ path('fos_js_routing_js', {'callback': 'fos.Router.setData'}) }}"></script>
     {% javascripts filter='?jsqueeze' output='js/policy.js'
-        '@AppBundle/Resources/public/js/policy.js'
         'js/jstree.min.js'
         'js/select2.js'
+        '@AppBundle/Resources/public/js/policyAjax.js'
+        '@AppBundle/Resources/public/js/policy.js'
     %}
         <script src="{{ asset_url }}"></script>
     {% endjavascripts %}

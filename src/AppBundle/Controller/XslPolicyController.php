@@ -375,7 +375,7 @@ class XslPolicyController extends BaseController
             $policiesUser['children'][] = array('text' => $policy->getPolicyName(), 'type' => 'u', 'data' => array('policyId' => $policy->getId()), 'children' => $rules);
         }
 
-        return new JsonResponse(array('policiesTree' => array($policiesSystem, $policiesUser)), 200);
+        return new JsonResponse(array('policiesTree' => array($policiesUser, $policiesSystem)), 200);
     }
 
     /**
@@ -512,7 +512,7 @@ class XslPolicyController extends BaseController
             $duplicatePolicy->setPolicyFilename($duplicatePolicyFilename);
             $duplicatePolicy->setPolicyName($policy->getPolicyName() . ' - duplicate');
             $duplicatePolicy->setUser($this->getUser());
-            $duplicatePolicyFile = str_replace($policy->getPolicyFilename(), $this->getUser()->getId() . '/' . $duplicatePolicyFilename, $policyFile);
+            $duplicatePolicyFile = str_replace($policy->getPolicyFilename(), (null === $policy->getUser() ? $this->getUser()->getId() . '/' : '') . $duplicatePolicyFilename, $policyFile);
             copy($policyFile, $duplicatePolicyFile);
 
             $em = $this->getDoctrine()->getManager();

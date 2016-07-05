@@ -1,9 +1,5 @@
-$(document).ready(function() {
     // Get policies data
-    $.get(Routing.generate('app_xslpolicy_xslpolicytreedata'))
-    .done(function(data) {
-        displayTree(data.policiesTree);
-    })
+    getPolicyTreeData()
 
     // Right col affix
     $('div.content').css('min-height', function () {
@@ -40,19 +36,7 @@ $(document).ready(function() {
     $('form[name="xslPolicyImport"]').on('submit', function (e) {
         e.preventDefault();
 
-        $.ajax({
-            type: $(this).attr('method'),
-               url: Routing.generate('app_xslpolicy_xslpolicytreeimport'),
-               data: new FormData($(this)[0]),
-               processData: false,
-               contentType: false
-        })
-        .done(function (data) {
-            policyImport(data);
-        })
-        .fail(function (jqXHR) {
-            failResponse(jqXHR, 'form[name="xslPolicyImport"]');
-        })
+        policyImportForm($(this));
     });
 
     function policyImport(policy) {
@@ -69,19 +53,7 @@ $(document).ready(function() {
     $('form[name="xslPolicyCreate"]').on('submit', function (e) {
         e.preventDefault();
 
-        $.ajax({
-            type: $(this).attr('method'),
-               url: Routing.generate('app_xslpolicy_xslpolicytreecreate'),
-               data: new FormData($(this)[0]),
-               processData: false,
-               contentType: false
-        })
-        .done(function (data) {
-            policyCreate(data);
-        })
-        .fail(function (jqXHR) {
-            failResponse(jqXHR, 'form[name="xslPolicyCreate"]');
-        })
+        policyCreateForm($(this));
     });
 
     function policyCreate(policy) {
@@ -109,19 +81,7 @@ $(document).ready(function() {
             routeAction = 'app_xslpolicy_xslpolicytreeruleedit';
         }
 
-        $.ajax({
-            type: $(this).attr('method'),
-               url: Routing.generate(routeAction, {id: policyNode.data.policyId, ruleId: selectedRuleNode.data.ruleId, action: action}),
-               data: new FormData($(this)[0]),
-               processData: false,
-               contentType: false
-        })
-        .done(function (data) {
-            ruleAction(data, selectedRuleNode, action);
-        })
-        .fail(function (jqXHR) {
-            failResponse(jqXHR, 'form[name="xslPolicyRule"]');
-        })
+        policyRuleForm($(this), selectedRuleNode, action, routeAction);
     });
 
     function ruleAction(data, ruleNode, action) {
@@ -260,17 +220,11 @@ $(document).ready(function() {
     }
 
     $('#policyDuplicate').on('click', function() {
-        $.get(Routing.generate('app_xslpolicy_xslpolicytreeduplicate', {id: selectedPolicyNode.data.policyId}))
-        .done(function (data) {
-            policyDuplicate(data, selectedPolicyNode);
-        })
-        .fail(function (jqXHR) {
-            failResponse(jqXHR, '#policyDuplicate');
-        })
+        policyDuplicateRequest(selectedPolicyNode);
     })
 
     function policyDuplicate(policy, selectedPolicyNode) {
-        policyNodeId = pTree.create_node('p_u', {text: policy.policyName, type: 'u', data: {policyId: policy.policyId}});
+        policyNodeId = pTree.create_node('u_p', {text: policy.policyName, type: 'u', data: {policyId: policy.policyId}});
         $.each(policy.policyRules, function(ruleId, policyRule) {
             pTree.create_node(policyNodeId, policyRule);
         });
@@ -284,30 +238,17 @@ $(document).ready(function() {
     })
 
     $('#policyDelete').on('click', function() {
-        $.get(Routing.generate('app_xslpolicy_xslpolicytreedelete', {id: selectedPolicyNode.data.policyId}))
-        .done(function (data) {
-            policyDelete(data);
-        })
-        .fail(function (jqXHR) {
-            failResponse(jqXHR, '#policyDelete');
-        })
+        policyDeleteRequest(selectedPolicyNode);
     })
 
-    function policyDelete(policy) {
+    function policyDelete(policy, selectedPolicyNode) {
         pTree.delete_node(selectedPolicyNode.id);
         pTree.select_node('u_p', true);
         successMessage('Policy successfuly removed');
     }
 
     $('#policyRuleCreate').on('click', function() {
-        $.get(Routing.generate('app_xslpolicy_xslpolicytreecheck', {id: selectedPolicyNode.data.policyId}))
-        .done(function (data) {
-            rule = {text: 'New rule', type: 'r', data: {ruleId: 'new', trackType: '', field: '', occurrence: 1, validator: '', value: ''}};
-            policyRuleCreate(rule, selectedPolicyNode);
-        })
-        .fail(function (jqXHR) {
-            failResponse(jqXHR, '#policyRuleCreate');
-        })
+        policyRuleCreateRequest(selectedPolicyNode);
     })
 
     function policyRuleCreate(rule, policyNode) {
@@ -417,56 +358,60 @@ $(document).ready(function() {
     }
 
     function loadFieldsList(trackType, field = null) {
-        $.post(Routing.generate('app_xslpolicy_xslpolicyrulefieldslist'), {type: trackType, field: field})
-        .done(function(data) {
-            $('#xslPolicyRule_field option').remove();
-            $('#xslPolicyRule_field').append('<option value="">Choose a field</option>');
-            $.each(data, function(k, v) {
-                $('#xslPolicyRule_field').append('<option value="' + k + '">' + v + '</option>');
-            });
-
-            if (field) {
-                $('#xslPolicyRule_field option[value="' + field + '"]').prop('selected', true);
-            }
-        })
-        .fail(function () {
-            $('#xslPolicyRule_field').html('');
-            $('#xslPolicyRule_field').append('<option value="">Choose a field</option>');
-
-            if (field) {
-                $('#xslPolicyRule_field').append('<option value="' + field + '" selected>' + field + '</option>');
-            }
-        });
+        getFieldsList(trackType, field);
 
         if (field) {
             $('#xslPolicyRule_field').trigger('change');
         }
     }
 
+    function fieldsListOk(fields, field) {
+        $('#xslPolicyRule_field option').remove();
+        $('#xslPolicyRule_field').append('<option value="">Choose a field</option>');
+        $.each(fields, function(k, v) {
+            $('#xslPolicyRule_field').append('<option value="' + k + '">' + v + '</option>');
+        });
+
+        if (field) {
+            $('#xslPolicyRule_field option[value="' + field + '"]').prop('selected', true);
+        }
+    }
+
+    function fieldsListError(field) {
+        $('#xslPolicyRule_field').html('');
+        $('#xslPolicyRule_field').append('<option value="">Choose a field</option>');
+
+        if (field) {
+            $('#xslPolicyRule_field').append('<option value="' + field + '" selected>' + field + '</option>');
+        }
+    }
+
     function loadValuesList(trackType, field, value = null) {
         if (trackType && field) {
-            $.post(Routing.generate('app_xslpolicy_xslpolicyrulevalueslist'), {type: trackType, field: field, value: value})
-            .done(function(data) {
-                $('#xslPolicyRule_value option').remove();
-                $.each(data.values, function(k, v) {
-                    $('#xslPolicyRule_value').append('<option value="' + v + '">' + v + '</option>');
-                });
-
-                if (value) {
-                    $('#xslPolicyRule_value option[value="' + value + '"]').prop('selected', true);
-                }
-                else {
-                    $('#xslPolicyRule_value').prepend('<option value="" selected></option>');
-                }
-            })
-            .fail(function () {
-                $('#xslPolicyRule_value').html('');
-                if (value) {
-                    $('#xslPolicyRule_value').append('<option value="' + value + '" selected>' + value + '</option>');
-                }
-            });
+            getValuesList(trackType, field, value);
 
             $('#xslPolicyRule_value').trigger('change');
+        }
+    }
+
+    function valuesListOk(values, value) {
+        $('#xslPolicyRule_value option').remove();
+        $.each(values, function(k, v) {
+            $('#xslPolicyRule_value').append('<option value="' + v + '">' + v + '</option>');
+        });
+
+        if (value) {
+            $('#xslPolicyRule_value option[value="' + value + '"]').prop('selected', true);
+        }
+        else {
+            $('#xslPolicyRule_value').prepend('<option value="" selected></option>');
+        }
+    }
+
+    function valuesListError(value) {
+        $('#xslPolicyRule_value option').remove();
+        if (value) {
+            $('#xslPolicyRule_value').append('<option value="' + value + '" selected>' + value + '</option>');
         }
     }
 
@@ -581,4 +526,3 @@ $(document).ready(function() {
             errorMessage('An error has occured, please try again later');
         }
     }
-});
