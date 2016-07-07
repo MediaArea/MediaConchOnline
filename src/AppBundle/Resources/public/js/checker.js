@@ -318,7 +318,8 @@ $(document).ready(function() {
                 // Update report when display is changed
                 displayList = $('.tab-content .active .displayList').clone();
                 displayList.attr('id', 'modalConformanceDisplay' + resultId);
-                displayList.find("option[value = '" + nodeModal.data('display') + "']").attr('selected', 'selected');
+                displayList.find('option').prop('selected', false);
+                displayList.find("option[value = '" + nodeModal.data('display') + "']").prop('selected', true);
                 $('#modalConformanceDisplay' + resultId).replaceWith(displayList);
                 $('#modalConformanceDisplay' + resultId).on('change', function(e) {
                     modalDisplay = $('#modalConformanceDisplay' + resultId).val();
@@ -332,7 +333,8 @@ $(document).ready(function() {
                 // Update report when verbosity is changed
                 verbosityList = $('.tab-content .active .verbosityList').clone();
                 verbosityList.attr('id', 'modalConformanceVerbosity' + resultId);
-                verbosityList.find("option[value = '" + nodeModal.data('verbosity') + "']").attr('selected', 'selected');
+                verbosityList.find('option').prop('selected', false);
+                verbosityList.find("option[value = '" + nodeModal.data('verbosity') + "']").prop('selected', true);
                 $('#modalConformanceVerbosity' + resultId).replaceWith(verbosityList);
                 $('#modalConformanceVerbosity' + resultId).on('change', function(e) {
                     modalDisplay = $('#modalConformanceDisplay' + resultId).val();
@@ -441,7 +443,8 @@ $(document).ready(function() {
                 // Update report when display is changed
                 displayList = $('.tab-content .active .displayList').clone();
                 displayList.attr('id', 'modalPolicyDisplay' + resultId);
-                displayList.find("option[value = '" + nodeModal.data('display') + "']").attr('selected', 'selected');
+                displayList.find('option').prop('selected', false);
+                displayList.find("option[value = '" + nodeModal.data('display') + "']").prop('selected', true);
                 $('#modalPolicyDisplay' + resultId).replaceWith(displayList);
                 $('#modalPolicyDisplay' + resultId).on('change', function(e) {
                     modalDisplay = $('#modalPolicyDisplay' + resultId).val();
@@ -460,7 +463,8 @@ $(document).ready(function() {
                 // Update report when policy is changed
                 policyList = $('.tab-content .active .policyList').clone();
                 policyList.attr('id', 'modalPolicyPolicy' + resultId);
-                policyList.find("option[value = '" + nodeModal.data('policy') + "']").attr('selected', 'selected');
+                policyList.find('option').prop('selected', false);
+                policyList.find("option[value = '" + nodeModal.data('policy') + "']").prop('selected', true);
                 $('#modalPolicyPolicy' + resultId).replaceWith(policyList);
                 $('#modalPolicyPolicy' + resultId).on('change', function(e) {
                     modalDisplay = $('#modalPolicyDisplay' + resultId).val();
@@ -608,15 +612,13 @@ $(document).ready(function() {
         });
 
         $('#info' + resultId).on('ready.jstree', function () {
-            $(function () {
-                var to = false;
-                $('#infoSearch' + resultId).keyup(function () {
-                    if(to) { clearTimeout(to); }
-                    to = setTimeout(function () {
-                        var v = $('#infoSearch' + resultId).val();
-                        $('#info' + resultId).jstree(true).search(v);
-                    }, 250);
-                });
+            var to = false;
+            $('#infoSearch' + resultId).keyup(function () {
+                if(to) { clearTimeout(to); }
+                to = setTimeout(function () {
+                    var v = $('#infoSearch' + resultId).val();
+                    $('#info' + resultId).jstree(true).search(v);
+                }, 250);
             });
         });
 
@@ -729,15 +731,13 @@ $(document).ready(function() {
         });
 
         $('#trace' + resultId).on('ready.jstree', function () {
-            $(function () {
-                var to = false;
-                $('#traceSearch' + resultId).keyup(function () {
-                    if(to) { clearTimeout(to); }
-                    to = setTimeout(function () {
-                        var v = $('#traceSearch' + resultId).val();
-                        $('#trace' + resultId).jstree(true).search(v);
-                    }, 250);
-                });
+            var to = false;
+            $('#traceSearch' + resultId).keyup(function () {
+                if(to) { clearTimeout(to); }
+                to = setTimeout(function () {
+                    var v = $('#traceSearch' + resultId).val();
+                    $('#trace' + resultId).jstree(true).search(v);
+                }, 250);
             });
         });
 
