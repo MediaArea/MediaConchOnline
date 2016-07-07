@@ -320,16 +320,18 @@ class XslPolicyController extends BaseController
         $rule = new XslPolicyRule();
         $rule->setTitle('New rule');
         $policyRuleForm = $this->createForm('xslPolicyRule', $rule);
+        $policy = new XslPolicyFile();
         if ($this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
-            $policy = new XslPolicyFile();
             $importPolicyForm = $this->createForm('xslPolicyImport', $policy);
             $createPolicyForm = $this->createForm('xslPolicyCreate', $policy);
         }
+        $policyNameForm = $this->createForm('xslPolicyName', $policy);
 
         return array(
             'policyRuleForm' => $policyRuleForm->createView(),
             'importPolicyForm' => isset($importPolicyForm) ? $importPolicyForm->createView() : false,
             'createPolicyForm' => isset($createPolicyForm) ? $createPolicyForm->createView() : false,
+            'policyNameForm' => $policyNameForm->createView(),
             );
     }
 
@@ -483,6 +485,38 @@ class XslPolicyController extends BaseController
         }
         else {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
+        }
+    }
+
+    /**
+     * @Route("/xslPolicyTree/ajax/policyName/{id}", requirements={"id": "\d+"})
+     */
+    public function xslPolicyTreeNameAction(Request $request, $id)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
+
+        $policy = $this->getDoctrine()
+            ->getRepository('AppBundle:XslPolicyFile')
+            ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
+
+        if (!$policy) {
+            return new JsonResponse(array('message' => 'Policy not found'), 400);
+        }
+
+        $policyNameForm = $this->createForm('xslPolicyName', $policy);
+        $policyNameForm->handleRequest($request);
+        if ($policyNameForm->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+
+            $em->persist($policy);
+            $em->flush();
+
+            return new JsonResponse(array('policyId' => $policy->getId(), 'policyName' => $policy->getPolicyName()), 200);
+        }
+        else {
+            return new JsonResponse(array('message' => 'Error'), 400);
         }
     }
 

@@ -45,10 +45,10 @@ MediaConchOnline Policy Management
         <div class="row policyEdit hidden">
             <div>
                 <h4>Policy edition:</h4>
-                <span class="policyEditTitle"></span>
+                {{ form(policyNameForm) }}
             </div>
 
-            <div>
+            <div class="policyEditActions">
                 <h4>Policy actions:</h4>
                 <button id="policyDuplicate" class="btn btn-warning">Duplicate</button>
                 <button id="policyExport" class="btn btn-warning">Export</button>

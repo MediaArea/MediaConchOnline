@@ -97,9 +97,8 @@
     }
 
     function ruleEdit(data, ruleNode) {
-        ruleNode.text = data.rule.text;
+        pTree.rename_node(ruleNode, data.rule.text)
         ruleNode.data = data.rule.data;
-        pTree.redraw(true);
         successMessage('Policy rule successfully saved');
     }
 
@@ -126,6 +125,17 @@
         pTree.delete_node(ruleNode);
 
         successMessage('Policy rule successfully deleted');
+    }
+
+    // Policy name update form
+    $('form[name="xslPolicyName"]').on('submit', function (e) {
+        e.preventDefault();
+
+        policyNameForm($(this), selectedPolicyNode);
+    });
+
+    function policyNameChange(policy, policyNode) {
+        pTree.rename_node(policyNode, policy.policyName)
     }
 
     function displayTree(policiesTree) {
@@ -202,21 +212,25 @@
     }
 
     function displayPolicyEdit(node, system) {
-        $('.policyManage').addClass('hidden');
-        $('.policyEdit').removeClass('hidden');
-        $('.policyEditRule').addClass('hidden');
+        selectedPolicyNode = node;
+        $('#xslPolicyName_policyName').val(node.text);
 
         if (system) {
             $('#policyDelete').addClass('hidden');
             $('#policyRuleCreateContainer').addClass('hidden');
+            $('#xslPolicyName_policyName').prop('disabled', true);
+            $('#xslPolicyName_SavePolicyName').addClass('hidden');
         }
         else {
             $('#policyDelete').removeClass('hidden');
             $('#policyRuleCreateContainer').removeClass('hidden');
+            $('#xslPolicyName_policyName').prop('disabled', false);
+            $('#xslPolicyName_SavePolicyName').removeClass('hidden');
         }
 
-        $('.policyEdit .policyEditTitle').text(node.text);
-        selectedPolicyNode = node;
+        $('.policyManage').addClass('hidden');
+        $('.policyEdit').removeClass('hidden');
+        $('.policyEditRule').addClass('hidden');
     }
 
     $('#policyDuplicate').on('click', function() {
@@ -299,9 +313,7 @@
     });
 
     function displayPolicyRule(node, system) {
-        $('.policyManage').addClass('hidden');
-        $('.policyEdit').addClass('hidden');
-        $('.policyEditRule').removeClass('hidden');
+        selectedRuleNode = node;
         $('#xslPolicyRule_title').val(node.text);
 
         $('#xslPolicyRule_field option').remove();
@@ -354,10 +366,12 @@
             $('#xslPolicyRule_DeleteRule').removeClass('hidden');
         }
 
-        selectedRuleNode = node;
+        $('.policyManage').addClass('hidden');
+        $('.policyEdit').addClass('hidden');
+        $('.policyEditRule').removeClass('hidden');
     }
 
-    function loadFieldsList(trackType, field = null) {
+    function loadFieldsList(trackType, field) {
         getFieldsList(trackType, field);
 
         if (field) {
@@ -386,7 +400,7 @@
         }
     }
 
-    function loadValuesList(trackType, field, value = null) {
+    function loadValuesList(trackType, field, value) {
         if (trackType && field) {
             getValuesList(trackType, field, value);
 

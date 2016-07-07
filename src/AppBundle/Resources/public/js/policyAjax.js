@@ -53,6 +53,22 @@ function policyRuleForm(form, ruleNode, action, routeAction) {
     })
 }
 
+function policyNameForm(form, policyNode) {
+    $.ajax({
+        type: form.attr('method'),
+            url: Routing.generate('app_xslpolicy_xslpolicytreename', {id: policyNode.data.policyId}),
+            data: new FormData(form[0]),
+            processData: false,
+            contentType: false
+    })
+    .done(function (data) {
+        policyNameChange(data, policyNode);
+    })
+    .fail(function (jqXHR) {
+        failResponse(jqXHR, 'form[name="xslPolicyName"]');
+    })
+}
+
 function policyDuplicateRequest(policyNode) {
     $.get(Routing.generate('app_xslpolicy_xslpolicytreeduplicate', {id: policyNode.data.policyId}))
     .done(function (data) {
