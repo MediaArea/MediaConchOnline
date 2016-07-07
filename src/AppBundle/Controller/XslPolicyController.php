@@ -359,7 +359,7 @@ class XslPolicyController extends BaseController
             foreach ($parser->getPolicy()->getRules() as $ruleId => $rule) {
                 $rules[] = array('text' => $rule->getTitle(), 'type' => 'r', 'data' => array('ruleId' => $ruleId, 'trackType' => $rule->getTrackType(), 'field' => $rule->getField(), 'occurrence' => $rule->getOccurrence(), 'validator' => $rule->getValidator(), 'value' => $rule->getValue()));
             }
-            $policiesSystem['children'][] = array('text' => $policy->getPolicyName(), 'type' => 's', 'data' => array('policyId' => $policy->getId()), 'children' => $rules);
+            $policiesSystem['children'][] = array('text' => $policy->getPolicyName(), 'type' => 's', 'data' => array('policyId' => $policy->getId(), 'isEditable' => false), 'children' => $rules);
         }
 
         // User policies
@@ -374,7 +374,7 @@ class XslPolicyController extends BaseController
             foreach ($parser->getPolicy()->getRules() as $ruleId => $rule) {
                 $rules[] = array('text' => $rule->getTitle(), 'type' => 'r', 'data' => array('ruleId' => $ruleId, 'trackType' => $rule->getTrackType(), 'field' => $rule->getField(), 'occurrence' => $rule->getOccurrence(), 'validator' => $rule->getValidator(), 'value' => $rule->getValue()));
             }
-            $policiesUser['children'][] = array('text' => $policy->getPolicyName(), 'type' => 'u', 'data' => array('policyId' => $policy->getId()), 'children' => $rules);
+            $policiesUser['children'][] = array('text' => $policy->getPolicyName(), 'type' => 'u', 'data' => array('policyId' => $policy->getId(), 'isEditable' => true), 'children' => $rules);
         }
 
         return new JsonResponse(array('policiesTree' => array($policiesUser, $policiesSystem)), 200);
@@ -433,7 +433,7 @@ class XslPolicyController extends BaseController
                 $em->persist($policy);
                 $em->flush();
 
-                return new JsonResponse(array('policyId' => $policy->getId(), 'policyName' => $policy->getPolicyName()), 200);
+                return new JsonResponse(array('policyId' => $policy->getId(), 'policyName' => $policy->getPolicyName(), 'isEditable' => true), 200);
             }
             else {
                 return new JsonResponse(array('message' => 'Error'), 400);
@@ -477,7 +477,7 @@ class XslPolicyController extends BaseController
                     $rules[] = array('text' => $rule->getTitle(), 'type' => 'r', 'data' => array('ruleId' => $ruleId, 'trackType' => $rule->getTrackType(), 'field' => $rule->getField(), 'occurrence' => $rule->getOccurrence(), 'validator' => $rule->getValidator(), 'value' => $rule->getValue()));
                 }
 
-                return new JsonResponse(array('policyId' => $policy->getId(), 'policyName' => $policy->getPolicyName(), 'policyRules' => $rules), 200);
+                return new JsonResponse(array('policyId' => $policy->getId(), 'policyName' => $policy->getPolicyName(), 'policyRules' => $rules, 'isEditable' => true), 200);
             }
             else {
                 return new JsonResponse(array('message' => 'Error'), 400);
@@ -562,7 +562,7 @@ class XslPolicyController extends BaseController
                 $rules[] = array('text' => $rule->getTitle(), 'type' => 'r', 'data' => array('ruleId' => $ruleId, 'trackType' => $rule->getTrackType(), 'field' => $rule->getField(), 'occurrence' => $rule->getOccurrence(), 'validator' => $rule->getValidator(), 'value' => $rule->getValue()));
             }
 
-            return new JsonResponse(array('policyId' => $duplicatePolicy->getId(), 'policyName' => $duplicatePolicy->getPolicyName(), 'policyRules' => $rules), 200);
+            return new JsonResponse(array('policyId' => $duplicatePolicy->getId(), 'policyName' => $duplicatePolicy->getPolicyName(), 'policyRules' => $rules, 'isEditable' => true), 200);
         }
         else {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);

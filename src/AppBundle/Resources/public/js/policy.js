@@ -40,7 +40,7 @@
     });
 
     function policyImport(policy) {
-        policyNodeId = pTree.create_node('u_p', {text: policy.policyName, type: 'u', data: {policyId: policy.policyId}});
+        policyNodeId = pTree.create_node('u_p', {text: policy.policyName, type: 'u', data: {policyId: policy.policyId, isEditable: policy.isEditable}});
         $.each(policy.policyRules, function(ruleId, policyRule) {
             pTree.create_node(policyNodeId, policyRule);
         });
@@ -57,7 +57,7 @@
     });
 
     function policyCreate(policy) {
-        policyNodeId = pTree.create_node('u_p', {text: policy.policyName, type: 'u', data: {policyId: policy.policyId}});
+        policyNodeId = pTree.create_node('u_p', {text: policy.policyName, type: 'u', data: {policyId: policy.policyId, isEditable: policy.isEditable}});
         pTree.deselect_node(pTree.get_selected(), true);
         pTree.select_node(policyNodeId);
         successMessage('Policy created successfuly');
@@ -223,9 +223,16 @@
         }
         else {
             $('#policyDelete').removeClass('hidden');
-            $('#policyRuleCreateContainer').removeClass('hidden');
             $('#xslPolicyName_policyName').prop('disabled', false);
             $('#xslPolicyName_SavePolicyName').removeClass('hidden');
+
+            // Do not show "Add a new rule" button for unknown policies
+            if (node.data.isEditable) {
+                $('#policyRuleCreateContainer').removeClass('hidden');
+            }
+            else {
+                $('#policyRuleCreateContainer').addClass('hidden');
+            }
         }
 
         $('.policyManage').addClass('hidden');
@@ -238,7 +245,7 @@
     })
 
     function policyDuplicate(policy, selectedPolicyNode) {
-        policyNodeId = pTree.create_node('u_p', {text: policy.policyName, type: 'u', data: {policyId: policy.policyId}});
+        policyNodeId = pTree.create_node('u_p', {text: policy.policyName, type: 'u', data: {policyId: policy.policyId, isEditable: policy.isEditable}});
         $.each(policy.policyRules, function(ruleId, policyRule) {
             pTree.create_node(policyNodeId, policyRule);
         });
