@@ -248,7 +248,7 @@
     }
 
     $('#policyExport').on('click', function() {
-        window.location = Routing.generate('app_xslpolicy_xslpolicyexport', {id: selectedPolicyNode.data.policyId});
+        policyExportRequest(selectedPolicyNode.data.policyId);
     })
 
     $('#policyDelete').on('click', function() {

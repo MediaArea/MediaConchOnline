@@ -79,6 +79,10 @@ function policyDuplicateRequest(policyNode) {
     })
 }
 
+function policyExportRequest(policyId) {
+    window.location = Routing.generate('app_xslpolicy_xslpolicyexport', {id: policyId});
+}
+
 function policyDeleteRequest(policyNode) {
     $.get(Routing.generate('app_xslpolicy_xslpolicytreedelete', {id: policyNode.data.policyId}))
     .done(function (data) {
