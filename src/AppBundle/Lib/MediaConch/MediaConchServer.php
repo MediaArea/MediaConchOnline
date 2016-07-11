@@ -92,6 +92,17 @@ class MediaConchServer
         return $statusReponse;
     }
 
+    public function valuesFromType($trackType, $field)
+    {
+        $request = array('type' => $trackType, 'field' => $field);
+        $response = $this->callApi('default_values_for_type', 'GET', $request);
+        $response = $response->DEFAULT_VALUES_FOR_TYPE_RESULT;
+
+        $valuesFromTypeReponse = new ValuesFromTypeResponse($response);
+
+        return $valuesFromTypeReponse;
+    }
+
     protected function callApi($uri, $method, $params)
     {
         $url = 'http://' . $this->address . '/' . $this->apiVersion . '/' . $uri;

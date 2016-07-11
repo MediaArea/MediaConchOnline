@@ -30,7 +30,8 @@
         "patchwork/jsqueeze": "^2.0",
         "components/jquery": "^1.12",
         "vakata/jstree": "^3.3",
-        "twbs/bootstrap": "^3.3"
+        "twbs/bootstrap": "^3.3",
+        "ivaynberg/select2": "^4.0"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
