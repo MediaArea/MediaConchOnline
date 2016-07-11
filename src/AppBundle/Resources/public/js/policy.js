@@ -70,18 +70,15 @@
 
         if ('xslPolicyRule_DuplicateRule' == $('button[type=submit][clicked=true]').prop('id')) {
             action = 'duplicate';
-            routeAction = 'app_xslpolicy_xslpolicytreeruleedit';
         }
         else if ('xslPolicyRule_DeleteRule' == $('button[type=submit][clicked=true]').prop('id')) {
             action = 'delete';
-            routeAction = 'app_xslpolicy_xslpolicytreeruledelete';
         }
         else {
             action = 'edit';
-            routeAction = 'app_xslpolicy_xslpolicytreeruleedit';
         }
 
-        policyRuleForm($(this), selectedRuleNode, action, routeAction);
+        policyRuleForm($(this), selectedPolicyNode, selectedRuleNode, action, routeAction);
     });
 
     function ruleAction(data, ruleNode, action) {

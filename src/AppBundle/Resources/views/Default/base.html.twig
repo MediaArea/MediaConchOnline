@@ -50,7 +50,7 @@
                 {# <li><a href="">About</a></li> #}
                 {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
                     <li><a href="{{ path('app_checker_checker') }}">Checker</a></li>
-                    <li><a href="{{ path('app_xslpolicy_xslpolicy') }}">Policies</a></li>
+                    <li><a href="{{ path('app_xslpolicy_xslpolicytree') }}">Policies</a></li>
                     <li><a href="{{ path('app_display_display') }}">Display</a></li>
                     <li class="dropdown">
                         <a href="https://mediaarea.net/MediaConch/documentation/About.html" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" target="_blank">Help <span class="caret"></span></a>

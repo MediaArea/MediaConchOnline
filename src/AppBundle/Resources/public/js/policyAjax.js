@@ -37,7 +37,14 @@ function policyCreateForm(form) {
     })
 }
 
-function policyRuleForm(form, ruleNode, action, routeAction) {
+function policyRuleForm(form, policyNode, ruleNode, action) {
+    if ('delete' == action) {
+        routeAction = 'app_xslpolicy_xslpolicytreeruledelete';
+    }
+    else {
+        routeAction = 'app_xslpolicy_xslpolicytreeruleedit';
+    }
+
     $.ajax({
         type: form.attr('method'),
             url: Routing.generate(routeAction, {id: policyNode.data.policyId, ruleId: ruleNode.data.ruleId, action: action}),
