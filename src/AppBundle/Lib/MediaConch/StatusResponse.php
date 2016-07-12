@@ -4,51 +4,40 @@ namespace AppBundle\Lib\MediaConch;
 
 class StatusResponse
 {
-    private $finish = false;
-    private $percent = 0;
-    private $tool = 2;
-    private $error;
+    protected $response = array();
 
     public function __construct($response)
     {
         $this->parse($response);
     }
 
-    public function getFinish()
+    public function getResponse()
     {
-        return $this->finish;
-    }
-
-    public function getPercent()
-    {
-        return $this->percent;
-    }
-
-    public function getTool()
-    {
-        return $this->tool;
-    }
-
-    public function getError()
-    {
-        return $this->error;
+        return $this->response;
     }
 
     private function parse($response)
     {
-        if (is_array($response->ok) && isset($response->ok[0])) {
-            $this->finish = $response->ok[0]->finished;
-            if ($this->finish == false) {
-                $this->percent = $response->ok[0]->done;
-            }
-            else {
-                if (isset($response->ok[0]->tool)) {
-                    $this->tool = $response->ok[0]->tool;
+        if (is_array($response->ok)) {
+            foreach ($response->ok as $ok) {
+                $this->response[$ok->id] = array('finish' => $ok->finished);
+                if ($this->response[$ok->id]['finish']) {
+                    if (isset($ok->tool)) {
+                        $this->response[$ok->id]['tool'] = $ok->tool;
+                    }
+                    else {
+                        $this->response[$ok->id]['tool'] = 2;
+                    }
+                }
+                else {
+                    $this->response[$ok->id]['percent'] = $ok->done;
                 }
             }
         }
-        else if (is_array($response->nok) && isset($response->nok[0])) {
-            $this->error = $response->nok[0]->error;
+        else if (is_array($response->nok)) {
+            foreach ($response->nok as $nok) {
+                $this->response[$nok->id] = array('error' => $nok->error);
+            }
         }
         else {
             throw new \Exception('Unknown response');

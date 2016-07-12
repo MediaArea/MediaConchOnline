@@ -20,10 +20,6 @@ class CheckerStatus
 
     public function getResponseAsArray()
     {
-        return array('finish' => $this->response->getFinish(),
-            'percent' => $this->response->getPercent(),
-            'tool' => $this->response->getTool(),
-            'error' => $this->response->getError(),
-            );
+        return $this->response->getResponse();
     }
 }

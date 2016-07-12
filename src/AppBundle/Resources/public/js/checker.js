@@ -200,17 +200,19 @@ $(document).ready(function() {
         waitingLoopId = setTimeout(function () {
             nbProcess = 0;
             nbProcessInProgress = 0;
+            nbProcessLimit = 5;
+            fileIds = [];
             // Process visible results first
             if ($('.statusCell.info').size() > 0) {
                 $.each($('.statusCell.info'), function(index, waitingNode) {
                     if (!$(waitingNode).hasClass('checkInProgress')) {
-                        if (nbProcess++ < 5) {
-                            checkerStatusRequest($(waitingNode), $(waitingNode).parent());
+                        if (nbProcess++ < nbProcessLimit) {
+                            fileIds.push($(waitingNode).parent().data('fileId'));
                         }
                     }
                     else {
-                        if (nbProcessInProgress++ < 5) {
-                            checkerStatusRequest($(waitingNode), $(waitingNode).parent());
+                        if (nbProcessInProgress++ < nbProcessLimit) {
+                            fileIds.push($(waitingNode).parent().data('fileId'));
                         }
                     }
                 })
@@ -219,21 +221,27 @@ $(document).ready(function() {
             else {
                 result.cells('.statusCell.info').every(function(currentCell) {
                     if (!$(this.node()).hasClass('checkInProgress')) {
-                        if (nbProcess++ < 5) {
-                            checkerStatusRequest($(this.node()), $(result.row(currentCell).node()));
+                        if (nbProcess++ < nbProcessLimit) {
+                            fileIds.push($(result.row(currentCell).node()).data('fileId'));
                         }
                     }
                     else {
-                        if (nbProcessInProgress++ < 5) {
-                            checkerStatusRequest($(this.node()), $(result.row(currentCell).node()));
+                        if (nbProcessInProgress++ < nbProcessLimit) {
+                            fileIds.push($(result.row(currentCell).node()).data('fileId'));
                         }
                     }
                 })
             }
 
+            // Send IDs to server
+            if (fileIds.length > 0) {
+                checkerStatusRequest(fileIds);
+            }
+
+            // Call the loop again
             if (result.cells('.statusCell.info').count() > 0 && --iteration > 0) {
-                // Increase loop delay each ten iteration
-                if (0 == iteration % 10 && time < 10000) {
+                // Increase loop delay each fifty iteration
+                if (0 == iteration % 50 && time < 10000) {
                     time += 500;
                 }
                 waitingLoop(time, iteration);
@@ -252,62 +260,78 @@ $(document).ready(function() {
         }, time);
     }
 
-    function checkerStatusRequest(nodeStatus, nodeChecker) {
-        $.get(Routing.generate('app_checker_checkerstatus', { id: nodeChecker.data('fileId') }))
+    function checkerStatusRequest(ids) {
+        $.post(Routing.generate('app_checker_checkerstatus'), { ids: ids })
         .done(function (data) {
-            processCheckerStatusRequest(data, nodeChecker.prop('id'), nodeChecker.data('fileId'));
+            processCheckerStatusRequest(data.status);
         })
         .fail(function() {
-            statusCellError(nodeStatus);
+            $.each(ids, function(index, id) {
+                nodeCell = result.$('#result-' + id);
+                statusCellError($(result.cell(nodeCell, 5).node()));
+            });
         });
     }
 
-    function processCheckerStatusRequest(data, resultId, fileId) {
-        if (data.finish) {
-            node = result.$('#' + resultId);
-            // Report type
-            node.data('tool', data.tool);
+    function processCheckerStatusRequest(statusMulti) {
+        $.each(statusMulti, function(statusFileId, status) {
+            if (status.finish) {
+                statusResultId = 'result-' + statusFileId;
+                node = result.$('#' + statusResultId);
+                // Report type
+                node.data('tool', status.tool);
 
-            // Status
-            statusCellSuccess($(result.cell(node, 5).node()));
+                // Status
+                statusCellSuccess($(result.cell(node, 5).node()));
 
-            // Implementation
-            addSpinnerToCell(result.cell(node, 1));
-            $.get(Routing.generate('app_checker_checkerreportstatus', { id: fileId, reportType: data.tool }), function(data) {
-                implementationCell(data, resultId, fileId);
-            });
-
-            // Policy
-            if (2 == data.tool) {
-                if (node.data('policy')) {
+                // Implementation and Policy
+                if (2 == status.tool && node.data('policy')) {
+                    addSpinnerToCell(result.cell(node, 1));
                     addSpinnerToCell(result.cell(node, 2));
-                    $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: node.data('policy') }), function(data) {
-                        policyCell(data, resultId, fileId)
+                    $.get(Routing.generate('app_checker_checkerreportandpolicystatus', { id: statusFileId, reportType: status.tool, policyId: node.data('policy') }), function(data) {
+                        implementationCell(data.implemReport, 'result-' + data.implemReport.fileId, data.implemReport.fileId);
+                        policyCell(data.statusReport, 'result-' + data.statusReport.fileId, data.statusReport.fileId)
                     });
                 }
                 else {
-                    policyCellEmptyWithModal(resultId, fileId)
+                    // Implementation only
+                    addSpinnerToCell(result.cell(node, 1));
+                    $.get(Routing.generate('app_checker_checkerreportstatus', { id: statusFileId, reportType: status.tool }), function(data) {
+                        implementationCell(data, 'result-' + data.fileId, data.fileId);
+                    });
+
+                    // Policy cell with modal button
+                    if (2 == status.tool) {
+                        policyCellEmptyWithModal(statusResultId, statusFileId)
+                    }
+                    // Policy cell without modal button
+                    else {
+                        policyCellEmptyWithoutModal(statusResultId)
+                    }
+
+                }
+
+                // MediaInfo
+                mediaInfoCell(statusResultId, statusFileId);
+
+                // MediaTrace
+                mediaTraceCell(statusResultId, statusFileId);
+            }
+            else if (status.percent > 0) {
+                statusResultId = 'result-' + statusFileId;
+                $(result.cell('#' + statusResultId, 5).node()).addClass('checkInProgress');
+                if (undefined == status.tool || 2 != status.tool || 100 == status.percent) {
+                    $(result.cell('#' + statusResultId, 5).node()).find('.status-text').html('<span class="spinner-status"></span>');
+                }
+                else {
+                    $(result.cell('#' + statusResultId, 5).node()).find('.status-text').html('<span class="spinner-status"></span>&nbsp;' + Math.round(status.percent) + '%');
                 }
             }
-            else {
-                policyCellEmptyWithoutModal(resultId)
+            else if (status.error) {
+                nodeCell = result.$('#result-' + statusFileId);
+                statusCellError($(result.cell(nodeCell, 5).node()));
             }
-
-            // MediaInfo
-            mediaInfoCell(resultId, fileId);
-
-            // MediaTrace
-            mediaTraceCell(resultId, fileId);
-        }
-        else if (data.percent > 0) {
-            $(result.cell('#' + resultId, 5).node()).addClass('checkInProgress');
-            if (undefined == data.tool || 2 != data.tool || 100 == data.percent) {
-                $(result.cell('#' + resultId, 5).node()).find('.status-text').html('<span class="spinner-status"></span>');
-            }
-            else {
-                $(result.cell('#' + resultId, 5).node()).find('.status-text').html('<span class="spinner-status"></span>&nbsp;' + Math.round(data.percent) + '%');
-            }
-        }
+        })
     }
 
     function statusCellSuccess(nodeStatus) {

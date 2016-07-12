@@ -107,7 +107,10 @@ class MediaConchServer
     {
         $url = 'http://' . $this->address . '/' . $this->apiVersion . '/' . $uri;
 
-        if ('GET' == $method) {
+        if ('GET' == $method && 'status' == $uri && isset($params['id']) && is_array($params['id'])) {
+            $url .= '?id=' . implode('&id=', $params['id']);
+        }
+        else if ('GET' == $method) {
             $url .= '?' . http_build_query($params);
         }
 

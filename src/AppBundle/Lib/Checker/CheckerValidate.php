@@ -7,6 +7,7 @@ use AppBundle\Lib\MediaConch\MediaConchServer;
 class CheckerValidate
 {
     protected $response;
+    protected $fileId;
 
     public function __construct(MediaConchServer $mc)
     {
@@ -15,12 +16,14 @@ class CheckerValidate
 
     public function validate($id, $report, $policy = null)
     {
+        $this->fileId = $id;
         $this->response = $this->mc->validate($id, $this->getReportType($report), $policy);
     }
 
     public function getResponseAsArray()
     {
         return array('valid' => $this->response->getValid(),
+            'fileId' => $this->fileId,
             'error' => $this->response->getError(),
             );
     }
