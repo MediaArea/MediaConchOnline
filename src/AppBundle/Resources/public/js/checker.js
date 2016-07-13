@@ -15,6 +15,9 @@ $(document).ready(function() {
     // Waiting loop ID value
     waitingLoopId = null;
 
+    // Avoid call to checker status if it's already running
+    checkerStatusInProgress = false;
+
     // Upload form
     $('#file form').on('submit', function (e) {
         e.preventDefault();
@@ -200,7 +203,7 @@ $(document).ready(function() {
         waitingLoopId = setTimeout(function () {
             nbProcess = 0;
             nbProcessInProgress = 0;
-            nbProcessLimit = 5;
+            nbProcessLimit = 10;
             fileIds = [];
             // Process visible results first
             if ($('.statusCell.info').size() > 0) {
@@ -233,8 +236,8 @@ $(document).ready(function() {
                 })
             }
 
-            // Send IDs to server
-            if (fileIds.length > 0) {
+            // Send IDs to server if not already running
+            if (fileIds.length > 0 && !checkerStatusInProgress) {
                 checkerStatusRequest(fileIds);
             }
 
@@ -261,11 +264,14 @@ $(document).ready(function() {
     }
 
     function checkerStatusRequest(ids) {
+        checkerStatusInProgress = true;
         $.post(Routing.generate('app_checker_checkerstatus'), { ids: ids })
         .done(function (data) {
+            checkerStatusInProgress = false;
             processCheckerStatusRequest(data.status);
         })
         .fail(function() {
+            checkerStatusInProgress = false;
             $.each(ids, function(index, id) {
                 nodeCell = result.$('#result-' + id);
                 statusCellError($(result.cell(nodeCell, 5).node()));
