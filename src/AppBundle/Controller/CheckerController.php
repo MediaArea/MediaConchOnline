@@ -146,7 +146,7 @@ class CheckerController extends Controller
             $statusReport = 'Policy not found';
         }
 
-        return new JsonResponse(array('fileId' => $id, 'implemReport' => $implemReport, 'statusReport' => $statusReport));
+        return new JsonResponse(array('implemReport' => $implemReport, 'statusReport' => $statusReport));
     }
 
 

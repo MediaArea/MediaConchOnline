@@ -265,6 +265,13 @@ $(document).ready(function() {
 
     function checkerStatusRequest(ids) {
         checkerStatusInProgress = true;
+        /**
+         * Get the status for multiple files
+         * @param array ids List of files ID
+         *
+         * @return json
+         * {"status":{"fileId":{"finish":true,"tool":2},"fileId":{"finish":false,"percent":42}}}
+         */
         $.post(Routing.generate('app_checker_checkerstatus'), { ids: ids })
         .done(function (data) {
             checkerStatusInProgress = false;
@@ -294,6 +301,16 @@ $(document).ready(function() {
                 if (2 == status.tool && node.data('policy')) {
                     addSpinnerToCell(result.cell(node, 1));
                     addSpinnerToCell(result.cell(node, 2));
+
+                    /**
+                    * Get the implementation status and policy status for a file
+                    * @param int id The file ID
+                    * @param int reportType The report type ID
+                    * @param int policyId The policy ID
+                    *
+                    * @return json
+                    * {"implemReport":{"valid":true,"fileId":"fileId","error":null},"statusReport":{"valid":false,"fileId":"fileId","error":null}}
+                    */
                     $.get(Routing.generate('app_checker_checkerreportandpolicystatus', { id: statusFileId, reportType: status.tool, policyId: node.data('policy') }), function(data) {
                         implementationCell(data.implemReport, 'result-' + data.implemReport.fileId, data.implemReport.fileId);
                         policyCell(data.statusReport, 'result-' + data.statusReport.fileId, data.statusReport.fileId)
@@ -302,6 +319,15 @@ $(document).ready(function() {
                 else {
                     // Implementation only
                     addSpinnerToCell(result.cell(node, 1));
+
+                    /**
+                    * Get the implementation status for a file
+                    * @param int id The file ID
+                    * @param int reportType The report type ID
+                    *
+                    * @return json
+                    * {"valid":true,"fileId":"fileId","error":null}
+                    */
                     $.get(Routing.generate('app_checker_checkerreportstatus', { id: statusFileId, reportType: status.tool }), function(data) {
                         implementationCell(data, 'result-' + data.fileId, data.fileId);
                     });
