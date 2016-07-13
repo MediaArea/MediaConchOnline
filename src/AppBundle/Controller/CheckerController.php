@@ -53,19 +53,27 @@ class CheckerController extends Controller
     }
 
     /**
-     * @Route("/checkerStatus/{id}", requirements={"id": "\d+"})
+     * @Route("/checkerStatus/")
      */
-    public function checkerStatusAction($id, Request $request)
+    public function checkerStatusAction(Request $request)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
-        $status = $this->get('mco.checker.status');
-        $status->getStatus($id);
+        // Get the list of IDs
+        $ids = $request->request->get('ids');
 
-        return new JsonResponse($status->getResponseAsArray());
+        if (is_array($ids) && count($ids) > 0) {
+            $status = $this->get('mco.checker.status');
+            $status->getStatus($ids);
+            return new JsonResponse(array('status' => $status->getResponseAsArray()));
+        }
+        else {
+            return new JsonResponse(array('message' => 'Error'), 400);
+        }
     }
+
 
     /**
      * @Route("/checkerReportStatus/{id}/{reportType}", requirements={"id": "\d+", "reportType"})
@@ -91,7 +99,6 @@ class CheckerController extends Controller
             throw new NotFoundHttpException();
         }
 
-        $policyFile = null;
         if (ctype_digit($request->query->get('policy'))) {
             $policy = $this->getDoctrine()
                 ->getRepository('AppBundle:XslPolicyFile')
@@ -99,14 +106,49 @@ class CheckerController extends Controller
             if ($policy) {
                 $helper = $this->container->get('vich_uploader.storage');
                 $policyFile = $helper->resolvePath($policy, 'policyFile');
+
+                $validate = $this->get('mco.checker.validate');
+                $validate->validate($id, 1, $policyFile);
+
+                return new JsonResponse($validate->getResponseAsArray());
             }
         }
 
-        $validate = $this->get('mco.checker.validate');
-        $validate->validate($id, 1, $policyFile);
-
-        return new JsonResponse($validate->getResponseAsArray());
+        return new JsonResponse(array('message' => 'Policy not found'), 400);
     }
+
+    /**
+     * @Route("/checkerReportAndPolicyStatus/{id}/{reportType}/{policyId}", requirements={"id": "\d+", "reportType", "policyId": "\d+"})
+     */
+    public function checkerReportAndPolicyStatusAction($id, $reportType, $policyId, Request $request)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
+
+        // Implementation report
+        $validate = $this->get('mco.checker.validate');
+        $validate->validate($id, $reportType);
+        $implemReport = $validate->getResponseAsArray();
+
+        // Policy report
+        $policy = $this->getDoctrine()
+            ->getRepository('AppBundle:XslPolicyFile')
+            ->findOneByUserOrSystem($policyId, $this->getUser());
+        if ($policy) {
+            $helper = $this->container->get('vich_uploader.storage');
+            $policyFile = $helper->resolvePath($policy, 'policyFile');
+
+            $validate->validate($id, 1, $policyFile);
+            $statusReport = $validate->getResponseAsArray();
+        }
+        else {
+            $statusReport = 'Policy not found';
+        }
+
+        return new JsonResponse(array('implemReport' => $implemReport, 'statusReport' => $statusReport));
+    }
+
 
     /**
      * @Route("/checkerReport/{id}/{reportType}/{displayName}", requirements={"id": "\d+", "reportType", "displayName"})
