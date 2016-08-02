@@ -78,7 +78,7 @@
             action = 'edit';
         }
 
-        policyRuleForm($(this), selectedPolicyNode, selectedRuleNode, action, routeAction);
+        policyRuleForm($(this), selectedPolicyNode, selectedRuleNode, action);
     });
 
     function ruleAction(data, ruleNode, action) {
