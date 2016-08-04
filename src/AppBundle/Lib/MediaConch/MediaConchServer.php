@@ -13,9 +13,9 @@ class MediaConchServer
 
     public function analyse($file)
     {
-        $request = array('ANALYZE' => array('args' => array(array('id' => 0, 'file' => $file))));
-        $response = $this->callApi('analyze', 'POST', json_encode($request));
-        $response = $response->ANALYZE_RESULT;
+        $request = array('CHECKER_ANALYZE' => array('args' => array(array('id' => 0, 'file' => $file))));
+        $response = $this->callApi('checker_analyze', 'POST', json_encode($request));
+        $response = $response->CHECKER_ANALYZE_RESULT;
 
         $analyseResponse = new AnalyzeResponse($response);
 
@@ -25,8 +25,8 @@ class MediaConchServer
     public function status($id)
     {
         $request = array('id' => $id);
-        $response = $this->callApi('status', 'GET', $request);
-        $response = $response->STATUS_RESULT;
+        $response = $this->callApi('checker_status', 'GET', $request);
+        $response = $response->CHECKER_STATUS_RESULT;
 
         $statusReponse = new StatusResponse($response);
 
@@ -35,20 +35,20 @@ class MediaConchServer
 
     public function report($id, $report, $displayName, $display = null, $policy = null, $verbosity = -1)
     {
-        $request = array('REPORT' => array('ids' => array((int) $id), 'reports' => array($report), 'verbosity' => (int) $verbosity));
+        $request = array('CHECKER_REPORT' => array('ids' => array((int) $id), 'reports' => array($report), 'verbosity' => (int) $verbosity));
         if ($display && file_exists($display) && is_readable($display)) {
-            $request['REPORT']['display_content'] = file_get_contents($display);
+            $request['CHECKER_REPORT']['display_content'] = file_get_contents($display);
         }
         else {
-            $request['REPORT']['display_name'] = $displayName;
+            $request['CHECKER_REPORT']['display_name'] = $displayName;
         }
 
         if ($policy && file_exists($policy) && is_readable($policy)) {
-            $request['REPORT']['policies_contents'] = array(file_get_contents($policy));
+            $request['CHECKER_REPORT']['policies_contents'] = array(file_get_contents($policy));
         }
 
-        $response = $this->callApi('report', 'POST', json_encode($request));
-        $response = $response->REPORT_RESULT;
+        $response = $this->callApi('checker_report', 'POST', json_encode($request));
+        $response = $response->CHECKER_REPORT_RESULT;
 
         $reportResponse = new ReportResponse($response);
 
@@ -57,12 +57,12 @@ class MediaConchServer
 
     public function validate($id, $report, $policy = null)
     {
-        $request = array('VALIDATE' => array('ids' => array((int) $id), 'report' => $report));
+        $request = array('CHECKER_VALIDATE' => array('ids' => array((int) $id), 'report' => $report));
         if ($policy && file_exists($policy)) {
-            $request['VALIDATE']['policies_contents'] = array(file_get_contents($policy));
+            $request['CHECKER_VALIDATE']['policies_contents'] = array(file_get_contents($policy));
         }
-        $response = $this->callApi('validate', 'POST', json_encode($request));
-        $response = $response->VALIDATE_RESULT;
+        $response = $this->callApi('checker_validate', 'POST', json_encode($request));
+        $response = $response->CHECKER_VALIDATE_RESULT;
 
         $reportResponse = new ValidateResponse($response);
 
@@ -71,10 +71,10 @@ class MediaConchServer
 
     public function fileFromId($id)
     {
-        $request = array('FILE_FROM_ID' => array('id' => (int) $id));
+        $request = array('CHECKER_FILE_FROM_ID' => array('id' => (int) $id));
 
-        $response = $this->callApi('file_from_id', 'POST', json_encode($request));
-        $response = $response->FILE_FROM_ID_RESULT;
+        $response = $this->callApi('checker_file_from_id', 'POST', json_encode($request));
+        $response = $response->CHECKER_FILE_FROM_ID_RESULT;
 
         $reportResponse = new FileFromIdResponse($response);
 
@@ -84,8 +84,8 @@ class MediaConchServer
     public function policyFromFile($id)
     {
         $request = array('id' => $id);
-        $response = $this->callApi('create_policy_from_file', 'GET', $request);
-        $response = $response->CREATE_POLICY_FROM_FILE_RESULT;
+        $response = $this->callApi('xslt_policy_create_from_file', 'GET', $request);
+        $response = $response->XSLT_POLICY_CREATE_FROM_FILE_RESULT;
 
         $statusReponse = new PolicyFromFileResponse($response);
 
@@ -107,7 +107,7 @@ class MediaConchServer
     {
         $url = 'http://' . $this->address . '/' . $this->apiVersion . '/' . $uri;
 
-        if ('GET' == $method && 'status' == $uri && isset($params['id']) && is_array($params['id'])) {
+        if ('GET' == $method && 'checker_status' == $uri && isset($params['id']) && is_array($params['id'])) {
             $url .= '?id=' . implode('&id=', $params['id']);
         }
         else if ('GET' == $method) {
