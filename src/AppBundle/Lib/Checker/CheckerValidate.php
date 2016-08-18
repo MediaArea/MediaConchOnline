@@ -2,22 +2,33 @@
 
 namespace AppBundle\Lib\Checker;
 
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+
 use AppBundle\Lib\MediaConch\MediaConchServer;
 
 class CheckerValidate
 {
     protected $response;
+    protected $user;
     protected $fileId;
 
-    public function __construct(MediaConchServer $mc)
+    public function __construct(MediaConchServer $mc, TokenStorageInterface $tokenStorage)
     {
         $this->mc = $mc;
+
+        $token = $tokenStorage->getToken();
+        if ($token !== null && $token->getUser() instanceof \AppBundle\Entity\User) {
+            $this->user = $token->getUser();
+        }
+        else {
+            throw new \Exception('Invalid User');
+        }
     }
 
     public function validate($id, $report, $policy = null)
     {
         $this->fileId = $id;
-        $this->response = $this->mc->validate($id, $this->getReportType($report), $policy);
+        $this->response = $this->mc->validate($this->user->getId(), $id, $this->getReportType($report), $policy);
     }
 
     public function getResponseAsArray()

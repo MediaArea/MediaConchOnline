@@ -99,22 +99,10 @@ class CheckerController extends Controller
             throw new NotFoundHttpException();
         }
 
-        if (ctype_digit($request->query->get('policy'))) {
-            $policy = $this->getDoctrine()
-                ->getRepository('AppBundle:XslPolicyFile')
-                ->findOneByUserOrSystem($request->query->get('policy'), $this->getUser());
-            if ($policy) {
-                $helper = $this->container->get('vich_uploader.storage');
-                $policyFile = $helper->resolvePath($policy, 'policyFile');
+        $validate = $this->get('mco.checker.validate');
+        $validate->validate($id, 1, $request->query->get('policy'));
 
-                $validate = $this->get('mco.checker.validate');
-                $validate->validate($id, 1, $policyFile);
-
-                return new JsonResponse($validate->getResponseAsArray());
-            }
-        }
-
-        return new JsonResponse(array('message' => 'Policy not found'), 400);
+        return new JsonResponse($validate->getResponseAsArray());
     }
 
     /**
@@ -131,20 +119,8 @@ class CheckerController extends Controller
         $validate->validate($id, $reportType);
         $implemReport = $validate->getResponseAsArray();
 
-        // Policy report
-        $policy = $this->getDoctrine()
-            ->getRepository('AppBundle:XslPolicyFile')
-            ->findOneByUserOrSystem($policyId, $this->getUser());
-        if ($policy) {
-            $helper = $this->container->get('vich_uploader.storage');
-            $policyFile = $helper->resolvePath($policy, 'policyFile');
-
-            $validate->validate($id, 1, $policyFile);
-            $statusReport = $validate->getResponseAsArray();
-        }
-        else {
-            $statusReport = 'Policy not found';
-        }
+        $validate->validate($id, 1, $policyId);
+        $statusReport = $validate->getResponseAsArray();
 
         return new JsonResponse(array('implemReport' => $implemReport, 'statusReport' => $statusReport));
     }
@@ -157,17 +133,6 @@ class CheckerController extends Controller
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
-        }
-
-        $policyFile = null;
-        if (ctype_digit($request->query->get('policy'))) {
-            $policy = $this->getDoctrine()
-                ->getRepository('AppBundle:XslPolicyFile')
-                ->findOneByUserOrSystem($request->query->get('policy'), $this->getUser());
-            if ($policy) {
-                $helper = $this->container->get('vich_uploader.storage');
-                $policyFile = $helper->resolvePath($policy, 'policyFile');
-            }
         }
 
         $displayFile = null;
@@ -185,7 +150,7 @@ class CheckerController extends Controller
         $file->fileFromId($id);
 
         $report = $this->get('mco.checker.report');
-        $report->report($id, $reportType, $displayName, $displayFile, $policyFile, $request->query->get('verbosity'));
+        $report->report($id, $reportType, $displayName, $displayFile, $request->query->get('policy'), $request->query->get('verbosity'));
         $report->setFullPath(false, $file->getFilename(true));
 
         if (($reportType == 'mi' || $reportType == 'mt') && $displayName == 'jstree') {
@@ -208,28 +173,16 @@ class CheckerController extends Controller
         $policyFromFile = $this->get('mco.policy.fromFile');
         $policyFromFile->getPolicy($id);
 
-        if (null !== $policyFromFile->getPolicyContent()) {
-            $em = $this->getDoctrine()->getManager();
-            $file = $this->get('mco.checker.filename');
-            $file->fileFromId($id);
+        if (null !== $policyFromFile->getCreatedId()) {
+            $policy = $this->get('mco.policy.getPolicy');
+            $policy->getPolicy($policyFromFile->getCreatedId());
+            $policy->getResponse()->getPolicy();
+            $policy = $policy->getResponse()->getPolicy();
 
-            $tmpFileName = tempnam(sys_get_temp_dir(), 'policy' . $this->getUser());
-            file_put_contents($tmpFileName, $policyFromFile->getPolicyContent());
-            $tmpFile = new UploadedFile($tmpFileName, $file->getFilename() . '.xsl', null, null, null, true);
-
-            $policy = new XslPolicyFile();
-            $policy->setUser($this->getUser());
-            $policy->setPolicyName($file->getFilename())->setPolicyDescription('Policy created from MediaInfo report of ' . $file->getFilename());
-            $policy->setPolicyFile($tmpFile);
-
-            $em->persist($policy);
-            $em->flush();
-
-            return new JsonResponse(array('result' => true, 'policyId' => $policy->getId(), 'policyName' => $file->getFilename()));
+            return new JsonResponse(array('result' => true, 'policyId' => $policy->id, 'policyName' => $policy->name));
         }
-        else {
-            return new JsonResponse(array('result' => false));
-        }
+
+        return new JsonResponse(array('result' => false));
     }
 
     /**
@@ -240,17 +193,6 @@ class CheckerController extends Controller
         if ($this->container->has('profiler'))
         {
             $this->container->get('profiler')->disable();
-        }
-
-        $policyFile = null;
-        if (ctype_digit($request->query->get('policy'))) {
-            $policy = $this->getDoctrine()
-                ->getRepository('AppBundle:XslPolicyFile')
-                ->findOneByUserOrSystem($request->query->get('policy'), $this->getUser());
-            if ($policy) {
-                $helper = $this->container->get('vich_uploader.storage');
-                $policyFile = $helper->resolvePath($policy, 'policyFile');
-            }
         }
 
         $displayFile = null;
@@ -268,7 +210,7 @@ class CheckerController extends Controller
         $file->fileFromId($id);
 
         $report = $this->get('mco.checker.report');
-        $report->report($id, $reportType, $displayName, $displayFile, $policyFile, $request->query->get('verbosity'));
+        $report->report($id, $reportType, $displayName, $displayFile, $request->query->get('policy'), $request->query->get('verbosity'));
         $report->setFullPath(false, $file->getFilename(true));
 
         $response = new Response($report->getReport());

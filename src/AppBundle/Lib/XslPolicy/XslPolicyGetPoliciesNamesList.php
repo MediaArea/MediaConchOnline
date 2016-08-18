@@ -6,7 +6,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 use AppBundle\Lib\MediaConch\MediaConchServer;
 
-class XslPolicyFromFile
+class XslPolicyGetPoliciesNamesList
 {
     protected $response;
     protected $user;
@@ -24,13 +24,23 @@ class XslPolicyFromFile
         }
     }
 
-    public function getPolicy($id)
+    public function getPoliciesNamesList()
     {
-        $this->response = $this->mc->policyFromFile($this->user->getId(), $id);
+        $this->response = $this->mc->policyGetPoliciesNamesList($this->user->getId());
     }
 
-    public function getCreatedId()
+    public function getResponse()
     {
-        return $this->response->getPolicyId();
+        return $this->response;
+    }
+
+    public function getListForChoiceForm()
+    {
+        $policyList = array();
+        foreach ($this->response->getPolicies() as $policy) {
+            $policyList[$policy->name] = $policy->id;
+        }
+
+        return $policyList;
     }
 }

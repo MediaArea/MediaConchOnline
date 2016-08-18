@@ -4,7 +4,7 @@ namespace AppBundle\Lib\MediaConch;
 
 class PolicyFromFileResponse
 {
-    private $policy;
+    private $policyId;
     private $error;
 
     public function __construct($response)
@@ -12,9 +12,9 @@ class PolicyFromFileResponse
         $this->parse($response);
     }
 
-    public function getPolicy()
+    public function getPolicyId()
     {
-        return $this->policy;
+        return $this->policyId;
     }
 
     public function getError()
@@ -24,8 +24,8 @@ class PolicyFromFileResponse
 
     private function parse($response)
     {
-        if (isset($response->policy)) {
-            $this->policy = $response->policy;
+        if (isset($response->policy_id)) {
+            $this->policyId = $response->policy_id;
         }
         else if (isset($response->nok)) {
             $this->error = $response->nok;

@@ -167,6 +167,7 @@ fos_js_routing:
         - app_checker_checkercreatepolicy
         - app_xslpolicy_xslpolicyrulefieldslist
         - app_xslpolicy_xslpolicyrulevalueslist
+        - app_xslpolicy_xslpolicytree
         - app_xslpolicy_xslpolicytreedata
         - app_xslpolicy_xslpolicytreecheck
         - app_xslpolicy_xslpolicytreecreate

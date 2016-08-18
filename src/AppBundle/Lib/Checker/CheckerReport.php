@@ -2,20 +2,31 @@
 
 namespace AppBundle\Lib\Checker;
 
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+
 use AppBundle\Lib\MediaConch\MediaConchServer;
 
 class CheckerReport
 {
     protected $response;
+    protected $user;
     protected $report;
     protected $displayName;
     protected $policy;
     protected $fullPath = false;
     protected $filename;
 
-    public function __construct(MediaConchServer $mc)
+    public function __construct(MediaConchServer $mc, TokenStorageInterface $tokenStorage)
     {
         $this->mc = $mc;
+
+        $token = $tokenStorage->getToken();
+        if ($token !== null && $token->getUser() instanceof \AppBundle\Entity\User) {
+            $this->user = $token->getUser();
+        }
+        else {
+            throw new \Exception('Invalid User');
+        }
     }
 
     public function report($id, $report, $displayName, $display = null, $policy = null, $verbosity = -1)
@@ -35,7 +46,7 @@ class CheckerReport
             $display = null;
         }
 
-        $this->response = $this->mc->report($id, $this->getReportType(), $this->getDisplayName(), $display, $policy, $verbosity);
+        $this->response = $this->mc->report($this->user->getId(), $id, $this->getReportType(), $this->getDisplayName(), $display, $policy, $verbosity);
     }
 
     public function getResponseAsArray()

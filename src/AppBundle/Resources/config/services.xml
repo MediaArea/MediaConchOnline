@@ -41,6 +41,7 @@
             <argument type="service" id="security.token_storage" />
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="mco.settings" />
+            <argument type="service" id="mco.policy.getPoliciesNamesList"/>
         </service>
 
         <service id="app.form.type.checker.online" class="AppBundle\Form\Type\CheckerOnlineFormType">
@@ -48,6 +49,7 @@
             <argument type="service" id="security.token_storage" />
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="mco.settings" />
+            <argument type="service" id="mco.policy.getPoliciesNamesList"/>
         </service>
 
         <service id="app.form.type.checker.repository" class="AppBundle\Form\Type\CheckerRepositoryFormType">
@@ -55,6 +57,7 @@
             <argument type="service" id="security.token_storage" />
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="mco.settings" />
+            <argument type="service" id="mco.policy.getPoliciesNamesList"/>
         </service>
 
         <service id="app.form.type.settings" class="AppBundle\Form\Type\SettingsFormType">
@@ -62,6 +65,7 @@
             <argument type="service" id="security.token_storage" />
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="mco.settings" />
+            <argument type="service" id="mco.policy.getPoliciesNamesList"/>
         </service>
 
         <service id="app.form.type.policy.create" class="AppBundle\Form\Type\XslPolicyCreateFormType">
@@ -109,10 +113,12 @@
 
         <service id="mco.checker.validate" class="AppBundle\Lib\Checker\CheckerValidate">
             <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
         </service>
 
         <service id="mco.checker.report" class="AppBundle\Lib\Checker\CheckerReport">
             <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
         </service>
 
         <service id="mco.checker.filename" class="AppBundle\Lib\Checker\CheckerFilename">
@@ -164,6 +170,11 @@
             <argument type="service" id="security.token_storage" />
         </service>
 
+        <service id="mco.policy.getPoliciesNamesList" class="AppBundle\Lib\XslPolicy\XslPolicyGetPoliciesNamesList">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
         <service id="mco.policy.rule.create" class="AppBundle\Lib\XslPolicy\XslPolicyRuleCreate">
             <argument type="service" id="mco.mediaconch.server"/>
             <argument type="service" id="security.token_storage" />
@@ -191,6 +202,7 @@
 
         <service id="mco.policy.fromFile" class="AppBundle\Lib\XslPolicy\XslPolicyFromFile">
             <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
         </service>
 
         <service id="mco.policy.form.values" class="AppBundle\Lib\XslPolicy\XslPolicyFormValues">

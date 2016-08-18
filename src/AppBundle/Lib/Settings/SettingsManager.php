@@ -31,17 +31,7 @@ class SettingsManager
 
     public function setDefaultPolicy($policy)
     {
-        if ($policy instanceof \AppBundle\Entity\XslPolicyFile) {
-            $this->setSetting('defaultPolicy', $policy->getId());
-        }
-        // If last used policy
-        else if (is_int($policy)) {
-            $this->setSetting('defaultPolicy', $policy);
-        }
-        else {
-            $this->setSetting('defaultPolicy', null);
-        }
-
+        $this->setSetting('defaultPolicy', $policy);
 
         return $this;
     }
@@ -57,8 +47,8 @@ class SettingsManager
                 return -2;
             }
         }
-        elseif (null !== $defaultPolicy) {
-            return $this->em->getRepository('AppBundle:XslPolicyFile')->findOneByUserOrSystem($defaultPolicy, $this->user);
+        else {
+            return $defaultPolicy;
         }
     }
 
@@ -118,8 +108,8 @@ class SettingsManager
     }
 
     public function setLastUsedPolicy($policy) {
-        if ($policy instanceof \AppBundle\Entity\XslPolicyFile && -2 === $this->getDefaultPolicy(false)) {
-            $this->setSetting('lastUsedPolicy', $policy->getId());
+        if (is_int($policy) && -2 === $this->getDefaultPolicy(false)) {
+            $this->setSetting('lastUsedPolicy', $policy);
         }
         else {
             $this->removeSetting('lastUsedPolicy');
@@ -129,10 +119,7 @@ class SettingsManager
     }
 
     public function getLastUsedPolicy() {
-        $lastUsedPolicy = $this->getSetting('lastUsedPolicy');
-        if (null !== $lastUsedPolicy) {
-            return $this->em->getRepository('AppBundle:XslPolicyFile')->findOneByUserOrSystem($lastUsedPolicy, $this->user);
-        }
+        return $this->getSetting('lastUsedPolicy');
     }
 
     public function setLastUsedDisplay($display) {

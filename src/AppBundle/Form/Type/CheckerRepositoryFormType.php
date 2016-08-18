@@ -9,14 +9,16 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\EntityManager;
 
 use AppBundle\Lib\Settings\SettingsManager;
+use AppBundle\Lib\XslPolicy\XslPolicyGetPoliciesNamesList;
 
 class CheckerRepositoryFormType extends AbstractType
 {
     private $user;
     private $em;
     private $settings;
+    private $policyList;
 
-    public function __construct(TokenStorageInterface $tokenStorage, EntityManager $em, SettingsManager $settings)
+    public function __construct(TokenStorageInterface $tokenStorage, EntityManager $em, SettingsManager $settings, XslPolicyGetPoliciesNamesList $policyList)
     {
         $token = $tokenStorage->getToken();
         if ($token !== null && $token->getUser() instanceof \AppBundle\Entity\User) {
@@ -28,13 +30,16 @@ class CheckerRepositoryFormType extends AbstractType
 
         $this->em = $em;
         $this->settings = $settings;
+
+        $this->policyList = $policyList;
+        $this->policyList->getPoliciesNamesList();
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('policy', 'entity', array('class' => 'AppBundle:XslPolicyFile',
-                'choices' => $this->em->getRepository('AppBundle:XslPolicyFile')->getUserAndSystemPolicies($this->user),
+            ->add('policy', 'choice', array('choices' => $this->policyList->getListForChoiceForm(),
+                'choices_as_values' => true,
                 'placeholder' => 'Choose a policy',
                 'required' => false,
                 'label' => 'Policy',
