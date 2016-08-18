@@ -45,7 +45,7 @@ MediaConchOnline Policy Management
         <div class="row policyEdit hidden">
             <div>
                 <h4>Policy edition:</h4>
-                {{ form(policyNameForm) }}
+                {{ form(policyInfoForm) }}
             </div>
 
             <div class="policyEditActions">
@@ -54,6 +54,13 @@ MediaConchOnline Policy Management
                 <button id="policyExport" class="btn btn-warning">Export</button>
                 <button id="policyDelete" class="btn btn-danger">Delete</button>
             </div>
+
+            {% if createPolicyForm is defined and createPolicyForm %}
+            <div class="policyCreateChildContainer">
+                <h4>Add a new policy</h2>
+                <div class="policyCreateChild"></div>
+            </div>
+            {% endif %}
 
             <div id="policyRuleCreateContainer">
                 <h4>Policy rule actions:</h4>

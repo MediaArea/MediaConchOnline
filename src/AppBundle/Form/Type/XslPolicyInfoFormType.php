@@ -5,12 +5,13 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class XslPolicyNameFormType extends AbstractType
+class XslPolicyInfoFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('policyName')
-            ->add('SavePolicyName', 'submit', array('attr' => array('class' => 'btn-warning')));
+        $builder->add('policyName', null, array('required' => false))
+            ->add('policyDescription', null, array('required' => false))
+            ->add('SavePolicyInfo', 'submit', array('attr' => array('class' => 'btn-warning')));
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -19,6 +20,6 @@ class XslPolicyNameFormType extends AbstractType
 
     public function getName()
     {
-        return 'xslPolicyName';
+        return 'xslPolicyInfo';
     }
 }

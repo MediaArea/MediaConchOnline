@@ -17,9 +17,7 @@ class MediaConchServer
         $response = $this->callApi('checker_analyze', 'POST', json_encode($request));
         $response = $response->CHECKER_ANALYZE_RESULT;
 
-        $analyseResponse = new AnalyzeResponse($response);
-
-        return $analyseResponse;
+        return new AnalyzeResponse($response);
     }
 
     public function status($id)
@@ -28,9 +26,7 @@ class MediaConchServer
         $response = $this->callApi('checker_status', 'GET', $request);
         $response = $response->CHECKER_STATUS_RESULT;
 
-        $statusReponse = new StatusResponse($response);
-
-        return $statusReponse;
+        return new StatusResponse($response);
     }
 
     public function report($id, $report, $displayName, $display = null, $policy = null, $verbosity = -1)
@@ -50,9 +46,7 @@ class MediaConchServer
         $response = $this->callApi('checker_report', 'POST', json_encode($request));
         $response = $response->CHECKER_REPORT_RESULT;
 
-        $reportResponse = new ReportResponse($response);
-
-        return $reportResponse;
+        return new ReportResponse($response);
     }
 
     public function validate($id, $report, $policy = null)
@@ -64,9 +58,7 @@ class MediaConchServer
         $response = $this->callApi('checker_validate', 'POST', json_encode($request));
         $response = $response->CHECKER_VALIDATE_RESULT;
 
-        $reportResponse = new ValidateResponse($response);
-
-        return $reportResponse;
+        return new ValidateResponse($response);
     }
 
     public function fileFromId($id)
@@ -76,9 +68,7 @@ class MediaConchServer
         $response = $this->callApi('checker_file_from_id', 'POST', json_encode($request));
         $response = $response->CHECKER_FILE_FROM_ID_RESULT;
 
-        $reportResponse = new FileFromIdResponse($response);
-
-        return $reportResponse;
+        return new FileFromIdResponse($response);
     }
 
     public function policyFromFile($id)
@@ -87,9 +77,7 @@ class MediaConchServer
         $response = $this->callApi('xslt_policy_create_from_file', 'GET', $request);
         $response = $response->XSLT_POLICY_CREATE_FROM_FILE_RESULT;
 
-        $statusReponse = new PolicyFromFileResponse($response);
-
-        return $statusReponse;
+        return new PolicyFromFileResponse($response);
     }
 
     public function valuesFromType($trackType, $field)
@@ -98,19 +86,157 @@ class MediaConchServer
         $response = $this->callApi('default_values_for_type', 'GET', $request);
         $response = $response->DEFAULT_VALUES_FOR_TYPE_RESULT;
 
-        $valuesFromTypeReponse = new ValuesFromTypeResponse($response);
+        return new ValuesFromTypeResponse($response);
+    }
 
-        return $valuesFromTypeReponse;
+    public function policyGetPolicy($user, $id, $format)
+    {
+        $request = array('user' => $user, 'id' => $id, 'format' => $format);
+        $response = $this->callApi('policy_get', 'GET', $request);
+        $response = $response->POLICY_GET_RESULT;
+
+        return new PolicyGetPolicyResponse($response);
+    }
+
+    public function policyGetPolicies($user, $ids, $format)
+    {
+        $request = array('user' => $user, 'format' => $format);
+        if (count($ids) > 0) {
+            $request['id'] = $ids;
+        }
+        $response = $this->callApi('policy_get_policies', 'GET', $request);
+        $response = $response->POLICY_GET_POLICIES_RESULT;
+
+        return new PolicyGetPoliciesResponse($response);
+    }
+
+    public function policyCreate($user, $type, $parentId)
+    {
+        $request = array('user' => $user);
+        if ($type) {
+            $request['type'] = $type;
+        }
+
+        if ($parentId) {
+            $request['parent_id'] = $parentId;
+        }
+        $response = $this->callApi('xslt_policy_create', 'GET', $request);
+        $response = $response->XSLT_POLICY_CREATE_RESULT;
+
+        return new PolicyCreateResponse($response);
+    }
+
+    public function policySave($user, $policyId)
+    {
+        $request = array('user' => $user, 'id' => $policyId);
+        $response = $this->callApi('policy_save', 'GET', $request);
+        $response = $response->POLICY_SAVE_RESULT;
+
+        return new PolicySaveResponse($response);
+    }
+
+    public function policyImport($user, $xml)
+    {
+        $request = array('POLICY_IMPORT' => array('user' => $user, 'xml' => $xml));
+        $response = $this->callApi('policy_import', 'POST', json_encode($request));
+        $response = $response->POLICY_IMPORT_RESULT;
+
+        return new PolicyImportResponse($response);
+    }
+
+    public function policyExport($user, $policyId)
+    {
+        $request = array('user' => $user, 'id' => $policyId);
+        $response = $this->callApi('policy_dump', 'GET', $request);
+        $response = $response->POLICY_DUMP_RESULT;
+
+        return new PolicyExportResponse($response);
+    }
+
+    public function policyEdit($user, $policyId, $name, $description)
+    {
+        $request = array('POLICY_CHANGE_INFO' => array('user' => $user, 'id' => (int) $policyId, 'name' => null == $name ? '' : $name, 'description' => null == $description ? '' : $description));
+        $response = $this->callApi('policy_change_info', 'POST', json_encode($request));
+        $response = $response->POLICY_CHANGE_INFO_RESULT;
+
+        return new PolicyEditResponse($response);
+    }
+
+    public function policyDelete($user, $policyId)
+    {
+        $request = array('user' => $user, 'id' => $policyId);
+        $response = $this->callApi('policy_remove', 'GET', $request);
+        $response = $response->POLICY_REMOVE_RESULT;
+
+        return new PolicyDeleteResponse($response);
+    }
+
+    public function policyDuplicate($user, $policyId)
+    {
+        $request = array('user' => $user, 'id' => $policyId);
+        $response = $this->callApi('policy_duplicate', 'GET', $request);
+        $response = $response->POLICY_DUPLICATE_RESULT;
+
+        return new PolicyDuplicateResponse($response);
+    }
+
+    public function policyRuleCreate($user, $policyId)
+    {
+        $request = array('user' => $user, 'policy_id' => (int) $policyId);
+        $response = $this->callApi('xslt_policy_rule_create', 'GET', $request);
+        $response = $response->XSLT_POLICY_RULE_CREATE_RESULT;
+
+        return new PolicyRuleCreateResponse($response);
+    }
+
+    public function policyRuleEdit($user, $ruleData, $policyId)
+    {
+        $request = array('XSLT_POLICY_RULE_EDIT' => array('user' => $user, 'policy_id' => (int) $policyId, 'rule' => $ruleData));
+        $response = $this->callApi('xslt_policy_rule_edit', 'POST', json_encode($request));
+        $response = $response->XSLT_POLICY_RULE_EDIT_RESULT;
+
+        return new PolicyRuleEditResponse($response);
+    }
+
+    public function policyRuleDelete($user, $ruleId, $policyId)
+    {
+        $request = array('user' => $user, 'policy_id' => (int) $policyId, 'id' => (int) $ruleId);
+        $response = $this->callApi('xslt_policy_rule_delete', 'GET', $request);
+        $response = $response->XSLT_POLICY_RULE_DELETE_RESULT;
+
+        return new PolicyRuleDeleteResponse($response);
+    }
+
+    public function policyRuleDuplicate($user, $ruleId, $policyId)
+    {
+        $request = array('user' => $user, 'policy_id' => (int) $policyId, 'id' => (int) $ruleId);
+        $response = $this->callApi('xslt_policy_rule_duplicate', 'GET', $request);
+        $response = $response->XSLT_POLICY_RULE_DUPLICATE_RESULT;
+
+        return new PolicyRuleDuplicateResponse($response);
+    }
+
+    public function policyGetRule($user, $ruleId, $policyId)
+    {
+        $request = array('user' => $user, 'policy_id' => (int) $policyId, 'id' => (int) $ruleId);
+        $response = $this->callApi('xslt_policy_rule_get', 'GET', $request);
+        $response = $response->XSLT_POLICY_RULE_GET_RESULT;
+
+        return new PolicyGetRuleResponse($response);
     }
 
     protected function callApi($uri, $method, $params)
     {
         $url = 'http://' . $this->address . '/' . $this->apiVersion . '/' . $uri;
 
-        if ('GET' == $method && 'checker_status' == $uri && isset($params['id']) && is_array($params['id'])) {
+        if ('GET' == $method && in_array($uri, array('checker_status', 'policy_get_policies')) && isset($params['id']) && is_array($params['id'])) {
             $url .= '?id=' . implode('&id=', $params['id']);
+            unset($params['id']);
+            if (count($params) > 0) {
+                $url .= '&' . http_build_query($params);
+            }
         }
-        else if ('GET' == $method) {
+        else if ('GET' == $method && is_array($params)) {
             $url .= '?' . http_build_query($params);
         }
 

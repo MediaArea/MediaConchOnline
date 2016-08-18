@@ -1,132 +1,165 @@
-function getPolicyTreeData() {
-    $.get(Routing.generate('app_xslpolicy_xslpolicytreedata'))
-    .done(function(data) {
-        displayTree(data.policiesTree);
-    })
-}
+var policyTreeAjax = (function() {
+    var getData = function() {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreedata'))
+        .done(function(data) {
+            policyTree.setData(data.policiesTree);
+        })
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, '#policiesTree');
+        })
+    };
 
-function policyImportForm(form) {
-    $.ajax({
-        type: form.attr('method'),
-            url: Routing.generate('app_xslpolicy_xslpolicytreeimport'),
-            data: new FormData(form[0]),
-            processData: false,
-            contentType: false
-    })
-    .done(function (data) {
-        policyImport(data);
-    })
-    .fail(function (jqXHR) {
-        failResponse(jqXHR, 'form[name="xslPolicyImport"]');
-    })
-}
-
-function policyCreateForm(form) {
-    $.ajax({
-        type: form.attr('method'),
-            url: Routing.generate('app_xslpolicy_xslpolicytreecreate'),
-            data: new FormData(form[0]),
-            processData: false,
-            contentType: false
-    })
-    .done(function (data) {
-        policyCreate(data);
-    })
-    .fail(function (jqXHR) {
-        failResponse(jqXHR, 'form[name="xslPolicyCreate"]');
-    })
-}
-
-function policyRuleForm(form, policyNode, ruleNode, action) {
-    if ('delete' == action) {
-        routeAction = 'app_xslpolicy_xslpolicytreeruledelete';
-    }
-    else {
-        routeAction = 'app_xslpolicy_xslpolicytreeruleedit';
+    var policyImport = function(form) {
+        $.ajax({
+            type: form.attr('method'),
+                url: Routing.generate('app_xslpolicy_xslpolicytreeimport'),
+                data: new FormData(form[0]),
+                processData: false,
+                contentType: false
+        })
+        .done(function (data) {
+            policyTree.policyImport(data.policy);
+        })
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, 'form[name="xslPolicyImport"]');
+        })
     }
 
-    $.ajax({
-        type: form.attr('method'),
-            url: Routing.generate(routeAction, {id: policyNode.data.policyId, ruleId: ruleNode.data.ruleId, action: action}),
-            data: new FormData(form[0]),
-            processData: false,
-            contentType: false
-    })
-    .done(function (data) {
-        ruleAction(data, ruleNode, action);
-    })
-    .fail(function (jqXHR) {
-        failResponse(jqXHR, 'form[name="xslPolicyRule"]');
-    })
-}
+    var policyCreate = function(form, policyNode, parentId, topLevelId) {
+        $.ajax({
+            type: form.attr('method'),
+                url: Routing.generate('app_xslpolicy_xslpolicytreecreate', {parentId: parentId, topLevelId: topLevelId}),
+                data: new FormData(form[0]),
+                processData: false,
+                contentType: false
+        })
+        .done(function (data) {
+            policyTree.policyCreate(data.policy, policyNode);
+        })
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, 'form[name="xslPolicyCreate"]');
+        })
+    }
 
-function policyNameForm(form, policyNode) {
-    $.ajax({
-        type: form.attr('method'),
-            url: Routing.generate('app_xslpolicy_xslpolicytreename', {id: policyNode.data.policyId}),
-            data: new FormData(form[0]),
-            processData: false,
-            contentType: false
-    })
-    .done(function (data) {
-        policyNameChange(data, policyNode);
-    })
-    .fail(function (jqXHR) {
-        failResponse(jqXHR, 'form[name="xslPolicyName"]');
-    })
-}
+    var policyEdit = function(form, policyNode, topLevelId) {
+        $.ajax({
+            type: form.attr('method'),
+                url: Routing.generate('app_xslpolicy_xslpolicytreeedit', {id: policyNode.data.policyId, topLevelId: topLevelId}),
+                data: new FormData(form[0]),
+                processData: false,
+                contentType: false
+        })
+        .done(function (data) {
+            policyTree.policyEdit(data, policyNode);
+        })
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, 'form[name="xslPolicyName"]');
+        })
+    }
 
-function policyDuplicateRequest(policyNode) {
-    $.get(Routing.generate('app_xslpolicy_xslpolicytreeduplicate', {id: policyNode.data.policyId}))
-    .done(function (data) {
-        policyDuplicate(data, policyNode);
-    })
-    .fail(function (jqXHR) {
-        failResponse(jqXHR, '#policyDuplicate');
-    })
-}
+    var policyDelete = function(policyNode) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreedelete', {id: policyNode.data.policyId}))
+        .done(function (data) {
+            policyTree.policyDelete(policyNode);
+        })
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, '#policyDelete');
+        })
+    }
 
-function policyExportRequest(policyId) {
-    window.location = Routing.generate('app_xslpolicy_xslpolicyexport', {id: policyId});
-}
+    var policyExport = function(policyNode) {
+        window.location = Routing.generate('app_xslpolicy_xslpolicytreeexport', {id: policyNode.data.policyId});
+    }
 
-function policyDeleteRequest(policyNode) {
-    $.get(Routing.generate('app_xslpolicy_xslpolicytreedelete', {id: policyNode.data.policyId}))
-    .done(function (data) {
-        policyDelete(data, policyNode);
-    })
-    .fail(function (jqXHR) {
-        failResponse(jqXHR, '#policyDelete');
-    })
-}
+    var policyDuplicate = function(policyNode) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreeduplicate', {id: policyNode.data.policyId}))
+        .done(function (data) {
+            policyTree.policyDuplicate(data.policy, policyNode);
+        })
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, '#policyDuplicate');
+        })
+    }
 
-function policyRuleCreateRequest(policyNode) {
-    $.get(Routing.generate('app_xslpolicy_xslpolicytreecheck', {id: policyNode.data.policyId}))
-    .done(function (data) {
-        rule = {text: 'New rule', type: 'r', data: {ruleId: 'new', trackType: '', field: '', occurrence: 1, validator: '', value: ''}};
-        policyRuleCreate(rule, policyNode);
-    })
-    .fail(function (jqXHR) {
-        failResponse(jqXHR, '#policyRuleCreate');
-    })
-}
+    var ruleCreate = function(policyNode, topLevelId) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreerulecreate', {policyId: policyNode.data.policyId, topLevelId: topLevelId}))
+        .done(function (data) {
+            policyTree.ruleCreate(data.rule, policyNode);
+        })
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, 'form[name="xslPolicyRule"]');
+        })
+    }
 
-function getFieldsList(trackType, field) {
-    $.post(Routing.generate('app_xslpolicy_xslpolicyrulefieldslist'), {type: trackType, field: field})
-    .done(function(data) {
-        fieldsListOk(data, field)
-    })
-    .fail(function () {
-        fieldsListError(field)
-    });
-}
+    var ruleEdit = function(form, policyId, ruleNode, topLevelId) {
+        $.ajax({
+            type: form.attr('method'),
+                url: Routing.generate('app_xslpolicy_xslpolicytreeruleedit', {id: ruleNode.data.ruleId, policyId: policyId, topLevelId: topLevelId}),
+                data: new FormData(form[0]),
+                processData: false,
+                contentType: false
+        })
+        .done(function (data) {
+            policyTree.ruleEdit(data.rule, ruleNode);
+        })
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, 'form[name="xslPolicyRule"]');
+        })
+    }
 
-function getValuesList(trackType, field, value) {
-    $.post(Routing.generate('app_xslpolicy_xslpolicyrulevalueslist'), {type: trackType, field: field, value: value})
-    .done(function(data) {
-        valuesListOk(data.values, value);
-    })
-    .fail(function () {
-        valuesListError(value);
-    });
-}
+    var ruleDelete = function(policyId, ruleNode, topLevelId) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreeruledelete', {id: ruleNode.data.ruleId, policyId: policyId, topLevelId: topLevelId}))
+        .done(function (data) {
+            policyTree.ruleDelete(ruleNode);
+        })
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, 'form[name="xslPolicyRule"]');
+        })
+    }
+
+    var ruleDuplicate = function(policyId, ruleNode, topLevelId) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreeruleduplicate', {id: ruleNode.data.ruleId, policyId: policyId, topLevelId: topLevelId}))
+        .done(function (data) {
+            policyTree.ruleDuplicate(data.rule, ruleNode);
+        })
+        .fail(function (jqXHR) {
+            failResponse(jqXHR, 'form[name="xslPolicyRule"]');
+        })
+    }
+
+    var getFieldsList = function(trackType, field) {
+        $.post(Routing.generate('app_xslpolicy_xslpolicyrulefieldslist'), {type: trackType, field: field})
+        .done(function(data) {
+            policyTreeRules.fieldsListOk(data, field)
+        })
+        .fail(function () {
+            policyTreeRules.fieldsListError(field)
+        });
+    }
+
+    var getValuesList = function(trackType, field, value) {
+        $.post(Routing.generate('app_xslpolicy_xslpolicyrulevalueslist'), {type: trackType, field: field, value: value})
+        .done(function(data) {
+            policyTreeRules.valuesListOk(data.values, value);
+        })
+        .fail(function () {
+            policyTreeRules.valuesListError(value);
+        });
+    }
+
+    return {
+        getData: getData,
+        policyImport: policyImport,
+        policyCreate: policyCreate,
+        policyEdit: policyEdit,
+        policyDelete: policyDelete,
+        policyDuplicate: policyDuplicate,
+        policyExport: policyExport,
+        ruleCreate: ruleCreate,
+        ruleEdit: ruleEdit,
+        ruleDelete: ruleDelete,
+        ruleDuplicate: ruleDuplicate,
+        getFieldsList: getFieldsList,
+        getValuesList: getValuesList,
+    };
+})();

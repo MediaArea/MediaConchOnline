@@ -6,6 +6,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -23,27 +25,6 @@ use AppBundle\Lib\XslPolicy\XslPolicyWriter;
 class XslPolicyController extends BaseController
 {
     /**
-     * @Route("/xslPolicy/export/{id}", requirements={"id": "\d+"})
-     * @Method("GET")
-     */
-    public function xslPolicyExportAction($id)
-    {
-        $policy = $this->getDoctrine()
-            ->getRepository('AppBundle:XslPolicyFile')
-            ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
-
-        if (!$policy) {
-            $this->addFlashBag('danger', 'Policy not found');
-
-            return $this->redirect($this->generateUrl('app_xslpolicy_xslpolicy'));
-        }
-        else {
-            $handler = $this->container->get('vich_uploader.download_handler');
-            return $handler->downloadObject($policy, 'policyFile');
-        }
-    }
-
-    /**
      * @Route("/xslPolicyTree/")
      * @Template()
      */
@@ -53,18 +34,17 @@ class XslPolicyController extends BaseController
         $rule = new XslPolicyRule();
         $rule->setTitle('New rule');
         $policyRuleForm = $this->createForm('xslPolicyRule', $rule);
-        $policy = new XslPolicyFile();
         if ($this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
-            $importPolicyForm = $this->createForm('xslPolicyImport', $policy);
-            $createPolicyForm = $this->createForm('xslPolicyCreate', $policy);
+            $importPolicyForm = $this->createForm('xslPolicyImport');
+            $createPolicyForm = $this->createForm('xslPolicyCreate');
         }
-        $policyNameForm = $this->createForm('xslPolicyName', $policy);
+        $policyInfoForm = $this->createForm('xslPolicyInfo');
 
         return array(
             'policyRuleForm' => $policyRuleForm->createView(),
             'importPolicyForm' => isset($importPolicyForm) ? $importPolicyForm->createView() : false,
             'createPolicyForm' => isset($createPolicyForm) ? $createPolicyForm->createView() : false,
-            'policyNameForm' => $policyNameForm->createView(),
+            'policyInfoForm' => $policyInfoForm->createView(),
             );
     }
 
@@ -77,40 +57,10 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $helper = $this->container->get('vich_uploader.storage');
-        $parser = $this->get('mco.xslpolicy.parser');
+        $policies = $this->get('mco.policy.getPolicies');
+        $policies->getPolicies(array(), 'JSTREE');
 
-        // System policies
-        $policiesSystem = array('id' => 's_p', 'text' => 'System policies', 'type' => 'sp', 'state' => array('opened' => true), 'children' => array());
-        $policyList = $this->getDoctrine()
-            ->getRepository('AppBundle:XslPolicyFile')
-            ->findByUser(null);
-        foreach ($policyList as $policy) {
-            $policyFile = $helper->resolvePath($policy, 'policyFile');
-            $parser->loadXsl($policyFile);
-            $rules = array();
-            foreach ($parser->getPolicy()->getRules() as $ruleId => $rule) {
-                $rules[] = array('text' => $rule->getTitle(), 'type' => 'r', 'data' => array('ruleId' => $ruleId, 'trackType' => $rule->getTrackType(), 'field' => $rule->getField(), 'occurrence' => $rule->getOccurrence(), 'validator' => $rule->getValidator(), 'value' => $rule->getValue()));
-            }
-            $policiesSystem['children'][] = array('text' => $policy->getPolicyName(), 'type' => 's', 'data' => array('policyId' => $policy->getId(), 'isEditable' => false), 'children' => $rules);
-        }
-
-        // User policies
-        $policiesUser = array('id' => 'u_p', 'text' => 'User policies', 'type' => 'up', 'state' => array('opened' => true, 'selected' => true), 'children' => array());
-        $policyList = $this->getDoctrine()
-            ->getRepository('AppBundle:XslPolicyFile')
-            ->findByUser($this->getUser());
-        foreach ($policyList as $policy) {
-            $policyFile = $helper->resolvePath($policy, 'policyFile');
-            $parser->loadXsl($policyFile);
-            $rules = array();
-            foreach ($parser->getPolicy()->getRules() as $ruleId => $rule) {
-                $rules[] = array('text' => $rule->getTitle(), 'type' => 'r', 'data' => array('ruleId' => $ruleId, 'trackType' => $rule->getTrackType(), 'field' => $rule->getField(), 'occurrence' => $rule->getOccurrence(), 'validator' => $rule->getValidator(), 'value' => $rule->getValue()));
-            }
-            $policiesUser['children'][] = array('text' => $policy->getPolicyName(), 'type' => 'u', 'data' => array('policyId' => $policy->getId(), 'isEditable' => true), 'children' => $rules);
-        }
-
-        return new JsonResponse(array('policiesTree' => array($policiesUser, $policiesSystem)), 200);
+        return new JsonResponse(array('policiesTree' => $policies->getResponse()->getPolicies()), 200);
     }
 
     /**
@@ -135,46 +85,39 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * @Route("/xslPolicyTree/ajax/create")
+     * @Route("/xslPolicyTree/ajax/create/{parentId}/{topLevelId}", requirements={"parentId": "(-)?\d+", "topLevelId": "(-)?\d+"})
      */
-    public function xslPolicyTreeCreateAction(Request $request)
+    public function xslPolicyTreeCreateAction($parentId, $topLevelId, Request $request)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
-        if ($this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
-            $policy = new XslPolicyFile();
-            $createPolicyForm = $this->createForm('xslPolicyCreate', $policy);
-            $createPolicyForm->handleRequest($request);
-            if ($createPolicyForm->isValid()) {
-                $em = $this->getDoctrine()->getManager();
+        $createPolicyForm = $this->createForm('xslPolicyCreate');
+        $createPolicyForm->handleRequest($request);
+        if ($createPolicyForm->isValid()) {
+            $data = $createPolicyForm->getData();
 
-                // Set user at the creation of the policy
-                if (null === $policy->getUser()) {
-                    $policy->setUser($this->getUser());
+            $policyCreate = $this->get('mco.policy.create');
+            $policyCreate->create($data['policyType'], $parentId);
+
+            if (null !== $policyCreate->getCreatedId()) {
+                $policySave = $this->get('mco.policy.save');
+                if (-1 == $topLevelId) {
+                    $policySave->save($policyCreate->getCreatedId());
+                }
+                else {
+                    $policySave->save($topLevelId);
                 }
 
-                $tmpNameFile = tempnam(sys_get_temp_dir(), 'policy' . $policy->getUser()->getId());
-                $tmpPolicy = new XslPolicy();
-                $tmpPolicy->setTitle($policy->getPolicyName())->setDescription($policy->getPolicyDescription());
-                $tmpPolicyWriter = new XslPolicyWriter();
-                $tmpPolicyWriter->setPolicy($tmpPolicy)->writeXsl($tmpNameFile);
-                $tmpFile = new UploadedFile($tmpNameFile, $policy->getPolicyName() . '.xsl', null, null, null, true);
-                $policy->setPolicyFile($tmpFile);
+                $policy = $this->get('mco.policy.getPolicy');
+                $policy->getPolicy($policyCreate->getCreatedId(), 'JSTREE');
 
-                $em->persist($policy);
-                $em->flush();
-
-                return new JsonResponse(array('policyId' => $policy->getId(), 'policyName' => $policy->getPolicyName(), 'isEditable' => true), 200);
-            }
-            else {
-                return new JsonResponse(array('message' => 'Error'), 400);
+                return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy(), 'parentId' => $parentId), 200);
             }
         }
-        else {
-            return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
-        }
+
+        return new JsonResponse(array('message' => 'Error'), 400);
     }
 
     /**
@@ -186,71 +129,79 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        if ($this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
-            $policy = new XslPolicyFile();
-            $importPolicyForm = $this->createForm('xslPolicyImport', $policy);
-            $importPolicyForm->handleRequest($request);
-            if ($importPolicyForm->isValid()) {
-                $em = $this->getDoctrine()->getManager();
+        $importPolicyForm = $this->createForm('xslPolicyImport');
+        $importPolicyForm->handleRequest($request);
+        if ($importPolicyForm->isValid()) {
+            $data = $importPolicyForm->getData();
+            if ($data['policyFile']->isValid()) {
+                $policyImport = $this->get('mco.policy.import');
+                $policyImport->import(file_get_contents($data['policyFile']->getRealPath()));
 
-                // Set user at the creation of the policy
-                if (null === $policy->getUser()) {
-                    $policy->setUser($this->getUser());
+                if (null !== $policyImport->getCreatedId()) {
+                    $policySave = $this->get('mco.policy.save');
+                    $policySave->save($policyImport->getCreatedId());
+                    $policy = $this->get('mco.policy.getPolicy');
+                    $policy->getPolicy($policyImport->getCreatedId(), 'JSTREE');
+
+                    return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
                 }
-
-                $em->persist($policy);
-                $em->flush();
-
-                $helper = $this->container->get('vich_uploader.storage');
-                $parser = $this->get('mco.xslpolicy.parser');
-                $policyFile = $helper->resolvePath($policy, 'policyFile');
-                $parser->loadXsl($policyFile);
-                $rules = array();
-                foreach ($parser->getPolicy()->getRules() as $ruleId => $rule) {
-                    $rules[] = array('text' => $rule->getTitle(), 'type' => 'r', 'data' => array('ruleId' => $ruleId, 'trackType' => $rule->getTrackType(), 'field' => $rule->getField(), 'occurrence' => $rule->getOccurrence(), 'validator' => $rule->getValidator(), 'value' => $rule->getValue()));
-                }
-
-                return new JsonResponse(array('policyId' => $policy->getId(), 'policyName' => $policy->getPolicyName(), 'policyRules' => $rules, 'isEditable' => true), 200);
             }
-            else {
-                return new JsonResponse(array('message' => 'Error'), 400);
-            }
+
         }
-        else {
-            return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
-        }
+
+        return new JsonResponse(array('message' => 'Error'), 400);
+    }
+    /**
+     * @Route("/xslPolicyTree/export/{id}", requirements={"id": "\d+"})
+     * @Method("GET")
+     */
+    public function xslPolicyTreeExportAction($id)
+    {
+        $policy = $this->get('mco.policy.getPolicy');
+        $policy->getPolicy($id);
+        $policy = $policy->getResponse()->getPolicy();
+        $policyName = $policy->name;
+
+        $policyExport = $this->get('mco.policy.export');
+        $policyExport->export($id);
+
+        $response = new Response($policyExport->getPolicyXml());
+        $d = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $policyName . '.xml'
+        );
+
+        $response->headers->set('Content-Type', 'text/xml');
+        $response->headers->set('Content-Disposition', $d);
+        $response->headers->set('Content-length', strlen($policyExport->getPolicyXml()));
+
+        return $response;
     }
 
+
     /**
-     * @Route("/xslPolicyTree/ajax/policyName/{id}", requirements={"id": "\d+"})
+     * @Route("/xslPolicyTree/ajax/edit/{id}/{topLevelId}", requirements={"id": "\d+", "topLevelId": "\d+"})
      */
-    public function xslPolicyTreeNameAction(Request $request, $id)
+    public function xslPolicyTreeEditAction(Request $request, $id, $topLevelId)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
-        $policy = $this->getDoctrine()
-            ->getRepository('AppBundle:XslPolicyFile')
-            ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
+        $policyEditForm = $this->createForm('xslPolicyInfo');
+        $policyEditForm->handleRequest($request);
+        if ($policyEditForm->isValid()) {
+            $data = $policyEditForm->getData();
+            $policyEdit = $this->get('mco.policy.edit');
+            $policyEdit->edit($id, $data['policyName'], $data['policyDescription']);
 
-        if (!$policy) {
-            return new JsonResponse(array('message' => 'Policy not found'), 400);
+            $policySave = $this->get('mco.policy.save');
+            $policySave->save($topLevelId);
+
+            return new JsonResponse(array('policyId' => $id, 'policyName' => $data['policyName'], 'policyDescription' => $data['policyDescription']), 200);
         }
 
-        $policyNameForm = $this->createForm('xslPolicyName', $policy);
-        $policyNameForm->handleRequest($request);
-        if ($policyNameForm->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-
-            $em->persist($policy);
-            $em->flush();
-
-            return new JsonResponse(array('policyId' => $policy->getId(), 'policyName' => $policy->getPolicyName()), 200);
-        }
-        else {
-            return new JsonResponse(array('message' => 'Error'), 400);
-        }
+        return new JsonResponse(array('message' => 'Error'), 400);
     }
 
     /**
@@ -263,43 +214,19 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        if ($this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
-            $policy = $this->getDoctrine()
-                ->getRepository('AppBundle:XslPolicyFile')
-                ->findOneByUserOrSystem($id, $this->getUser());
+        $policyDuplicate = $this->get('mco.policy.duplicate');
+        $policyDuplicate->duplicate($id);
 
-            if (!$policy) {
-                return new JsonResponse(array('message' => 'Policy not found'), 400);
-            }
+        if (null !== $policyDuplicate->getCreatedId()) {
+            $policySave = $this->get('mco.policy.save');
+            $policySave->save($policyDuplicate->getCreatedId());
+            $policy = $this->get('mco.policy.getPolicy');
+            $policy->getPolicy($policyDuplicate->getCreatedId(), 'JSTREE');
 
-            $duplicatePolicy = clone $policy;
-            $helper = $this->container->get('vich_uploader.storage');
-            $policyFile = $helper->resolvePath($policy, 'policyFile');
-            $duplicatePolicyFilename = str_replace(pathinfo($policy->getPolicyFilename(), PATHINFO_FILENAME), pathinfo($policy->getPolicyFilename(), PATHINFO_FILENAME) . '_duplicate', $policy->getPolicyFilename());
-            $duplicatePolicy->setPolicyFilename($duplicatePolicyFilename);
-            $duplicatePolicy->setPolicyName($policy->getPolicyName() . ' - duplicate');
-            $duplicatePolicy->setUser($this->getUser());
-            $duplicatePolicyFile = str_replace($policy->getPolicyFilename(), (null === $policy->getUser() ? $this->getUser()->getId() . '/' : '') . $duplicatePolicyFilename, $policyFile);
-            copy($policyFile, $duplicatePolicyFile);
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($duplicatePolicy);
-            $em->flush();
-
-            $helper = $this->container->get('vich_uploader.storage');
-            $parser = $this->get('mco.xslpolicy.parser');
-            $policyFile = $helper->resolvePath($duplicatePolicy, 'policyFile');
-            $parser->loadXsl($policyFile);
-            $rules = array();
-            foreach ($parser->getPolicy()->getRules() as $ruleId => $rule) {
-                $rules[] = array('text' => $rule->getTitle(), 'type' => 'r', 'data' => array('ruleId' => $ruleId, 'trackType' => $rule->getTrackType(), 'field' => $rule->getField(), 'occurrence' => $rule->getOccurrence(), 'validator' => $rule->getValidator(), 'value' => $rule->getValue()));
-            }
-
-            return new JsonResponse(array('policyId' => $duplicatePolicy->getId(), 'policyName' => $duplicatePolicy->getPolicyName(), 'policyRules' => $rules, 'isEditable' => true), 200);
+            return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
         }
-        else {
-            return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
-        }
+
+        return new JsonResponse(array('message' => 'Error'), 400);
     }
 
     /**
@@ -312,140 +239,119 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $policy = $this->getDoctrine()
-            ->getRepository('AppBundle:XslPolicyFile')
-            ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
+        $policyDelete = $this->get('mco.policy.delete');
+        $policyDelete->delete($id);
 
-        if (!$policy) {
-            return new JsonResponse(array('message' => 'Policy not found'), 400);
-        }
-
-        $policyId = $policy->getId();
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($policy);
-        $em->flush();
-
-        return new JsonResponse(array('policyId' => $policyId), 200);
+        return new JsonResponse(array('policyId' => $id), 200);
     }
 
     /**
-     * @Route("/xslPolicyTree/ajax/edit/{id}/{action}/{ruleId}", defaults={"ruleId" = "new"}, requirements={"id": "\d+", "ruleId": "\d+", "action": "[a-z]+"})
-     * @Method("POST")
+     * @Route("/xslPolicyTree/ajax/ruleCreate/{policyId}/{topLevelId}", requirements={"policyId": "\d+", "topLevelId": "\d+"})
      */
-    public function xslPolicyTreeRuleEditAction($id, $action, $ruleId, Request $request)
+    public function xslPolicyTreeRuleCreateAction(Request $request, $policyId, $topLevelId)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
-        $policy = $this->getDoctrine()
-            ->getRepository('AppBundle:XslPolicyFile')
-            ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
+        $ruleCreate = $this->get('mco.policy.rule.create');
+        $ruleCreate->create($policyId);
 
-        if (!$policy) {
-            return new JsonResponse(array('message' => 'Policy not found'), 400);
+        if (null !== $ruleCreate->getCreatedId()) {
+            $policySave = $this->get('mco.policy.save');
+            $policySave->save($topLevelId);
+            $rule = $this->get('mco.policy.getRule');
+            $rule->getRule($ruleCreate->getCreatedId(), $policyId);
+
+            return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
         }
 
-        $helper = $this->container->get('vich_uploader.storage');
-        $policyFile = $helper->resolvePath($policy, 'policyFile');
+        return new JsonResponse(array('message' => 'Error'), 400);
+    }
 
-        $parser = $this->get('mco.xslpolicy.parser');
-        $parser->loadXsl($policyFile);
-
-        if ('new' == $ruleId) {
-            $action = 'create';
+    /**
+     * @Route("/xslPolicyTree/ajax/ruleEdit/{id}/{policyId}/{topLevelId}", requirements={"id": "\d+", "policyId": "\d+", "topLevelId": "\d+"})
+     */
+    public function xslPolicyTreeRuleEditAction(Request $request, $id, $policyId, $topLevelId)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
         }
 
-        if ('create' == $action) {
-            $rule = new XslPolicyRule();
-        }
-        else {
-            if ($parser->getPolicy()->getRules()->containsKey($ruleId)) {
-                $rule = $parser->getPolicy()->getRules()->get($ruleId);
-                if ('duplicate' == $action) {
-                    $originalRule = clone $rule;
-                }
-            }
-            else {
-                return new JsonResponse(array('message' => 'Policy rule not found'), 400);
-            }
-        }
-
-        $policyRuleForm = $this->createForm('xslPolicyRule', $rule);
+        $policyRuleForm = $this->createForm('xslPolicyRule');
         $policyRuleForm->handleRequest($request);
         if ($policyRuleForm->isValid()) {
-            if ('create' == $action) {
-                $parser->getPolicy()->getRules()->add($rule);
-            }
-            else if ('duplicate' == $action) {
-                if ($rule->getTitle() == $originalRule->getTitle()) {
-                    $rule->setTitle($originalRule->getTitle() . ' - duplicate');
-                }
-                $parser->getPolicy()->getRules()->add($rule);
-                $parser->getPolicy()->getRules()->set($ruleId, $originalRule);
-            }
+            $data = $policyRuleForm->getData();
 
-            $writer = $this->get('mco.xslpolicy.writer');
-            $writer->setPolicy($parser->getPolicy());
-            $writer->writeXsl($policyFile);
+            $ruleEdit = $this->get('mco.policy.rule.edit');
+            $ruleEdit->edit($id, $policyId, $data);
+            $policySave = $this->get('mco.policy.save');
+            $policySave->save($topLevelId);
 
-            if ('create' == $action) {
-                $ruleTree = array('text' => $rule->getTitle(), 'type' => 'r', 'data' => array('ruleId' => ($parser->getPolicy()->getRules()->count() - 1), 'trackType' => $rule->getTrackType(), 'field' => $rule->getField(), 'occurrence' => $rule->getOccurrence(), 'validator' => $rule->getValidator(), 'value' => $rule->getValue()));
-
-                return new JsonResponse(array('policyId' => $id, 'rule' => $ruleTree), 200);
-            }
-            else if ('duplicate' == $action) {
-                $ruleTree = array('text' => $rule->getTitle(), 'type' => 'r', 'data' => array('ruleId' => ($parser->getPolicy()->getRules()->count() - 1), 'trackType' => $rule->getTrackType(), 'field' => $rule->getField(), 'occurrence' => $rule->getOccurrence(), 'validator' => $rule->getValidator(), 'value' => $rule->getValue()));
-
-                return new JsonResponse(array('policyId' => $id, 'rule' => $ruleTree), 200);
-            }
-            else {
-                $ruleTree = array('text' => $rule->getTitle(), 'type' => 'r', 'data' => array('ruleId' => $ruleId, 'trackType' => $rule->getTrackType(), 'field' => $rule->getField(), 'occurrence' => $rule->getOccurrence(), 'validator' => $rule->getValidator(), 'value' => $rule->getValue()));
-
-                return new JsonResponse(array('policyId' => $id, 'rule' => $ruleTree), 200);
-            }
+            return new JsonResponse(array('policyId' => $id, 'rule' => $data), 200);
         }
-        else {
-            return new JsonResponse(array('message' => 'Error'), 400);
-        }
+
+        return new JsonResponse(array('message' => 'Error'), 400);
     }
 
     /**
-     * @Route("/xslPolicyTree/ajax/deleteRule/{id}/{ruleId}", requirements={"id": "\d+", "ruleId": "\d+"})
-     * @Method("POST")
+     * @Route("/xslPolicyTree/ajax/ruleDelete/{id}/{policyId}/{topLevelId}", requirements={"id": "\d+", "policyId": "\d+", "topLevelId": "\d+"})
+     * @Method("GET")
      */
-    public function xslPolicyTreeRuleDeleteAction($id, $ruleId, Request $request)
+    public function xslPolicyTreeRuleDeleteAction(Request $request, $id, $policyId, $topLevelId)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
-        $policy = $this->getDoctrine()
-            ->getRepository('AppBundle:XslPolicyFile')
-            ->findOneBy(array('id' => $id, 'user' => $this->getUser()));
+        $ruleDelete = $this->get('mco.policy.rule.delete');
+        $ruleDelete->delete($id, $policyId);
+        $policySave = $this->get('mco.policy.save');
+        $policySave->save($topLevelId);
 
-        if (!$policy) {
-            return new JsonResponse(array('message' => 'Policy not found'), 400);
+        return new JsonResponse(array('id' => $id), 200);
+    }
+
+    /**
+     * @Route("/xslPolicyTree/ajax/ruleDuplicate/{id}/{policyId}/{topLevelId}", requirements={"id": "\d+", "policyId": "\d+", "topLevelId": "\d+"})
+     */
+    public function xslPolicyTreeRuleDuplicateAction(Request $request, $id, $policyId, $topLevelId)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
         }
 
-        $helper = $this->container->get('vich_uploader.storage');
-        $policyFile = $helper->resolvePath($policy, 'policyFile');
+        $ruleDuplicate = $this->get('mco.policy.rule.duplicate');
+        $ruleDuplicate->duplicate($id, $policyId);
 
-        $parser = $this->get('mco.xslpolicy.parser');
-        $parser->loadXsl($policyFile);
+        if (null !== $ruleDuplicate->getCreatedId()) {
+            $policySave = $this->get('mco.policy.save');
+            $policySave->save($topLevelId);
+            $rule = $this->get('mco.policy.getRule');
+            $rule->getRule($ruleDuplicate->getCreatedId(), $policyId);
 
-        if ($parser->getPolicy()->getRules()->containsKey($ruleId)) {
-            $parser->getPolicy()->getRules()->remove($ruleId);
-
-            $writer = $this->get('mco.xslpolicy.writer');
-            $writer->setPolicy($parser->getPolicy());
-            $writer->writeXsl($policyFile);
-
-            return new JsonResponse(array('policyId' => $id), 200);
+            return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
         }
-        else {
-            return new JsonResponse(array('message' => 'Policy rule not found'), 400);
+
+        return new JsonResponse(array('message' => 'Error'), 400);
+    }
+
+    /**
+     * @Route("/xslPolicy/fieldsListRule")
+     * @Method({"POST"})
+     */
+    public function xslPolicyRuleFieldsListAction(Request $request) {
+        if (! $request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
         }
+
+        // Get the type value
+        $type = $request->request->get('type');
+
+        // Get the field value
+        $field = $request->request->get('field', null);
+
+        return new JsonResponse(XslPolicyFormFields::getFields($type, $field));
     }
 
     /**

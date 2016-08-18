@@ -208,6 +208,18 @@ p.registration {
     margin-left: 10px;
 }
 
+#policyInfo .alert {
+    margin-top: 0;
+}
+
+.policyRightCol {
+    min-height: 600px;
+}
+
+#policyRuleCreateContainer {
+    padding-bottom: 50px;
+}
+
 .spinner-cell, .spinner-status {
     background: transparent url("/static/ajax-spinner-small.gif");
     width: 16px;

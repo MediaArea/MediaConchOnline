@@ -9,10 +9,14 @@ class XslPolicyCreateFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('policyName')
-            ->add('policyDescription', 'textarea', array('required' => false))
-            ->add('CreatePolicy', 'submit', array('attr' => array('class' => 'btn-warning')));
+        $builder->add('policyType', 'choice', array('choices' => array('AND' => 'and', 'OR' => 'or'),
+                'choices_as_values' => true,
+                'placeholder' => false,
+                'required' => false,
+                'label' => 'Choose a policy type')
+                )
 
+            ->add('CreatePolicy', 'submit', array('attr' => array('class' => 'btn-warning')));
     }
 
     public function configureOptions(OptionsResolver $resolver)
