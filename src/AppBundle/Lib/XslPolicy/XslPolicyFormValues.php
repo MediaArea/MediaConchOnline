@@ -32,7 +32,7 @@ class XslPolicyFormValues
     }
 
     protected function getDefaultValues() {
-        if ($this->value) {
+        if (null !== $this->value) {
             $values = $this->response->getValues();
             if (is_array($values) && 1 <= count($values)) {
                 if (!in_array($this->value, $values)) {
