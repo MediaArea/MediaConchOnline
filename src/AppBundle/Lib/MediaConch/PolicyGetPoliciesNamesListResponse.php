@@ -2,15 +2,9 @@
 
 namespace AppBundle\Lib\MediaConch;
 
-class PolicyGetPoliciesNamesListResponse
+class PolicyGetPoliciesNamesListResponse extends MediaConchServerAbstractResponse
 {
-    private $policies;
-    private $error;
-
-    public function __construct($response)
-    {
-        $this->parse($response);
-    }
+    protected $policies;
 
     public function getPolicies()
     {
@@ -21,6 +15,7 @@ class PolicyGetPoliciesNamesListResponse
     {
         if (isset($response->policies)) {
             $this->policies = $response->policies;
+            $this->status = true;
         }
         else if (isset($response->nok)) {
             $this->error = $response->nok->error;

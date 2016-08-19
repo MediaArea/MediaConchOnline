@@ -2,30 +2,20 @@
 
 namespace AppBundle\Lib\MediaConch;
 
-class ValidateResponse
+class ValidateResponse extends MediaConchServerAbstractResponse
 {
-    private $valid;
-    private $error;
-
-    public function __construct($response)
-    {
-        $this->parse($response);
-    }
+    protected $valid;
 
     public function getValid()
     {
         return $this->valid;
     }
 
-    public function getError()
-    {
-        return $this->error;
-    }
-
-    private function parse($response)
+    protected function parse($response)
     {
         if (is_array($response->ok) && isset($response->ok[0])) {
             $this->valid = $response->ok[0]->valid;
+            $this->status = true;
         }
         else if (is_array($response->nok) && isset($response->nok[0])) {
             $this->valid = false;

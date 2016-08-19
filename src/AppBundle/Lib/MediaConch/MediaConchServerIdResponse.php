@@ -2,19 +2,19 @@
 
 namespace AppBundle\Lib\MediaConch;
 
-class PolicyGetRuleResponse extends MediaConchServerAbstractResponse
+class MediaConchServerIdResponse extends MediaConchServerAbstractResponse
 {
-    protected $rule;
+    protected $id;
 
-    public function getRule()
+    public function getId()
     {
-        return $this->rule;
+        return $this->id;
     }
 
     protected function parse($response)
     {
-        if (isset($response->rule)) {
-            $this->rule = $response->rule;
+        if (isset($response->id)) {
+            $this->id = $response->id;
             $this->status = true;
         }
         else if (isset($response->nok)) {

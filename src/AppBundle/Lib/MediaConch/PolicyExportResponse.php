@@ -2,15 +2,9 @@
 
 namespace AppBundle\Lib\MediaConch;
 
-class PolicyExportResponse
+class PolicyExportResponse extends MediaConchServerAbstractResponse
 {
-    private $xml;
-    private $error;
-
-    public function __construct($response)
-    {
-        $this->parse($response);
-    }
+    protected $xml;
 
     public function getxml()
     {
@@ -21,6 +15,7 @@ class PolicyExportResponse
     {
         if (isset($response->xml)) {
             $this->xml = $response->xml;
+            $this->status = true;
         }
         else if (isset($response->nok)) {
             $this->error = $response->nok->error;
