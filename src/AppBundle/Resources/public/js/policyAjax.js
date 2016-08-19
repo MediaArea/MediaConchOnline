@@ -25,19 +25,13 @@ var policyTreeAjax = (function() {
         })
     }
 
-    var policyCreate = function(form, policyNode, parentId, topLevelId) {
-        $.ajax({
-            type: form.attr('method'),
-                url: Routing.generate('app_xslpolicy_xslpolicytreecreate', {parentId: parentId, topLevelId: topLevelId}),
-                data: new FormData(form[0]),
-                processData: false,
-                contentType: false
-        })
+    var policyCreate = function(policyNode, parentId, topLevelId) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreecreate', {parentId: parentId, topLevelId: topLevelId}))
         .done(function (data) {
             policyTree.policyCreate(data.policy, policyNode);
         })
         .fail(function (jqXHR) {
-            failResponse(jqXHR, 'form[name="xslPolicyCreate"]');
+            failResponse(jqXHR, '.xslPolicyCreate');
         })
     }
 

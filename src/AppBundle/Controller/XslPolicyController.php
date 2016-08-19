@@ -36,14 +36,12 @@ class XslPolicyController extends BaseController
         $policyRuleForm = $this->createForm('xslPolicyRule', $rule);
         if ($this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
             $importPolicyForm = $this->createForm('xslPolicyImport');
-            $createPolicyForm = $this->createForm('xslPolicyCreate');
         }
         $policyInfoForm = $this->createForm('xslPolicyInfo');
 
         return array(
             'policyRuleForm' => $policyRuleForm->createView(),
             'importPolicyForm' => isset($importPolicyForm) ? $importPolicyForm->createView() : false,
-            'createPolicyForm' => isset($createPolicyForm) ? $createPolicyForm->createView() : false,
             'policyInfoForm' => $policyInfoForm->createView(),
             );
     }
@@ -86,6 +84,7 @@ class XslPolicyController extends BaseController
 
     /**
      * @Route("/xslPolicyTree/ajax/create/{parentId}/{topLevelId}", requirements={"parentId": "(-)?\d+", "topLevelId": "(-)?\d+"})
+     * @Method("GET")
      */
     public function xslPolicyTreeCreateAction($parentId, $topLevelId, Request $request)
     {
@@ -93,28 +92,22 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $createPolicyForm = $this->createForm('xslPolicyCreate');
-        $createPolicyForm->handleRequest($request);
-        if ($createPolicyForm->isValid()) {
-            $data = $createPolicyForm->getData();
+        $policyCreate = $this->get('mco.policy.create');
+        $policyCreate->create($parentId);
 
-            $policyCreate = $this->get('mco.policy.create');
-            $policyCreate->create($data['policyType'], $parentId);
-
-            if (null !== $policyCreate->getCreatedId()) {
-                $policySave = $this->get('mco.policy.save');
-                if (-1 == $topLevelId) {
-                    $policySave->save($policyCreate->getCreatedId());
-                }
-                else {
-                    $policySave->save($topLevelId);
-                }
-
-                $policy = $this->get('mco.policy.getPolicy');
-                $policy->getPolicy($policyCreate->getCreatedId(), 'JSTREE');
-
-                return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy(), 'parentId' => $parentId), 200);
+        if (null !== $policyCreate->getCreatedId()) {
+            $policySave = $this->get('mco.policy.save');
+            if (-1 == $topLevelId) {
+                $policySave->save($policyCreate->getCreatedId());
             }
+            else {
+                $policySave->save($topLevelId);
+            }
+
+            $policy = $this->get('mco.policy.getPolicy');
+            $policy->getPolicy($policyCreate->getCreatedId(), 'JSTREE');
+
+            return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy(), 'parentId' => $parentId), 200);
         }
 
         return new JsonResponse(array('message' => 'Error'), 400);
@@ -195,10 +188,13 @@ class XslPolicyController extends BaseController
             $policyEdit = $this->get('mco.policy.edit');
             $policyEdit->edit($id, $data['policyName'], $data['policyDescription']);
 
+            $policyEditType = $this->get('mco.policy.editType');
+            $policyEditType->editType($id, $data['policyType']);
+
             $policySave = $this->get('mco.policy.save');
             $policySave->save($topLevelId);
 
-            return new JsonResponse(array('policyId' => $id, 'policyName' => $data['policyName'], 'policyDescription' => $data['policyDescription']), 200);
+            return new JsonResponse(array('policyId' => $id, 'policyName' => $data['policyName'], 'policyDescription' => $data['policyDescription'], 'policyType' => $data['policyType']), 200);
         }
 
         return new JsonResponse(array('message' => 'Error'), 400);

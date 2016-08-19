@@ -68,10 +68,6 @@
             <argument type="service" id="mco.policy.getPoliciesNamesList"/>
         </service>
 
-        <service id="app.form.type.policy.create" class="AppBundle\Form\Type\XslPolicyCreateFormType">
-            <tag name="form.type" alias="xslPolicyCreate" />
-        </service>
-
         <service id="app.form.type.policy.import" class="AppBundle\Form\Type\XslPolicyImportFormType">
             <tag name="form.type" alias="xslPolicyImport" />
         </service>
@@ -146,6 +142,11 @@
         </service>
 
         <service id="mco.policy.edit" class="AppBundle\Lib\XslPolicy\XslPolicyEdit">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.editType" class="AppBundle\Lib\XslPolicy\XslPolicyEditType">
             <argument type="service" id="mco.mediaconch.server"/>
             <argument type="service" id="security.token_storage" />
         </service>

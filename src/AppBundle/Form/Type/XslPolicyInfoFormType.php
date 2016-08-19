@@ -11,6 +11,10 @@ class XslPolicyInfoFormType extends AbstractType
     {
         $builder->add('policyName', null, array('required' => false))
             ->add('policyDescription', null, array('required' => false))
+            ->add('policyType', 'choice', array('choices' => array('AND' => 'and', 'OR' => 'or'),
+                'choices_as_values' => true,
+                'placeholder' => false)
+                )
             ->add('SavePolicyInfo', 'submit', array('attr' => array('class' => 'btn-warning')));
     }
 

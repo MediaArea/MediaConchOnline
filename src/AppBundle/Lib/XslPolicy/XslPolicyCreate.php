@@ -4,9 +4,9 @@ namespace AppBundle\Lib\XslPolicy;
 
 class XslPolicyCreate extends XslPolicyBase
 {
-    public function create($type = null, $parentId = null)
+    public function create($parentId, $type = null)
     {
-        $this->response = $this->mc->policyCreate($this->user->getId(), $type, $parentId);
+        $this->response = $this->mc->policyCreate($this->user->getId(), $parentId, $type);
     }
 
     public function getCreatedId()

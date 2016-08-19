@@ -119,16 +119,13 @@ class MediaConchServer
         return new PolicyGetPoliciesNamesListResponse($response);
     }
 
-    public function policyCreate($user, $type, $parentId)
+    public function policyCreate($user, $parentId, $type)
     {
-        $request = array('user' => $user);
-        if ($type) {
+        $request = array('user' => $user, 'parent_id' => $parentId);
+        if (null !== $type) {
             $request['type'] = $type;
         }
 
-        if ($parentId) {
-            $request['parent_id'] = $parentId;
-        }
         $response = $this->callApi('xslt_policy_create', 'GET', $request);
         $response = $response->XSLT_POLICY_CREATE_RESULT;
 
@@ -169,6 +166,15 @@ class MediaConchServer
         $response = $response->POLICY_CHANGE_INFO_RESULT;
 
         return new PolicyEditResponse($response);
+    }
+
+    public function policyEditType($user, $policyId, $type)
+    {
+        $request = array('POLICY_CHANGE_TYPE' => array('user' => $user, 'id' => (int) $policyId, 'type' => $type));
+        $response = $this->callApi('policy_change_type', 'POST', json_encode($request));
+        $response = $response->POLICY_CHANGE_TYPE_RESULT;
+
+        return new PolicyEditTypeResponse($response);
     }
 
     public function policyDelete($user, $policyId)

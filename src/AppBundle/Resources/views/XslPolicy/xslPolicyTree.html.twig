@@ -34,37 +34,28 @@ MediaConchOnline Policy Management
                 {% endif %}
             </div>
 
-            {% if createPolicyForm is defined and createPolicyForm %}
             <div>
                 <h2>Create a policy</h2>
-                {{ form(createPolicyForm) }}
+                <button class="policyCreate btn btn-warning">Add a new policy</button>
             </div>
-            {% endif %}
         </div>
 
         <div class="row policyEdit hidden">
             <div>
-                <h4>Policy edition:</h4>
+                <h4>Edition:</h4>
                 {{ form(policyInfoForm) }}
+
+                <div class="policyEditActions policyEditUser">
+                    <button class="policyCreate btn btn-warning">Add a new policy</button>
+                    <button id="policyRuleCreate" class="btn btn-warning">Add a new rule</button>
+                </div>
             </div>
 
             <div class="policyEditActions">
-                <h4>Policy actions:</h4>
+                <h4>Actions:</h4>
                 <button id="policyDuplicate" class="btn btn-warning">Duplicate</button>
                 <button id="policyExport" class="btn btn-warning">Export</button>
                 <button id="policyDelete" class="btn btn-danger">Delete</button>
-            </div>
-
-            {% if createPolicyForm is defined and createPolicyForm %}
-            <div class="policyCreateChildContainer">
-                <h4>Add a new policy</h2>
-                <div class="policyCreateChild"></div>
-            </div>
-            {% endif %}
-
-            <div id="policyRuleCreateContainer">
-                <h4>Policy rule actions:</h4>
-                <button id="policyRuleCreate" class="btn btn-warning">Add a new rule</button>
             </div>
         </div>
 
