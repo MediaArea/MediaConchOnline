@@ -174,6 +174,8 @@ class CheckerController extends Controller
         $policyFromFile->getPolicy($id);
 
         if (null !== $policyFromFile->getCreatedId()) {
+            $policySave = $this->get('mco.policy.save');
+            $policySave->save($policyFromFile->getCreatedId());
             $policy = $this->get('mco.policy.getPolicy');
             $policy->getPolicy($policyFromFile->getCreatedId());
             $policy->getResponse()->getPolicy();
