@@ -5,7 +5,7 @@ var policyTreeAjax = (function() {
             policyTree.setData(data.policiesTree);
         })
         .fail(function (jqXHR) {
-            failResponse(jqXHR, '#policiesTree');
+            mcoMessage.fail(jqXHR);
         })
     };
 
@@ -21,7 +21,7 @@ var policyTreeAjax = (function() {
             policyTree.policyImport(data.policy);
         })
         .fail(function (jqXHR) {
-            failResponse(jqXHR, 'form[name="xslPolicyImport"]');
+            mcoMessage.fail(jqXHR);
         })
     }
 
@@ -31,7 +31,7 @@ var policyTreeAjax = (function() {
             policyTree.policyCreate(data.policy, policyNode);
         })
         .fail(function (jqXHR) {
-            failResponse(jqXHR, '.xslPolicyCreate');
+            mcoMessage.fail(jqXHR);
         })
     }
 
@@ -47,7 +47,7 @@ var policyTreeAjax = (function() {
             policyTree.policyEdit(data, policyNode);
         })
         .fail(function (jqXHR) {
-            failResponse(jqXHR, 'form[name="xslPolicyName"]');
+            mcoMessage.fail(jqXHR);
         })
     }
 
@@ -57,7 +57,7 @@ var policyTreeAjax = (function() {
             policyTree.policyDelete(policyNode);
         })
         .fail(function (jqXHR) {
-            failResponse(jqXHR, '#policyDelete');
+            mcoMessage.fail(jqXHR);
         })
     }
 
@@ -71,7 +71,7 @@ var policyTreeAjax = (function() {
             policyTree.policyDuplicate(data.policy, policyNode);
         })
         .fail(function (jqXHR) {
-            failResponse(jqXHR, '#policyDuplicate');
+            mcoMessage.fail(jqXHR);
         })
     }
 
@@ -81,7 +81,7 @@ var policyTreeAjax = (function() {
             policyTree.ruleCreate(data.rule, policyNode);
         })
         .fail(function (jqXHR) {
-            failResponse(jqXHR, 'form[name="xslPolicyRule"]');
+            mcoMessage.fail(jqXHR);
         })
     }
 
@@ -97,7 +97,7 @@ var policyTreeAjax = (function() {
             policyTree.ruleEdit(data.rule, ruleNode);
         })
         .fail(function (jqXHR) {
-            failResponse(jqXHR, 'form[name="xslPolicyRule"]');
+            mcoMessage.fail(jqXHR);
         })
     }
 
@@ -107,7 +107,7 @@ var policyTreeAjax = (function() {
             policyTree.ruleDelete(ruleNode);
         })
         .fail(function (jqXHR) {
-            failResponse(jqXHR, 'form[name="xslPolicyRule"]');
+            mcoMessage.fail(jqXHR);
         })
     }
 
@@ -117,7 +117,7 @@ var policyTreeAjax = (function() {
             policyTree.ruleDuplicate(data.rule, ruleNode);
         })
         .fail(function (jqXHR) {
-            failResponse(jqXHR, 'form[name="xslPolicyRule"]');
+            mcoMessage.fail(jqXHR);
         })
     }
 

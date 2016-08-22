@@ -22,8 +22,9 @@ class XslPolicyRuleFormType extends AbstractType
             ->add('validator', 'choice', array('placeholder' => 'Choose a validator', 'choices' => XslPolicyFormFields::getOperators()))
             ->add('value')
 
-            ->add('SaveRule', 'submit', array('label' => 'Save rule', 'attr' => array('class' => 'btn-warning')))
-            ->add('DuplicateRule', 'submit', array('attr' => array('class' => 'btn-warning')));
+            ->add('SaveRule', 'submit', array('label' => 'Save', 'attr' => array('class' => 'btn-warning')))
+            ->add('DuplicateRule', 'submit', array('label' => 'Duplicate', 'attr' => array('class' => 'btn-warning')))
+            ->add('DeleteRule', 'submit', array('label' => 'Delete', 'attr' => array('class' => 'btn-danger')));
 
         $builder->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event) {
             $item = $event->getData();
