@@ -25,7 +25,7 @@ var policyTreeAjax = (function() {
         })
     }
 
-    var policyCreate = function(policyNode, parentId, topLevelId) {
+    var policyCreate = function(policyNode, parentId = -1, topLevelId = -1) {
         $.get(Routing.generate('app_xslpolicy_xslpolicytreecreate', {parentId: parentId, topLevelId: topLevelId}))
         .done(function (data) {
             policyTree.policyCreate(data.policy, policyNode);
@@ -65,10 +65,20 @@ var policyTreeAjax = (function() {
         window.location = Routing.generate('app_xslpolicy_xslpolicytreeexport', {id: policyNode.data.policyId});
     }
 
-    var policyDuplicate = function(policyNode) {
-        $.get(Routing.generate('app_xslpolicy_xslpolicytreeduplicate', {id: policyNode.data.policyId}))
+    var policyDuplicate = function(policyNode, dstNode) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreeduplicate', {id: policyNode.data.policyId, dstPolicyId: policyTree.getPolicyId(dstNode)}))
         .done(function (data) {
-            policyTree.policyDuplicate(data.policy, policyNode);
+            policyTree.policyDuplicate(data.policy, dstNode);
+        })
+        .fail(function (jqXHR) {
+            mcoMessage.fail(jqXHR);
+        })
+    }
+
+    var policyMove = function(policyNode, dstNode) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreemove', {id: policyNode.data.policyId, dstPolicyId: policyTree.getPolicyId(dstNode)}))
+        .done(function (data) {
+            policyTree.policyMove(data.policy, dstNode, policyNode);
         })
         .fail(function (jqXHR) {
             mcoMessage.fail(jqXHR);
@@ -111,10 +121,20 @@ var policyTreeAjax = (function() {
         })
     }
 
-    var ruleDuplicate = function(policyId, ruleNode, topLevelId) {
-        $.get(Routing.generate('app_xslpolicy_xslpolicytreeruleduplicate', {id: ruleNode.data.ruleId, policyId: policyId, topLevelId: topLevelId}))
+    var ruleDuplicate = function(policyId, ruleNode, topLevelId, dstNode) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreeruleduplicate', {id: ruleNode.data.ruleId, policyId: policyId, topLevelId: topLevelId, dstPolicyId: dstNode.data.policyId}))
         .done(function (data) {
-            policyTree.ruleDuplicate(data.rule, ruleNode);
+            policyTree.ruleDuplicate(data.rule, dstNode);
+        })
+        .fail(function (jqXHR) {
+            mcoMessage.fail(jqXHR);
+        })
+    }
+
+    var ruleMove = function(policyId, ruleNode, dstNode) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreerulemove', {id: ruleNode.data.ruleId, policyId: policyId, dstPolicyId: policyTree.getPolicyId(dstNode)}))
+        .done(function (data) {
+            policyTree.ruleMove(data.rule, dstNode, ruleNode);
         })
         .fail(function (jqXHR) {
             mcoMessage.fail(jqXHR);
@@ -148,11 +168,13 @@ var policyTreeAjax = (function() {
         policyEdit: policyEdit,
         policyDelete: policyDelete,
         policyDuplicate: policyDuplicate,
+        policyMove: policyMove,
         policyExport: policyExport,
         ruleCreate: ruleCreate,
         ruleEdit: ruleEdit,
         ruleDelete: ruleDelete,
         ruleDuplicate: ruleDuplicate,
+        ruleMove: ruleMove,
         getFieldsList: getFieldsList,
         getValuesList: getValuesList,
     };

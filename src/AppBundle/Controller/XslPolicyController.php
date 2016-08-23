@@ -150,10 +150,9 @@ class XslPolicyController extends BaseController
      */
     public function xslPolicyTreeExportAction($id)
     {
-        $policy = $this->get('mco.policy.getPolicy');
-        $policy->getPolicy($id);
-        $policy = $policy->getResponse()->getPolicy();
-        $policyName = $policy->name;
+        $policyName = $this->get('mco.policy.getPolicyName');
+        $policyName->getPolicyName($id);
+        $policyName = $policyName->getResponse()->getName();
 
         $policyExport = $this->get('mco.policy.export');
         $policyExport->export($id);
@@ -201,23 +200,49 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * @Route("/xslPolicyTree/ajax/duplicate/{id}", requirements={"id": "\d+"})
+     * @Route("/xslPolicyTree/ajax/duplicate/{id}/{dstPolicyId}", requirements={"id": "\d+", "dstPolicyId": "(-)?\d+"})
      * @Method("GET")
      */
-    public function xslPolicyTreeDuplicateAction(Request $request, $id)
+    public function xslPolicyTreeDuplicateAction(Request $request, $id, $dstPolicyId)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
         $policyDuplicate = $this->get('mco.policy.duplicate');
-        $policyDuplicate->duplicate($id);
+        $policyDuplicate->duplicate($id, $dstPolicyId);
 
         if (null !== $policyDuplicate->getCreatedId()) {
             $policySave = $this->get('mco.policy.save');
             $policySave->save($policyDuplicate->getCreatedId());
             $policy = $this->get('mco.policy.getPolicy');
             $policy->getPolicy($policyDuplicate->getCreatedId(), 'JSTREE');
+
+            return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+        }
+
+        return new JsonResponse(array('message' => 'Error'), 400);
+    }
+
+    /**
+     * @Route("/xslPolicyTree/ajax/duplicate/{id}/{dstPolicyId}", requirements={"id": "\d+", "dstPolicyId": "(-)?\d+"})
+     * @Method("GET")
+     */
+    public function xslPolicyTreeMoveAction(Request $request, $id, $dstPolicyId)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
+
+        $policyMove = $this->get('mco.policy.move');
+        $policyMove->move($id, $dstPolicyId);
+
+        if (null !== $policyMove->getCreatedId()) {
+            $policySave = $this->get('mco.policy.save');
+            $policySave->save($policyMove->getCreatedId());
+            $policySave->save($id);
+            $policy = $this->get('mco.policy.getPolicy');
+            $policy->getPolicy($policyMove->getCreatedId(), 'JSTREE');
 
             return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
         }
@@ -237,6 +262,8 @@ class XslPolicyController extends BaseController
 
         $policyDelete = $this->get('mco.policy.delete');
         $policyDelete->delete($id);
+        $policySave = $this->get('mco.policy.save');
+        $policySave->save($id);
 
         return new JsonResponse(array('policyId' => $id), 200);
     }
@@ -309,22 +336,47 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * @Route("/xslPolicyTree/ajax/ruleDuplicate/{id}/{policyId}/{topLevelId}", requirements={"id": "\d+", "policyId": "\d+", "topLevelId": "\d+"})
+     * @Route("/xslPolicyTree/ajax/ruleDuplicate/{id}/{policyId}/{topLevelId}/{dstPolicyId}", requirements={"id": "\d+", "policyId": "\d+", "topLevelId": "\d+", "dstPolicyId": "(-)?\d+"})
      */
-    public function xslPolicyTreeRuleDuplicateAction(Request $request, $id, $policyId, $topLevelId)
+    public function xslPolicyTreeRuleDuplicateAction(Request $request, $id, $policyId, $topLevelId, $dstPolicyId)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
         $ruleDuplicate = $this->get('mco.policy.rule.duplicate');
-        $ruleDuplicate->duplicate($id, $policyId);
+        $ruleDuplicate->duplicate($id, $policyId, $dstPolicyId);
 
         if (null !== $ruleDuplicate->getCreatedId()) {
             $policySave = $this->get('mco.policy.save');
             $policySave->save($topLevelId);
             $rule = $this->get('mco.policy.getRule');
-            $rule->getRule($ruleDuplicate->getCreatedId(), $policyId);
+            $rule->getRule($ruleDuplicate->getCreatedId(), $dstPolicyId);
+
+            return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
+        }
+
+        return new JsonResponse(array('message' => 'Error'), 400);
+    }
+
+    /**
+     * @Route("/xslPolicyTree/ajax/ruleDuplicate/{id}/{policyId}/{dstPolicyId}", requirements={"id": "\d+", "policyId": "\d+", "dstPolicyId": "(-)?\d+"})
+     */
+    public function xslPolicyTreeRuleMoveAction(Request $request, $id, $policyId, $dstPolicyId)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
+
+        $ruleMove = $this->get('mco.policy.rule.move');
+        $ruleMove->move($id, $policyId, $dstPolicyId);
+
+        if (null !== $ruleMove->getCreatedId()) {
+            $policySave = $this->get('mco.policy.save');
+            $policySave->save($dstPolicyId);
+            $policySave->save($policyId);
+            $rule = $this->get('mco.policy.getRule');
+            $rule->getRule($ruleMove->getCreatedId(), $dstPolicyId);
 
             return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
         }

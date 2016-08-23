@@ -4,9 +4,9 @@ namespace AppBundle\Lib\XslPolicy;
 
 class XslPolicyDuplicate extends XslPolicyBase
 {
-    public function duplicate($policyId)
+    public function duplicate($policyId, $dstPolicyId)
     {
-        $this->response = $this->mc->policyDuplicate($this->user->getId(), $policyId);
+        $this->response = $this->mc->policyDuplicate($this->user->getId(), $policyId, $dstPolicyId);
     }
 
     public function getCreatedId()

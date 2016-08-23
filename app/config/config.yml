@@ -175,11 +175,13 @@ fos_js_routing:
         - app_xslpolicy_xslpolicytreeexport
         - app_xslpolicy_xslpolicytreeedit
         - app_xslpolicy_xslpolicytreeduplicate
+        - app_xslpolicy_xslpolicytreemove
         - app_xslpolicy_xslpolicytreedelete
         - app_xslpolicy_xslpolicytreerulecreate
         - app_xslpolicy_xslpolicytreeruleedit
         - app_xslpolicy_xslpolicytreeruledelete
         - app_xslpolicy_xslpolicytreeruleduplicate
+        - app_xslpolicy_xslpolicytreerulemove
 
 services:
     twig.extension.text:

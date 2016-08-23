@@ -161,12 +161,22 @@
             <argument type="service" id="security.token_storage" />
         </service>
 
+        <service id="mco.policy.move" class="AppBundle\Lib\XslPolicy\XslPolicyMove">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
         <service id="mco.policy.getPolicy" class="AppBundle\Lib\XslPolicy\XslPolicyGetPolicy">
             <argument type="service" id="mco.mediaconch.server"/>
             <argument type="service" id="security.token_storage" />
         </service>
 
         <service id="mco.policy.getPolicies" class="AppBundle\Lib\XslPolicy\XslPolicyGetPolicies">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.getPolicyName" class="AppBundle\Lib\XslPolicy\XslPolicyGetPolicyName">
             <argument type="service" id="mco.mediaconch.server"/>
             <argument type="service" id="security.token_storage" />
         </service>
@@ -192,6 +202,11 @@
         </service>
 
         <service id="mco.policy.rule.duplicate" class="AppBundle\Lib\XslPolicy\XslPolicyRuleDuplicate">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.rule.move" class="AppBundle\Lib\XslPolicy\XslPolicyRuleMove">
             <argument type="service" id="mco.mediaconch.server"/>
             <argument type="service" id="security.token_storage" />
         </service>

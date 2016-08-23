@@ -91,7 +91,7 @@ class MediaConchServer
 
     public function policyGetPolicy($user, $id, $format)
     {
-        $request = array('user' => $user, 'id' => $id, 'format' => $format);
+        $request = array('user' => $user, 'id' => (int) $id, 'format' => $format);
         $response = $this->callApi('policy_get', 'GET', $request);
         $response = $response->POLICY_GET_RESULT;
 
@@ -110,6 +110,15 @@ class MediaConchServer
         return new PolicyGetPoliciesResponse($response);
     }
 
+    public function policyGetPolicyName($user, $id)
+    {
+        $request = array('user' => $user, 'id' => (int) $id);
+        $response = $this->callApi('policy_get_name', 'GET', $request);
+        $response = $response->POLICY_GET_NAME_RESULT;
+
+        return new PolicyGetPolicyNameResponse($response);
+    }
+
     public function policyGetPoliciesNamesList($user)
     {
         $request = array('user' => $user);
@@ -121,7 +130,7 @@ class MediaConchServer
 
     public function policyCreate($user, $parentId, $type)
     {
-        $request = array('user' => $user, 'parent_id' => $parentId);
+        $request = array('user' => $user, 'parent_id' => (int) $parentId);
         if (null !== $type) {
             $request['type'] = $type;
         }
@@ -134,7 +143,7 @@ class MediaConchServer
 
     public function policySave($user, $policyId)
     {
-        $request = array('user' => $user, 'id' => $policyId);
+        $request = array('user' => $user, 'id' => (int) $policyId);
         $response = $this->callApi('policy_save', 'GET', $request);
         $response = $response->POLICY_SAVE_RESULT;
 
@@ -152,7 +161,7 @@ class MediaConchServer
 
     public function policyExport($user, $policyId)
     {
-        $request = array('user' => $user, 'id' => $policyId);
+        $request = array('user' => $user, 'id' => (int) $policyId);
         $response = $this->callApi('policy_dump', 'GET', $request);
         $response = $response->POLICY_DUMP_RESULT;
 
@@ -179,20 +188,29 @@ class MediaConchServer
 
     public function policyDelete($user, $policyId)
     {
-        $request = array('user' => $user, 'id' => $policyId);
+        $request = array('user' => $user, 'id' => (int) $policyId);
         $response = $this->callApi('policy_remove', 'GET', $request);
         $response = $response->POLICY_REMOVE_RESULT;
 
         return new PolicyDeleteResponse($response);
     }
 
-    public function policyDuplicate($user, $policyId)
+    public function policyDuplicate($user, $policyId, $dstPolicyId)
     {
-        $request = array('user' => $user, 'id' => $policyId);
+        $request = array('user' => $user, 'id' => (int) $policyId, 'dst_policy_id' => (int) $dstPolicyId);
         $response = $this->callApi('policy_duplicate', 'GET', $request);
         $response = $response->POLICY_DUPLICATE_RESULT;
 
         return new PolicyDuplicateResponse($response);
+    }
+
+    public function policyMove($user, $policyId, $dstPolicyId)
+    {
+        $request = array('user' => $user, 'id' => (int) $policyId, 'dst_policy_id' => (int) $dstPolicyId);
+        $response = $this->callApi('policy_move', 'GET', $request);
+        $response = $response->POLICY_MOVE_RESULT;
+
+        return new PolicyMoveResponse($response);
     }
 
     public function policyRuleCreate($user, $policyId)
@@ -222,13 +240,22 @@ class MediaConchServer
         return new PolicyRuleDeleteResponse($response);
     }
 
-    public function policyRuleDuplicate($user, $ruleId, $policyId)
+    public function policyRuleDuplicate($user, $ruleId, $policyId, $dstPolicyId)
     {
-        $request = array('user' => $user, 'policy_id' => (int) $policyId, 'id' => (int) $ruleId);
+        $request = array('user' => $user, 'policy_id' => (int) $policyId, 'id' => (int) $ruleId, 'dst_policy_id' => (int) $dstPolicyId);
         $response = $this->callApi('xslt_policy_rule_duplicate', 'GET', $request);
         $response = $response->XSLT_POLICY_RULE_DUPLICATE_RESULT;
 
         return new PolicyRuleDuplicateResponse($response);
+    }
+
+    public function policyRuleMove($user, $ruleId, $policyId, $dstPolicyId)
+    {
+        $request = array('user' => $user, 'policy_id' => (int) $policyId, 'id' => (int) $ruleId, 'dst_policy_id' => (int) $dstPolicyId);
+        $response = $this->callApi('xslt_policy_rule_move', 'GET', $request);
+        $response = $response->XSLT_POLICY_RULE_MOVE_RESULT;
+
+        return new PolicyRuleMoveResponse($response);
     }
 
     public function policyGetRule($user, $ruleId, $policyId)
