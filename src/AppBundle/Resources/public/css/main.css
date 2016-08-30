@@ -208,6 +208,11 @@ p.registration {
     margin-left: 10px;
 }
 
+#policyInfo {
+    height: 72px;
+    margin-top: -50px;
+}
+
 #policyInfo .alert {
     margin-top: 0;
 }

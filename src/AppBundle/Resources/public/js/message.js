@@ -2,17 +2,17 @@ var mcoMessage = (function() {
     var node;
 
     var init = function(displayNode) {
-        node = $(displayNode);
+        node = displayNode;
     }
 
     // Display success message
     var success = function(message) {
-        node.html('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' + message + '</div>');
+        $(node).html('<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' + message + '</div>');
     }
 
     // Display error message
     var error = function(message) {
-        node.html('<div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' + message + '</div>');
+        $(node).html('<div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' + message + '</div>');
     }
 
     // Handle fail ajax response
@@ -23,7 +23,7 @@ var mcoMessage = (function() {
                     $(otherNode).html(jqXHR.responseJSON.quota);
                 }
                 else {
-                    node.html(jqXHR.responseJSON.quota);
+                    $(node).html(jqXHR.responseJSON.quota);
                 }
             }
             else if (jqXHR.responseJSON.hasOwnProperty('message')) {
@@ -40,7 +40,7 @@ var mcoMessage = (function() {
 
     // Close message
     var close = function() {
-        node.alert('close');
+        $(node).alert('close');
     }
 
     return {

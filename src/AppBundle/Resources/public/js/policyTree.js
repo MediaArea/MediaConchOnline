@@ -3,30 +3,58 @@ var policyTree = (function() {
 
     var init = function() {
         $('#policiesTree').jstree({
-            'core' : {
-                'check_callback' : function (operation, node, parent, position, more) {
-                    if (operation === 'move_node') {
-                        return true; // move
+            core: {
+                check_callback: function (operation, node, parent, position, more) {
+                    if ('move_node' === operation || 'copy_node' === operation) {
+                        // Do not allow drop between elements
+                        if (more && more.dnd && 'i' !== more.pos) {
+                            return false;
+                        }
+
+                        // Do not allow "cut" on self node
+                        if ('move_node' === operation && node.parent == parent.id) {
+                            return false;
+                        }
+
+                        // Allow droping a rule only into a policy
+                        if ('r' === node.type && 'u' != parent.type) {
+                            return false;
+                        }
+
+                        // For system policy and system rule force copy instead of move
+                        if ('s' === node.type || ('r' === node.type && 's' == instance.get_node(node.parent).type)) {
+                            instance.settings.dnd.always_copy = true;
+                        }
+                        else {
+                            instance.settings.dnd.always_copy = false;
+                        }
+
+                        // Allow drop only on user policy
+                        if ('u' === parent.type || 'up' === parent.type) {
+                            return true;
+                        }
+
+                        return false;
                     }
                     else {
                         return true;
                     }
                 },
-                'multiple' : false,
-                'dblclick_toggle' : true,
+                multiple: false,
+                dblclick_toggle: true,
             },
-            "plugins" : ['search', 'types', 'contextmenu'],
-            'types' : {
-                'default' : {'icon' : 'glyphicon glyphicon-folder-open'},
-                'a' : {'icon' : 'glyphicon glyphicon-folder-open'},
-                'u' : {'icon' : 'glyphicon glyphicon-folder-open'},
-                's' : {'icon' : 'glyphicon glyphicon-folder-open'},
-                'up' : {'icon' : 'glyphicon glyphicon-folder-open'},
-                'sp' : {'icon' : 'glyphicon glyphicon-folder-open'},
-                'r' : {'icon' : 'glyphicon glyphicon-file'},
+            plugins: ['search', 'types', 'contextmenu', 'dnd'],
+            types: {
+                default: {'icon' : 'glyphicon glyphicon-folder-open'},
+                a: {icon : 'glyphicon glyphicon-folder-open'},
+                u: {icon : 'glyphicon glyphicon-folder-open'},
+                s: {icon : 'glyphicon glyphicon-folder-open'},
+                up: {icon : 'glyphicon glyphicon-folder-open'},
+                sp: {icon : 'glyphicon glyphicon-folder-open'},
+                r: {icon : 'glyphicon glyphicon-file'},
             },
-            'contextmenu' : {
-                'items' : function(node) {
+            contextmenu : {
+                items : function(node) {
                     switch (node.type) {
                         case 'u':
                             return userPolicyContextmenuItems(node);
@@ -42,12 +70,18 @@ var policyTree = (function() {
                             break;
                     }
                 }
+            },
+            dnd: {
+                inside_pos: 'last',
+                use_html5: false
             }
         });
 
         instance = $('#policiesTree').jstree(true);
         searchBinding();
         rightPanelBinding();
+        copyNodeBinding();
+        moveNodeBinding();
     }
 
     var userPoliciesContextmenuItems = function(node) {
@@ -60,7 +94,7 @@ var policyTree = (function() {
             },
             ccp: {
                 separator_before: true,
-                label: 'edit',
+                label: 'Edit',
                 action: false,
                 submenu: {
                     pastePolicy: {
@@ -113,7 +147,7 @@ var policyTree = (function() {
             },
             ccp: {
                 separator_before: true,
-                label: 'edit',
+                label: 'Edit',
                 action: false,
                 submenu: {
                     cutPolicy: {
@@ -182,7 +216,7 @@ var policyTree = (function() {
             },
             ccp: {
                 separator_before: true,
-                label: 'edit',
+                label: 'Edit',
                 action: false,
                 submenu: {
                     copyPolicy: {
@@ -214,7 +248,7 @@ var policyTree = (function() {
                 },
                 ccp: {
                     separator_before: true,
-                    label: 'edit',
+                    label: 'Edit',
                     action: false,
                     submenu: {
                         cutPolicy: {
@@ -314,6 +348,32 @@ var policyTree = (function() {
             }
 
             $('#policyFix').affix('checkPosition');
+        });
+    }
+
+    var copyNodeBinding = function() {
+        instance.get_container().on('copy_node.jstree', function (e, data) {
+            if ('u' == data.node.type || 's' == data.node.type) {
+                instance.delete_node(data.node);
+                policyTreeAjax.policyDuplicate(data.original, getParentPolicy(data.node));
+            }
+            else if ('r' == data.node.type) {
+                instance.delete_node(data.node);
+                policyTreeAjax.ruleDuplicate(getParentPolicyId(data.original), data.original, getParentPolicy(data.node));
+            }
+        });
+    }
+
+    var moveNodeBinding = function() {
+        instance.get_container().on('move_node.jstree', function (e, data) {
+            if ('u' == data.node.type) {
+                instance.delete_node(data.node);
+                policyTreeAjax.policyMove(data.node, getParentPolicy(data.node));
+            }
+            else if ('r' == data.node.type) {
+                instance.delete_node(data.node);
+                policyTreeAjax.ruleMove(instance.get_node(data.old_parent).data.policyId, data.node, getParentPolicy(data.node));
+            }
         });
     }
 
