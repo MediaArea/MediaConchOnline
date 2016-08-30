@@ -25,8 +25,8 @@ var policyTreeAjax = (function() {
         })
     }
 
-    var policyCreate = function(policyNode, parentId = -1, topLevelId = -1) {
-        $.get(Routing.generate('app_xslpolicy_xslpolicytreecreate', {parentId: parentId, topLevelId: topLevelId}))
+    var policyCreate = function(policyNode, parentId = -1) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreecreate', {parentId: parentId}))
         .done(function (data) {
             policyTree.policyCreate(data.policy, policyNode);
         })
@@ -35,10 +35,10 @@ var policyTreeAjax = (function() {
         })
     }
 
-    var policyEdit = function(form, policyNode, topLevelId) {
+    var policyEdit = function(form, policyNode) {
         $.ajax({
             type: form.attr('method'),
-                url: Routing.generate('app_xslpolicy_xslpolicytreeedit', {id: policyNode.data.policyId, topLevelId: topLevelId}),
+                url: Routing.generate('app_xslpolicy_xslpolicytreeedit', {id: policyNode.data.policyId}),
                 data: new FormData(form[0]),
                 processData: false,
                 contentType: false
@@ -85,8 +85,8 @@ var policyTreeAjax = (function() {
         })
     }
 
-    var ruleCreate = function(policyNode, topLevelId) {
-        $.get(Routing.generate('app_xslpolicy_xslpolicytreerulecreate', {policyId: policyNode.data.policyId, topLevelId: topLevelId}))
+    var ruleCreate = function(policyNode) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreerulecreate', {policyId: policyNode.data.policyId}))
         .done(function (data) {
             policyTree.ruleCreate(data.rule, policyNode);
         })
@@ -95,10 +95,10 @@ var policyTreeAjax = (function() {
         })
     }
 
-    var ruleEdit = function(form, policyId, ruleNode, topLevelId) {
+    var ruleEdit = function(form, policyId, ruleNode) {
         $.ajax({
             type: form.attr('method'),
-                url: Routing.generate('app_xslpolicy_xslpolicytreeruleedit', {id: ruleNode.data.ruleId, policyId: policyId, topLevelId: topLevelId}),
+                url: Routing.generate('app_xslpolicy_xslpolicytreeruleedit', {id: ruleNode.data.ruleId, policyId: policyId}),
                 data: new FormData(form[0]),
                 processData: false,
                 contentType: false
@@ -111,8 +111,8 @@ var policyTreeAjax = (function() {
         })
     }
 
-    var ruleDelete = function(policyId, ruleNode, topLevelId) {
-        $.get(Routing.generate('app_xslpolicy_xslpolicytreeruledelete', {id: ruleNode.data.ruleId, policyId: policyId, topLevelId: topLevelId}))
+    var ruleDelete = function(policyId, ruleNode) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreeruledelete', {id: ruleNode.data.ruleId, policyId: policyId}))
         .done(function (data) {
             policyTree.ruleDelete(ruleNode);
         })
@@ -121,8 +121,8 @@ var policyTreeAjax = (function() {
         })
     }
 
-    var ruleDuplicate = function(policyId, ruleNode, topLevelId, dstNode) {
-        $.get(Routing.generate('app_xslpolicy_xslpolicytreeruleduplicate', {id: ruleNode.data.ruleId, policyId: policyId, topLevelId: topLevelId, dstPolicyId: dstNode.data.policyId}))
+    var ruleDuplicate = function(policyId, ruleNode, dstNode) {
+        $.get(Routing.generate('app_xslpolicy_xslpolicytreeruleduplicate', {id: ruleNode.data.ruleId, policyId: policyId, dstPolicyId: dstNode.data.policyId}))
         .done(function (data) {
             policyTree.ruleDuplicate(data.rule, dstNode);
         })

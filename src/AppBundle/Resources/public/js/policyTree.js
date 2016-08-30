@@ -90,13 +90,13 @@ var policyTree = (function() {
             addPolicy: {
                 label: 'Add a policy',
                 action: function() {
-                    policyTreeAjax.policyCreate(node, node.data.policyId, getTopLevelPolicyId());
+                    policyTreeAjax.policyCreate(node, node.data.policyId);
                 }
             },
             addRule: {
                 label: 'Add a rule',
                 action: function() {
-                    policyTreeAjax.ruleCreate(node, getTopLevelPolicyId());
+                    policyTreeAjax.ruleCreate(node);
                 }
             },
             deletePolicy: {
@@ -151,7 +151,7 @@ var policyTree = (function() {
 
                             if ('copy_node' == buffer.mode) {
                                 if ('r' == buffer.node[0].type) {
-                                    policyTreeAjax.ruleDuplicate(getParentPolicyId(buffer.node[0]), buffer.node[0], getTopLevelPolicyId(), obj);
+                                    policyTreeAjax.ruleDuplicate(getParentPolicyId(buffer.node[0]), buffer.node[0], obj);
                                 }
                                 else {
                                     policyTreeAjax.policyDuplicate(buffer.node[0], obj);
@@ -209,7 +209,7 @@ var policyTree = (function() {
                     label: 'Delete',
                     action: function() {
                         var parentId = instance.get_node(node.parent).data.policyId;
-                        policyTreeAjax.ruleDelete(parentId, node, getTopLevelPolicyId());;
+                        policyTreeAjax.ruleDelete(parentId, node);
                     }
                 },
                 ccp: {

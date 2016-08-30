@@ -57,7 +57,7 @@ function formBindings() {
     $('form[name="xslPolicyInfo"]').on('submit', function (e) {
         e.preventDefault();
 
-        policyTreeAjax.policyEdit($(this), policyTree.getSelectedNode(), policyTree.getTopLevelPolicyId());
+        policyTreeAjax.policyEdit($(this), policyTree.getSelectedNode());
     });
 
     // Policy rule edit form
@@ -66,15 +66,15 @@ function formBindings() {
 
         // Duplicate
         if ('xslPolicyRule_DuplicateRule' == $('button[type=submit][clicked=true]').prop('id')) {
-            policyTreeAjax.ruleDuplicate(policyTree.getParentPolicyId(), policyTree.getSelectedNode(), policyTree.getTopLevelPolicyId(), policyTree.getParentPolicy());
+            policyTreeAjax.ruleDuplicate(policyTree.getParentPolicyId(), policyTree.getSelectedNode(), policyTree.getParentPolicy());
         }
         // Delete
         else if ('xslPolicyRule_DeleteRule' == $('button[type=submit][clicked=true]').prop('id')) {
-            policyTreeAjax.ruleDelete(policyTree.getParentPolicyId(), policyTree.getSelectedNode(), policyTree.getTopLevelPolicyId());
+            policyTreeAjax.ruleDelete(policyTree.getParentPolicyId(), policyTree.getSelectedNode());
         }
         // Edit
         else {
-            policyTreeAjax.ruleEdit($(this), policyTree.getParentPolicyId(), policyTree.getSelectedNode(), policyTree.getTopLevelPolicyId());
+            policyTreeAjax.ruleEdit($(this), policyTree.getParentPolicyId(), policyTree.getSelectedNode());
         }
     });
 
@@ -104,12 +104,12 @@ function buttonBindings() {
     })
 
     $('#policyRuleCreate').on('click', function() {
-        policyTreeAjax.ruleCreate(policyTree.getSelectedNode(), policyTree.getTopLevelPolicyId());
+        policyTreeAjax.ruleCreate(policyTree.getSelectedNode());
     })
 
     // Create policy
     $('.policyCreate').on('click', function () {
-        policyTreeAjax.policyCreate(policyTree.getSelectedNode(), policyTree.getPolicyId(), policyTree.getTopLevelPolicyId());
+        policyTreeAjax.policyCreate(policyTree.getSelectedNode(), policyTree.getPolicyId());
     });
 }
 
