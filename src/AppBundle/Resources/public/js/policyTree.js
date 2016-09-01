@@ -89,7 +89,7 @@ var policyTree = (function() {
             addPolicy: {
                 label: 'Add a policy',
                 action: function() {
-                    policyTreeAjax.policyCreate(node);
+                    policyTreeAjax.policyCreate(node, -1);
                 }
             },
             ccp: {
@@ -467,9 +467,9 @@ var policyTree = (function() {
     }
 
     var policyEdit = function(policy, selectedPolicy) {
-        instance.rename_node(selectedPolicy, policy.policyName + ' (' + policy.policyType + ')');
-        selectedPolicy.data.description = policy.policyDescription;
-        selectedPolicy.data.type = policy.policyType;
+        instance.rename_node(selectedPolicy, policy.text);
+        selectedPolicy.data.description = policy.data.description;
+        selectedPolicy.data.type = policy.data.type;
         mcoMessage.success('Policy info changed successfuly');
     }
 
@@ -503,11 +503,11 @@ var policyTree = (function() {
     }
 
     var ruleEdit = function(rule, selectedRule) {
-        instance.rename_node(selectedRule, null == rule.title ? '' : rule.title);
-        selectedRule.data.tracktype = rule.trackType;
+        instance.rename_node(selectedRule, rule.name);
+        selectedRule.data.tracktype = rule.tracktype;
         selectedRule.data.field = rule.field;
         selectedRule.data.occurrence = rule.occurrence;
-        selectedRule.data.ope = rule.validator;
+        selectedRule.data.ope = rule.ope;
         selectedRule.data.value = rule.value;
         mcoMessage.success('Rule successfuly edited');
     }

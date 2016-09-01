@@ -120,24 +120,15 @@ var policyTreeRules = (function() {
         }
     }
 
-    $('#xslPolicyRule_validator').on('change', function() {
-        displayValueField($('#xslPolicyRule_validator').val());
-    })
-
-    $('#xslPolicyRule_trackType').on('change', function() {
-        loadFieldsList($('#xslPolicyRule_trackType').val(), $('#xslPolicyRule_field').val());
-        displayOccurenceField($('#xslPolicyRule_trackType').val());
-    });
-
-    $('#xslPolicyRule_field').on('change', function() {
-        loadValuesList($('#xslPolicyRule_trackType').val(), $('#xslPolicyRule_field').val(), $('#xslPolicyRule_value').val());
-    });
-
     return {
         display: display,
         fieldsListOk: fieldsListOk,
         fieldsListError: fieldsListError,
         valuesListOk: valuesListOk,
         valuesListError: valuesListError,
+        loadFieldsList: loadFieldsList,
+        displayOccurenceField: displayOccurenceField,
+        loadValuesList: loadValuesList,
+        displayValueField: displayValueField,
     }
 })();

@@ -78,6 +78,22 @@ function formBindings() {
         }
     });
 
+    // Policy rule edit form trackType select list
+    $('#xslPolicyRule_trackType').on('change', function() {
+        policyTreeRules.loadFieldsList($('#xslPolicyRule_trackType').val(), $('#xslPolicyRule_field').val());
+        policyTreeRules.displayOccurenceField($('#xslPolicyRule_trackType').val());
+    });
+
+    // Policy rule edit form field select list
+    $('#xslPolicyRule_field').on('change', function() {
+        policyTreeRules.loadValuesList($('#xslPolicyRule_trackType').val(), $('#xslPolicyRule_field').val(), $('#xslPolicyRule_value').val());
+    });
+
+    // Policy rule edit form validator select list
+    $('#xslPolicyRule_validator').on('change', function() {
+        policyTreeRules.displayValueField($('#xslPolicyRule_validator').val());
+    })
+
     // Multiple form button click
     $('form[name="xslPolicyRule"] button[type=submit]').on('click', function() {
         $('form[name="xslPolicyRule"] button[type=submit]').removeAttr('clicked');

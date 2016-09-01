@@ -16,11 +16,11 @@ var mcoMessage = (function() {
     }
 
     // Handle fail ajax response
-    var fail = function(jqXHR, otherNode = null) {
+    var fail = function(jqXHR, destNode) {
         if (typeof jqXHR.responseJSON !== 'undefined') {
             if (jqXHR.responseJSON.hasOwnProperty('quota')) {
-                if (null !== otherNode) {
-                    $(otherNode).html(jqXHR.responseJSON.quota);
+                if (undefined !== destNode) {
+                    $(destNode).html(jqXHR.responseJSON.quota);
                 }
                 else {
                     $(node).html(jqXHR.responseJSON.quota);
