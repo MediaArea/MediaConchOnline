@@ -4,29 +4,16 @@ namespace AppBundle\Lib\Checker;
 
 use AppBundle\Lib\MediaConch\MediaConchServer;
 
-class CheckerFilename
+class CheckerFilename extends CheckerBase
 {
-    protected $response;
-
-    public function __construct(MediaConchServer $mc)
-    {
-        $this->mc = $mc;
-    }
-
     public function fileFromId($id)
     {
         $this->response = $this->mc->fileFromId($id);
     }
 
-    public function getServerResponse()
-    {
-        return $this->response;
-    }
-
     public function getResponseAsArray()
     {
-        return array('file' => $this->response->getFile(),
-            );
+        return array('file' => $this->response->getFile());
     }
 
     public function getFilename($full = false)

@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 
 use AppBundle\Controller\BaseController;
 use AppBundle\Entity\XslPolicy;
@@ -65,7 +66,11 @@ class XslPolicyController extends BaseController
         $policies = $this->get('mco.policy.getPolicies');
         $policies->getPolicies(array(), 'JSTREE');
 
-        return new JsonResponse(array('policiesTree' => $policies->getResponse()->getPolicies()), 200);
+        if ($policies->getResponse()->getStatus()) {
+            return new JsonResponse(array('policiesTree' => $policies->getResponse()->getPolicies()), 200);
+        }
+
+        return new JsonResponse(array('message' => 'Error'), 400);
     }
 
     /**
@@ -87,14 +92,16 @@ class XslPolicyController extends BaseController
         $policyCreate = $this->get('mco.policy.create');
         $policyCreate->create($parentId);
 
-        if (null !== $policyCreate->getCreatedId()) {
+        if ($policyCreate->getResponse()->getStatus()) {
             $policySave = $this->get('mco.policy.save');
             $policySave->save($policyCreate->getCreatedId());
 
             $policy = $this->get('mco.policy.getPolicy');
             $policy->getPolicy($policyCreate->getCreatedId(), 'JSTREE');
 
-            return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+            if ($policy->getResponse()->getStatus()) {
+                return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+            }
         }
 
         return new JsonResponse(array('message' => 'Error'), 400);
@@ -129,10 +136,11 @@ class XslPolicyController extends BaseController
                     $policy = $this->get('mco.policy.getPolicy');
                     $policy->getPolicy($policyImport->getCreatedId(), 'JSTREE');
 
-                    return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+                    if ($policy->getResponse()->getStatus()) {
+                        return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+                    }
                 }
             }
-
         }
 
         return new JsonResponse(array('message' => 'Error'), 400);
@@ -151,22 +159,29 @@ class XslPolicyController extends BaseController
     {
         $policyName = $this->get('mco.policy.getPolicyName');
         $policyName->getPolicyName($id);
-        $policyName = $policyName->getResponse()->getName();
 
-        $policyExport = $this->get('mco.policy.export');
-        $policyExport->export($id);
+        if ($policyName->getResponse()->getStatus()) {
+            $policyName = $policyName->getResponse()->getName();
 
-        $response = new Response($policyExport->getPolicyXml());
-        $d = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $policyName . '.xml'
-        );
+            $policyExport = $this->get('mco.policy.export');
+            $policyExport->export($id);
 
-        $response->headers->set('Content-Type', 'text/xml');
-        $response->headers->set('Content-Disposition', $d);
-        $response->headers->set('Content-length', strlen($policyExport->getPolicyXml()));
+            if ($policyExport->getResponse()->getStatus()) {
+                $response = new Response($policyExport->getPolicyXml());
+                $d = $response->headers->makeDisposition(
+                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                    $policyName . '.xml'
+                );
 
-        return $response;
+                $response->headers->set('Content-Type', 'text/xml');
+                $response->headers->set('Content-Disposition', $d);
+                $response->headers->set('Content-length', strlen($policyExport->getPolicyXml()));
+
+                return $response;
+            }
+        }
+
+        throw new ServiceUnavailableHttpException();
     }
 
 
@@ -202,7 +217,9 @@ class XslPolicyController extends BaseController
             $policy = $this->get('mco.policy.getPolicy');
             $policy->getPolicy($id, 'JSTREE');
 
-            return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+            if ($policy->getResponse()->getStatus()) {
+                return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+            }
         }
 
         return new JsonResponse(array('message' => 'Error'), 400);
@@ -228,13 +245,15 @@ class XslPolicyController extends BaseController
         $policyDuplicate = $this->get('mco.policy.duplicate');
         $policyDuplicate->duplicate($id, $dstPolicyId);
 
-        if (null !== $policyDuplicate->getCreatedId()) {
+        if ($policyDuplicate->getResponse()->getStatus()) {
             $policySave = $this->get('mco.policy.save');
             $policySave->save($policyDuplicate->getCreatedId());
             $policy = $this->get('mco.policy.getPolicy');
             $policy->getPolicy($policyDuplicate->getCreatedId(), 'JSTREE');
 
-            return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+            if ($policy->getResponse()->getStatus()) {
+                return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+            }
         }
 
         return new JsonResponse(array('message' => 'Error'), 400);
@@ -260,14 +279,15 @@ class XslPolicyController extends BaseController
         $policyMove = $this->get('mco.policy.move');
         $policyMove->move($id, $dstPolicyId);
 
-        if (null !== $policyMove->getCreatedId()) {
+        if ($policyMove->getResponse()->getStatus()) {
             $policySave = $this->get('mco.policy.save');
             $policySave->save($policyMove->getCreatedId());
-            $policySave->save($id);
             $policy = $this->get('mco.policy.getPolicy');
             $policy->getPolicy($policyMove->getCreatedId(), 'JSTREE');
 
-            return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+            if ($policy->getResponse()->getStatus()) {
+                return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+            }
         }
 
         return new JsonResponse(array('message' => 'Error'), 400);
@@ -316,13 +336,15 @@ class XslPolicyController extends BaseController
         $ruleCreate = $this->get('mco.policy.rule.create');
         $ruleCreate->create($policyId);
 
-        if (null !== $ruleCreate->getCreatedId()) {
+        if ($ruleCreate->getResponse()->getStatus()) {
             $policySave = $this->get('mco.policy.save');
             $policySave->save($policyId);
             $rule = $this->get('mco.policy.getRule');
             $rule->getRule($ruleCreate->getCreatedId(), $policyId);
 
-            return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
+            if ($rule->getResponse()->getStatus()) {
+                return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
+            }
         }
 
         return new JsonResponse(array('message' => 'Error'), 400);
@@ -357,7 +379,9 @@ class XslPolicyController extends BaseController
             $rule = $this->get('mco.policy.getRule');
             $rule->getRule($id, $policyId);
 
-            return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
+            if ($rule->getResponse()->getStatus()) {
+                return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
+            }
         }
 
         return new JsonResponse(array('message' => 'Error'), 400);
@@ -409,13 +433,15 @@ class XslPolicyController extends BaseController
         $ruleDuplicate = $this->get('mco.policy.rule.duplicate');
         $ruleDuplicate->duplicate($id, $policyId, $dstPolicyId);
 
-        if (null !== $ruleDuplicate->getCreatedId()) {
+        if ($ruleDuplicate->getResponse()->getStatus()) {
             $policySave = $this->get('mco.policy.save');
             $policySave->save($policyId);
             $rule = $this->get('mco.policy.getRule');
             $rule->getRule($ruleDuplicate->getCreatedId(), $dstPolicyId);
 
-            return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
+            if ($rule->getResponse()->getStatus()) {
+                return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
+            }
         }
 
         return new JsonResponse(array('message' => 'Error'), 400);
@@ -442,14 +468,16 @@ class XslPolicyController extends BaseController
         $ruleMove = $this->get('mco.policy.rule.move');
         $ruleMove->move($id, $policyId, $dstPolicyId);
 
-        if (null !== $ruleMove->getCreatedId()) {
+        if ($ruleMove->getResponse()->getStatus()) {
             $policySave = $this->get('mco.policy.save');
             $policySave->save($dstPolicyId);
             $policySave->save($policyId);
             $rule = $this->get('mco.policy.getRule');
             $rule->getRule($ruleMove->getCreatedId(), $dstPolicyId);
 
-            return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
+            if ($rule->getResponse()->getStatus()) {
+                return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
+            }
         }
 
         return new JsonResponse(array('message' => 'Error'), 400);
@@ -502,6 +530,10 @@ class XslPolicyController extends BaseController
         $valuesList = $this->get('mco.policy.form.values');
         $valuesList->getValues($type, $field, $value);
 
-        return new JsonResponse($valuesList->getResponseAsArray());
+        if ($valuesList->getResponse()->getStatus()) {
+            return new JsonResponse($valuesList->getResponseAsArray());
+        }
+
+        return new JsonResponse(array('message' => 'Error'), 400);
     }
 }

@@ -12,8 +12,11 @@ class XslPolicyGetPoliciesNamesList extends XslPolicyBase
     public function getListForChoiceForm()
     {
         $policyList = array();
-        foreach ($this->response->getPolicies() as $policy) {
-            $policyList[$policy->name] = $policy->id;
+
+        if ($this->response->getStatus()) {
+            foreach ($this->response->getPolicies() as $policy) {
+                $policyList[$policy->name] = $policy->id;
+            }
         }
 
         return $policyList;

@@ -4,16 +4,10 @@ namespace AppBundle\Lib\Checker;
 
 use AppBundle\Lib\MediaConch\MediaConchServer;
 
-class CheckerAnalyze
+class CheckerAnalyze extends CheckerBase
 {
-    protected $response;
     protected $source;
     protected $fullPath = false;
-
-    public function __construct(MediaConchServer $mc)
-    {
-        $this->mc = $mc;
-    }
 
     public function analyse($file)
     {
@@ -21,18 +15,22 @@ class CheckerAnalyze
         $this->response = $this->mc->analyse($file);
     }
 
-    public function getServerResponse()
-    {
-        return $this->response;
-    }
-
     public function getResponseAsArray()
     {
-        return array('success' => $this->response->getSuccess(),
-            'transactionId' => $this->response->getTransactionId(),
-            'error' => $this->response->getError(),
-            'filename' => $this->getFilename(),
-            );
+        if ($this->response->getStatus()) {
+            return array('success' => true,
+                'transactionId' => $this->response->getTransactionId(),
+                'error' => null,
+                'filename' => $this->getFilename(),
+                );
+        }
+        else {
+            return array('success' => false,
+                'transactionId' => null,
+                'error' => $this->response->getError(),
+                'filename' => $this->getFilename(),
+                );
+        }
     }
 
     public function setFullPath($fullPath)

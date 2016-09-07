@@ -6,24 +6,9 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 use AppBundle\Lib\MediaConch\MediaConchServer;
 
-class CheckerValidate
+class CheckerValidate extends CheckerBase
 {
-    protected $response;
-    protected $user;
     protected $fileId;
-
-    public function __construct(MediaConchServer $mc, TokenStorageInterface $tokenStorage)
-    {
-        $this->mc = $mc;
-
-        $token = $tokenStorage->getToken();
-        if ($token !== null && $token->getUser() instanceof \AppBundle\Entity\User) {
-            $this->user = $token->getUser();
-        }
-        else {
-            throw new \Exception('Invalid User');
-        }
-    }
 
     public function validate($id, $report, $policy = null)
     {

@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 use Symfony\Component\Finder\Finder;
 
 use AppBundle\Entity\XslPolicyFile;
@@ -67,7 +68,7 @@ class CheckerController extends Controller
         if (is_array($ids) && count($ids) > 0) {
             $status = $this->get('mco.checker.status');
             $status->getStatus($ids);
-            return new JsonResponse(array('status' => $status->getResponseAsArray()));
+            return new JsonResponse(array('status' => $status->getResponse()->getResponse()));
         }
         else {
             return new JsonResponse(array('message' => 'Error'), 400);
@@ -149,16 +150,23 @@ class CheckerController extends Controller
         $file = $this->get('mco.checker.filename');
         $file->fileFromId($id);
 
-        $report = $this->get('mco.checker.report');
-        $report->report($id, $reportType, $displayName, $displayFile, $request->query->get('policy'), $request->query->get('verbosity'));
-        $report->setFullPath(false, $file->getFilename(true));
+        if ($file->getResponse()->getStatus()) {
+            $report = $this->get('mco.checker.report');
+            $report->report($id, $reportType, $displayName, $displayFile, $request->query->get('policy'), $request->query->get('verbosity'));
 
-        if (($reportType == 'mi' || $reportType == 'mt') && $displayName == 'jstree') {
-            return new Response($report->getReport());
+            if ($report->getResponse()->getStatus()) {
+                $report->setFullPath(false, $file->getFilename(true));
+
+                if (($reportType == 'mi' || $reportType == 'mt') && $displayName == 'jstree') {
+                    return new Response($report->getReport());
+                }
+                else {
+                    return new JsonResponse($report->getResponseAsArray());
+                }
+            }
         }
-        else {
-            return new JsonResponse($report->getResponseAsArray());
-        }
+
+        return new JsonResponse(array('message' => 'Error'), 400);
     }
 
     /**
@@ -210,22 +218,28 @@ class CheckerController extends Controller
 
         $file = $this->get('mco.checker.filename');
         $file->fileFromId($id);
+        if ($file->getResponse()->getStatus()) {
 
-        $report = $this->get('mco.checker.report');
-        $report->report($id, $reportType, $displayName, $displayFile, $request->query->get('policy'), $request->query->get('verbosity'));
-        $report->setFullPath(false, $file->getFilename(true));
+            $report = $this->get('mco.checker.report');
+            $report->report($id, $reportType, $displayName, $displayFile, $request->query->get('policy'), $request->query->get('verbosity'));
 
-        $response = new Response($report->getReport());
-        $d = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $file->getFilename() . '_' . $report->getDownloadReportName() . '.' . $report->getDownloadReportExtension()
-        );
+            if ($report->getResponse()->getStatus()) {
+                $report->setFullPath(false, $file->getFilename(true));
+                $response = new Response($report->getReport());
+                $d = $response->headers->makeDisposition(
+                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                    $file->getFilename() . '_' . $report->getDownloadReportName() . '.' . $report->getDownloadReportExtension()
+                );
 
-        $response->headers->set('Content-Type', $report->getDownloadReportMimeType());
-        $response->headers->set('Content-Disposition', $d);
-        $response->headers->set('Content-length', strlen($report->getReport()));
+                $response->headers->set('Content-Type', $report->getDownloadReportMimeType());
+                $response->headers->set('Content-Disposition', $d);
+                $response->headers->set('Content-length', strlen($report->getReport()));
 
-        return $response;
+                return $response;
+            }
+        }
+
+        throw new ServiceUnavailableHttpException();
     }
 
     /**
@@ -270,13 +284,12 @@ class CheckerController extends Controller
                         return new JsonResponse($response, 200);
                     }
                 }
-                else {
-                    return new JsonResponse(array('message' => 'Error'), 400);
-                }
             }
             else {
                 return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
             }
+
+            return new JsonResponse(array('message' => 'Error'), 400);
         }
 
         $formOnline = $this->createForm('checkerOnline');
@@ -301,13 +314,12 @@ class CheckerController extends Controller
 
                     return new JsonResponse($response, 200);
                 }
-                else {
-                    return new JsonResponse(array('message' => 'Error'), 400);
-                }
             }
             else {
                 return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
             }
+
+            return new JsonResponse(array('message' => 'Error'), 400);
         }
 
         if (null != $this->container->getParameter('mco_check_folder') && file_exists($this->container->getParameter('mco_check_folder'))) {
@@ -337,13 +349,12 @@ class CheckerController extends Controller
 
                         return new JsonResponse($response, 200);
                     }
-                    else {
-                        return new JsonResponse(array('message' => 'Error'), 400);
-                    }
                 }
                 else {
                     return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
                 }
+
+                return new JsonResponse(array('message' => 'Error'), 400);
             }
         }
 
