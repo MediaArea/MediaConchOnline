@@ -7,7 +7,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -168,13 +167,10 @@ class XslPolicyController extends BaseController
 
             if ($policyExport->getResponse()->getStatus()) {
                 $response = new Response($policyExport->getPolicyXml());
-                $d = $response->headers->makeDisposition(
-                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                    $policyName . '.xml'
-                );
+                $disposition = $this->downloadFileDisposition($response, $policyName . '.xml');
 
                 $response->headers->set('Content-Type', 'text/xml');
-                $response->headers->set('Content-Disposition', $d);
+                $response->headers->set('Content-Disposition', $disposition);
                 $response->headers->set('Content-length', strlen($policyExport->getPolicyXml()));
 
                 return $response;

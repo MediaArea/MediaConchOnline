@@ -2,26 +2,25 @@
 
 namespace AppBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 use Symfony\Component\Finder\Finder;
 
+use AppBundle\Controller\BaseController;
 use AppBundle\Entity\XslPolicyFile;
 
 /**
  * @Route("/")
  */
-class CheckerController extends Controller
+class CheckerController extends BaseController
 {
     /**
      * @Route("/checker")
@@ -226,13 +225,10 @@ class CheckerController extends Controller
             if ($report->getResponse()->getStatus()) {
                 $report->setFullPath(false, $file->getFilename(true));
                 $response = new Response($report->getReport());
-                $d = $response->headers->makeDisposition(
-                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                    $file->getFilename() . '_' . $report->getDownloadReportName() . '.' . $report->getDownloadReportExtension()
-                );
+                $disposition = $this->downloadFileDisposition($response, $file->getFilename() . '_' . $report->getDownloadReportName() . '.' . $report->getDownloadReportExtension());
 
                 $response->headers->set('Content-Type', $report->getDownloadReportMimeType());
-                $response->headers->set('Content-Disposition', $d);
+                $response->headers->set('Content-Disposition', $disposition);
                 $response->headers->set('Content-length', strlen($report->getReport()));
 
                 return $response;
