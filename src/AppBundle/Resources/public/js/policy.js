@@ -78,9 +78,30 @@ function formBindings() {
         }
     });
 
+    // Policy rule duplicate
+    $('#xslPolicyRule_DuplicateRule').on('click', function (e) {
+        e.preventDefault();
+
+        policyTreeAjax.ruleDuplicate(policyTree.getParentPolicyId(), policyTree.getSelectedNode(), policyTree.getParentPolicy());
+    });
+
+    // Policy rule delete
+    $('#xslPolicyRule_DeleteRule').on('click', function (e) {
+        e.preventDefault();
+
+        policyTreeAjax.ruleDelete(policyTree.getParentPolicyId(), policyTree.getSelectedNode());
+    });
+
     // Policy rule edit form trackType select list
     $('#xslPolicyRule_trackType').on('change', function() {
-        policyTreeRules.loadFieldsList($('#xslPolicyRule_trackType').val(), $('#xslPolicyRule_field').val());
+        if ('undefined' === $('#xslPolicyRule_field').val()) {
+            var field = null;
+        }
+        else {
+            var field = $('#xslPolicyRule_field').val();
+        }
+
+        policyTreeRules.loadFieldsList($('#xslPolicyRule_trackType').val(), field);
         policyTreeRules.displayOccurenceField($('#xslPolicyRule_trackType').val());
     });
 

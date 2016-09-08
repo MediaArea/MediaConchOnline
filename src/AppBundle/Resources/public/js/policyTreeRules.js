@@ -102,7 +102,8 @@ var policyTreeRules = (function() {
     }
 
     function displayValueField(validator) {
-        if ('exists' == validator || 'does_not_exist' == validator) {
+        // If validator is empty do not display the value field
+        if ('' == validator) {
             $('#xslPolicyRule_value').parent().addClass('hidden');
         }
         else {
