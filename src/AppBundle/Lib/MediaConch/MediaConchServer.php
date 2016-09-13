@@ -36,7 +36,10 @@ class MediaConchServer
 
     public function report($user, $id, $report, $displayName, $display = null, $policy = null, $verbosity = -1)
     {
-        $request = array('CHECKER_REPORT' => array('user' => $user, 'ids' => array((int) $id), 'reports' => array($report), 'verbosity' => (int) $verbosity));
+        $request = array('CHECKER_REPORT' => array('user' => $user,
+            'ids' => array((int) $id),
+            'reports' => array($report),
+            'options' => array('verbosity' => $verbosity)));
         if ($display && file_exists($display) && is_readable($display)) {
             $request['CHECKER_REPORT']['display_content'] = file_get_contents($display);
         }
