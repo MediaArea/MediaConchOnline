@@ -25,7 +25,7 @@ class XslPolicyFormFields
     public static function getOperators()
     {
         return array(
-                '=' => 'Is equal (==)',
+                '=' => 'Is equal (=)',
                 '!=' => 'Is not equal (!=)',
                 '<' => 'Is less than (<)',
                 '<=' => 'Is less or equal than (<=)',

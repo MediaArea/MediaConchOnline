@@ -33,9 +33,9 @@ class XslPolicyController extends BaseController
     public function xslPolicyTreeAction(Request $request)
     {
         // Forms
-        $rule = new XslPolicyRule();
-        $rule->setTitle('New rule');
-        $policyRuleForm = $this->createForm('xslPolicyRule', $rule);
+        $policyRuleForm = $this->createForm('xslPolicyRule');
+        $policyRuleMtForm = $this->createForm('xslPolicyRuleMt');
+
         if ($this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
             $importPolicyForm = $this->createForm('xslPolicyImport');
         }
@@ -43,6 +43,7 @@ class XslPolicyController extends BaseController
 
         return array(
             'policyRuleForm' => $policyRuleForm->createView(),
+            'policyRuleMtForm' => $policyRuleMtForm->createView(),
             'importPolicyForm' => isset($importPolicyForm) ? $importPolicyForm->createView() : false,
             'policyInfoForm' => $policyInfoForm->createView(),
             );
@@ -129,7 +130,7 @@ class XslPolicyController extends BaseController
                 $policyImport = $this->get('mco.policy.import');
                 $policyImport->import(file_get_contents($data['policyFile']->getRealPath()));
 
-                if (null !== $policyImport->getCreatedId()) {
+                if ($policyImport->getResponse()->getStatus()) {
                     $policySave = $this->get('mco.policy.save');
                     $policySave->save($policyImport->getCreatedId());
                     $policy = $this->get('mco.policy.getPolicy');
@@ -363,7 +364,14 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $policyRuleForm = $this->createForm('xslPolicyRule');
+        // Get the requested form
+        if ($request->request->has('xslPolicyRuleMt')) {
+            $policyRuleForm = $this->createForm('xslPolicyRuleMt');
+        }
+        else {
+            $policyRuleForm = $this->createForm('xslPolicyRule');
+        }
+
         $policyRuleForm->handleRequest($request);
         if ($policyRuleForm->isValid()) {
             $data = $policyRuleForm->getData();

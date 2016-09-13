@@ -225,6 +225,10 @@ p.registration {
     padding-bottom: 50px;
 }
 
+.policyEditRule .btn-group > .btn:first-child {
+    margin-left: 15px;
+}
+
 .spinner-cell, .spinner-status {
     background: transparent url("../img/ajax-spinner-small.gif");
     width: 16px;

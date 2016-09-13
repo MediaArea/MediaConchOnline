@@ -245,10 +245,10 @@ var policyTreeAjax = (function() {
          */
         $.post(Routing.generate('app_xslpolicy_xslpolicyrulefieldslist'), {type: trackType, field: field})
         .done(function(data) {
-            policyTreeRules.fieldsListOk(data, field)
+            policyTreeRulesMI.fieldsListOk(data, field)
         })
         .fail(function () {
-            policyTreeRules.fieldsListError(field)
+            policyTreeRulesMI.fieldsListError(field)
         });
     }
 
@@ -260,10 +260,10 @@ var policyTreeAjax = (function() {
          */
         $.post(Routing.generate('app_xslpolicy_xslpolicyrulevalueslist'), {type: trackType, field: field, value: value})
         .done(function(data) {
-            policyTreeRules.valuesListOk(data.values, value);
+            policyTreeRulesMI.valuesListOk(data.values, value);
         })
         .fail(function () {
-            policyTreeRules.valuesListError(value);
+            policyTreeRulesMI.valuesListError(value);
         });
     }
 

@@ -80,6 +80,10 @@
             <tag name="form.type" alias="xslPolicyRule" />
         </service>
 
+        <service id="app.form.type.policy.rule.mt" class="AppBundle\Form\Type\XslPolicyRuleMtFormType">
+            <tag name="form.type" alias="xslPolicyRuleMt" />
+        </service>
+
         <service id="app.form.type.display.import" class="AppBundle\Form\Type\DisplayImportFormType">
             <tag name="form.type" alias="displayImport" />
         </service>

@@ -60,7 +60,19 @@ MediaConchOnline Policy Management
         </div>
 
         <div class="row policyEditRule hidden">
-            {{ form(policyRuleForm) }}
+            <div class="form-group">
+                <label class="control-label">Rule type</label>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-default ruleMediaInfo active">MediaInfo</button>
+                    <button type="button" class="btn btn-default ruleMediaTrace">MediaTrace</button>
+                </div>
+            </div>
+            <div class="ruleMediaInfoActions">
+                {{ form(policyRuleForm) }}
+            </div>
+            <div class="ruleMediaTraceActions">
+                {{ form(policyRuleMtForm) }}
+            </div>
             <p>Fields marked by asterisks (*) are required</p>
         </div>
     </div>
@@ -78,6 +90,8 @@ MediaConchOnline Policy Management
         '@AppBundle/Resources/public/js/policyTreeAffix.js'
         '@AppBundle/Resources/public/js/policyTreePolicies.js'
         '@AppBundle/Resources/public/js/policyTreeRules.js'
+        '@AppBundle/Resources/public/js/policyTreeRulesMI.js'
+        '@AppBundle/Resources/public/js/policyTreeRulesMT.js'
         '@AppBundle/Resources/public/js/policyAjax.js'
         '@AppBundle/Resources/public/js/policy.js'
     %}
