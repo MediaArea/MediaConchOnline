@@ -26,10 +26,10 @@ class ReportResponse extends MediaConchServerAbstractResponse
                 $this->valid = $response->ok->valid;
         }
         else if (is_array($response->nok) && isset($response->nok[0])) {
-            $this->error = $response->nok[0]->error;
+            throw new MediaConchServerException($response->nok[0]->error);
         }
         else {
-            throw new \Exception('Unknown response');
+            throw new MediaConchServerException('Unknown response');
         }
     }
 }

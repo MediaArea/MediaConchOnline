@@ -18,7 +18,7 @@ class FileFromIdResponse extends MediaConchServerAbstractResponse
             $this->status = true;
         }
         else {
-            throw new \Exception('Unknown response');
+            throw new MediaConchServerException('Unknown response');
         }
     }
 }

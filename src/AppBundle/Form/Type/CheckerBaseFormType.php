@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManager;
 
 use AppBundle\Lib\Settings\SettingsManager;
 use AppBundle\Lib\XslPolicy\XslPolicyGetPoliciesNamesList;
+use AppBundle\Lib\MediaConch\MediaConchServerException;
 
 class CheckerBaseFormType extends AbstractType
 {
@@ -31,14 +32,20 @@ class CheckerBaseFormType extends AbstractType
         $this->em = $em;
         $this->settings = $settings;
 
-        $this->policyList = $policyList;
-        $this->policyList->getPoliciesNamesList();
+        try {
+            $this->policyList = $policyList;
+            $this->policyList->getPoliciesNamesList();
+            $this->policyList = $this->policyList->getListForChoiceForm();
+        }
+        catch (MediaConchServerException $e) {
+            $this->policyList = array();
+        }
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('policy', 'choice', array('choices' => $this->policyList->getListForChoiceForm(),
+            ->add('policy', 'choice', array('choices' => $this->policyList,
                 'choices_as_values' => true,
                 'placeholder' => 'Choose a policy',
                 'required' => false,

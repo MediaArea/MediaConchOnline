@@ -18,10 +18,10 @@ class ValuesFromTypeResponse extends MediaConchServerAbstractResponse
             $this->status = true;
         }
         else if (isset($response->nok)) {
-            $this->error = $response->nok;
+            throw new MediaConchServerException($response->nok);
         }
         else {
-            throw new \Exception('Unknown response');
+            throw new MediaConchServerException('Unknown response');
         }
     }
 }

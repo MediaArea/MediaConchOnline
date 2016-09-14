@@ -16,6 +16,7 @@ use Symfony\Component\Finder\Finder;
 
 use AppBundle\Controller\BaseController;
 use AppBundle\Entity\XslPolicyFile;
+use AppBundle\Lib\MediaConch\MediaConchServerException;
 
 /**
  * @Route("/")
@@ -65,15 +66,20 @@ class CheckerController extends BaseController
         $ids = $request->request->get('ids');
 
         if (is_array($ids) && count($ids) > 0) {
-            $status = $this->get('mco.checker.status');
-            $status->getStatus($ids);
-            return new JsonResponse(array('status' => $status->getResponse()->getResponse()));
+            try {
+                $status = $this->get('mco.checker.status');
+                $status->getStatus($ids);
+
+                return new JsonResponse(array('status' => $status->getResponse()->getResponse()));
+            }
+            catch (MediaConchServerException $e) {
+                return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+            }
         }
         else {
             return new JsonResponse(array('message' => 'Error'), 400);
         }
     }
-
 
     /**
      * @Route("/checkerReportStatus/{id}/{reportType}", requirements={"id": "\d+", "reportType"})
@@ -84,10 +90,15 @@ class CheckerController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $validate = $this->get('mco.checker.validate');
-        $validate->validate($id, $reportType);
+        try {
+            $validate = $this->get('mco.checker.validate');
+            $validate->validate($id, $reportType);
 
-        return new JsonResponse($validate->getResponseAsArray());
+            return new JsonResponse($validate->getResponseAsArray());
+        }
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
     /**
@@ -99,10 +110,15 @@ class CheckerController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $validate = $this->get('mco.checker.validate');
-        $validate->validate($id, 1, $request->query->get('policy'));
+        try {
+            $validate = $this->get('mco.checker.validate');
+            $validate->validate($id, 1, $request->query->get('policy'));
 
-        return new JsonResponse($validate->getResponseAsArray());
+            return new JsonResponse($validate->getResponseAsArray());
+        }
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
     /**
@@ -114,15 +130,20 @@ class CheckerController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        // Implementation report
-        $validate = $this->get('mco.checker.validate');
-        $validate->validate($id, $reportType);
-        $implemReport = $validate->getResponseAsArray();
+        try {
+            // Implementation report
+            $validate = $this->get('mco.checker.validate');
+            $validate->validate($id, $reportType);
+            $implemReport = $validate->getResponseAsArray();
 
-        $validate->validate($id, 1, $policyId);
-        $statusReport = $validate->getResponseAsArray();
+            $validate->validate($id, 1, $policyId);
+            $statusReport = $validate->getResponseAsArray();
 
-        return new JsonResponse(array('implemReport' => $implemReport, 'statusReport' => $statusReport));
+            return new JsonResponse(array('implemReport' => $implemReport, 'statusReport' => $statusReport));
+        }
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
 
@@ -146,26 +167,25 @@ class CheckerController extends BaseController
             }
         }
 
-        $file = $this->get('mco.checker.filename');
-        $file->fileFromId($id);
+        try {
+            $file = $this->get('mco.checker.filename');
+            $file->fileFromId($id);
 
-        if ($file->getResponse()->getStatus()) {
             $report = $this->get('mco.checker.report');
             $report->report($id, $reportType, $displayName, $displayFile, $request->query->get('policy'), $request->query->get('verbosity'));
 
-            if ($report->getResponse()->getStatus()) {
-                $report->setFullPath(false, $file->getFilename(true));
+            $report->setFullPath(false, $file->getFilename(true));
 
-                if (($reportType == 'mi' || $reportType == 'mt') && $displayName == 'jstree') {
-                    return new Response($report->getReport());
-                }
-                else {
-                    return new JsonResponse($report->getResponseAsArray());
-                }
+            if (($reportType == 'mi' || $reportType == 'mt') && $displayName == 'jstree') {
+                return new Response($report->getReport());
+            }
+            else {
+                return new JsonResponse($report->getResponseAsArray());
             }
         }
-
-        return new JsonResponse(array('message' => 'Error'), 400);
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
     /**
@@ -177,10 +197,10 @@ class CheckerController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $policyFromFile = $this->get('mco.policy.fromFile');
-        $policyFromFile->getPolicy($id);
+        try {
+            $policyFromFile = $this->get('mco.policy.fromFile');
+            $policyFromFile->getPolicy($id);
 
-        if (null !== $policyFromFile->getCreatedId()) {
             $policySave = $this->get('mco.policy.save');
             $policySave->save($policyFromFile->getCreatedId());
             $policy = $this->get('mco.policy.getPolicy');
@@ -190,8 +210,9 @@ class CheckerController extends BaseController
 
             return new JsonResponse(array('result' => true, 'policyId' => $policy->id, 'policyName' => $policy->name));
         }
-
-        return new JsonResponse(array('result' => false));
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
     /**
@@ -215,27 +236,26 @@ class CheckerController extends BaseController
             }
         }
 
-        $file = $this->get('mco.checker.filename');
-        $file->fileFromId($id);
-        if ($file->getResponse()->getStatus()) {
+        try {
+            $file = $this->get('mco.checker.filename');
+            $file->fileFromId($id);
 
             $report = $this->get('mco.checker.report');
             $report->report($id, $reportType, $displayName, $displayFile, $request->query->get('policy'), $request->query->get('verbosity'));
 
-            if ($report->getResponse()->getStatus()) {
-                $report->setFullPath(false, $file->getFilename(true));
-                $response = new Response($report->getReport());
-                $disposition = $this->downloadFileDisposition($response, $file->getFilename() . '_' . $report->getDownloadReportName() . '.' . $report->getDownloadReportExtension());
+            $report->setFullPath(false, $file->getFilename(true));
+            $response = new Response($report->getReport());
+            $disposition = $this->downloadFileDisposition($response, $file->getFilename() . '_' . $report->getDownloadReportName() . '.' . $report->getDownloadReportExtension());
 
-                $response->headers->set('Content-Type', $report->getDownloadReportMimeType());
-                $response->headers->set('Content-Disposition', $disposition);
-                $response->headers->set('Content-length', strlen($report->getReport()));
+            $response->headers->set('Content-Type', $report->getDownloadReportMimeType());
+            $response->headers->set('Content-Disposition', $disposition);
+            $response->headers->set('Content-length', strlen($report->getReport()));
 
-                return $response;
-            }
+            return $response;
         }
-
-        throw new ServiceUnavailableHttpException();
+        catch (MediaConchServerException $e) {
+            throw new ServiceUnavailableHttpException();
+        }
     }
 
     /**
@@ -271,13 +291,18 @@ class CheckerController extends BaseController
                             $file = $data['file']->move($path . '/' . $fileMd5, $filename);
                         }
 
-                        $checks = $this->get('mco.checker.analyze');
-                        $checks->analyse($file->getRealPath());
-                        $response = $checks->getResponseAsArray();
+                        try {
+                            $checks = $this->get('mco.checker.analyze');
+                            $checks->analyse($file->getRealPath());
+                            $response = $checks->getResponseAsArray();
 
-                        $this->get('mediaconch_user.quotas')->hitUploads();
+                            $this->get('mediaconch_user.quotas')->hitUploads();
 
-                        return new JsonResponse($response, 200);
+                            return new JsonResponse($response, 200);
+                        }
+                        catch (MediaConchServerException $e) {
+                            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+                        }
                     }
                 }
             }
@@ -301,14 +326,19 @@ class CheckerController extends BaseController
                     $settings->setLastUsedDisplay($data['display']);
                     $settings->setLastUsedVerbosity($data['verbosity']);
 
-                    $checks = $this->get('mco.checker.analyze');
-                    $checks->setFullPath(true);
-                    $checks->analyse(str_replace(' ', '%20', $data['file']));
-                    $response = $checks->getResponseAsArray();
+                    try {
+                        $checks = $this->get('mco.checker.analyze');
+                        $checks->setFullPath(true);
+                        $checks->analyse(str_replace(' ', '%20', $data['file']));
+                        $response = $checks->getResponseAsArray();
 
-                    $this->get('mediaconch_user.quotas')->hitUrls();
+                        $this->get('mediaconch_user.quotas')->hitUrls();
 
-                    return new JsonResponse($response, 200);
+                        return new JsonResponse($response, 200);
+                    }
+                    catch (MediaConchServerException $e) {
+                        return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+                    }
                 }
             }
             else {
@@ -333,17 +363,22 @@ class CheckerController extends BaseController
                         $settings->setLastUsedDisplay($data['display']);
                         $settings->setLastUsedVerbosity($data['verbosity']);
 
-                        $finder = new Finder();
-                        $finder->files()->in($this->container->getParameter('mco_check_folder'));
-                        foreach($finder as $file) {
-                            $checks = $this->get('mco.checker.analyze');
-                            $checks->analyse($file->getPathname());
-                            $response[] = $checks->getResponseAsArray();
+                        try {
+                            $finder = new Finder();
+                            $finder->files()->in($this->container->getParameter('mco_check_folder'));
+                            foreach($finder as $file) {
+                                $checks = $this->get('mco.checker.analyze');
+                                $checks->analyse($file->getPathname());
+                                $response[] = $checks->getResponseAsArray();
+                            }
+
+                            $this->get('mediaconch_user.quotas')->hitPolicyChecks(count($finder));
+
+                            return new JsonResponse($response, 200);
                         }
-
-                        $this->get('mediaconch_user.quotas')->hitPolicyChecks(count($finder));
-
-                        return new JsonResponse($response, 200);
+                        catch (MediaConchServerException $e) {
+                            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+                        }
                     }
                 }
                 else {

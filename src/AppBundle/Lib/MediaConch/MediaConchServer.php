@@ -3,7 +3,10 @@
 namespace AppBundle\Lib\MediaConch;
 
 use Monolog\Logger;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+
 use AppBundle\Lib\MediaConch\PolicyGetPoliciesResponse;
+use AppBundle\Lib\Settings\SettingsManager;
 
 class MediaConchServer
 {
@@ -11,13 +14,15 @@ class MediaConchServer
     protected $port;
     protected $apiVersion;
     protected $logger;
+    protected $userSettings;
 
-    public function __construct($address, $port, $apiVersion, Logger  $logger)
+    public function __construct($address, $port, $apiVersion, Logger  $logger, SettingsManager $userSettings)
     {
         $this->address = $address;
         $this->port = $port;
         $this->apiVersion = $apiVersion;
         $this->logger = $logger;
+        $this->userSettings = $userSettings;
     }
 
     public function analyse($file)
@@ -246,13 +251,13 @@ class MediaConchServer
                 return new $responseClass($response);
             }
             else {
-                return new MediaConchServerErrorResponse('Invalid response');
+                throw new MediaConchServerException('Invalid response');
             }
         }
-        catch (\Exception $e) {
+        catch (HttpException $e) {
             $this->logger->error($e->getMessage());
 
-            return new MediaConchServerErrorResponse($e->getMessage());
+            throw new MediaConchServerException($e->getMessage(), $e->getStatusCode());
         }
 
     }
@@ -272,15 +277,30 @@ class MediaConchServer
             $url .= '?' . http_build_query($params);
         }
 
+        $header = array();
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_PORT, $this->port);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HEADERFUNCTION, array(&$this, 'HandleHeaderLine'));
+
+        // Add POST fields
         if ('POST' == $method) {
             curl_setopt($curl, CURLOPT_POST, true);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
-            curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+            $header[] = 'Content-type: application/json';
         }
+
+        // Add MediaConch-Instance-ID
+        if (null !== $this->userSettings->getMediaConchInstanceID()) {
+            $header[] = 'X-App-MediaConch-Instance-ID: ' . $this->userSettings->getMediaConchInstanceID();
+        }
+
+        // Add HTTP header
+        if (0 < count($header)) {
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+        }
+
         $response = curl_exec($curl);
         $headers = curl_getinfo($curl);
         curl_close($curl);
@@ -289,11 +309,23 @@ class MediaConchServer
             return json_decode($response);
         }
         else {
-            if (!isset($headers['http_code'])) {
-                $headers['http_code'] = 0;
+            if (!isset($headers['http_code']) || 0 == $headers['http_code']) {
+                $headers['http_code'] = 503;
             }
 
-            throw new \Exception('MediaConch-Server error - Return code: ' . $headers['http_code'] . ' - Response: ' . $response);
+            throw new HttpException($headers['http_code'], 'MediaConch-Server error - Return code: ' . $headers['http_code'] . ' - Response: ' . $response, null, $headers);
         }
+    }
+
+    /**
+     * Get custom header sent by MediaConchServer and store MediaConch-Instance-ID
+     *
+     */
+    public function HandleHeaderLine($curl, $headerLine) {
+        if (preg_match('/X-App-MediaConch-Instance-ID: ([0-9]+)/', $headerLine, $matches)) {
+            $this->userSettings->setMediaConchInstanceID($matches[1]);
+        }
+
+        return strlen($headerLine);
     }
 }

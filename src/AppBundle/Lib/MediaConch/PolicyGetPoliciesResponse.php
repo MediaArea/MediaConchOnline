@@ -20,7 +20,7 @@ class PolicyGetPoliciesResponse extends MediaConchServerAbstractResponse
                 $this->status = true;
             }
             else {
-                throw new \Exception('Unknown response');
+                throw new MediaConchServerException('Unknown response');
             }
         }
         else {
@@ -32,7 +32,7 @@ class PolicyGetPoliciesResponse extends MediaConchServerAbstractResponse
                 $this->error = $response->nok->error;
             }
             else {
-                throw new \Exception('Unknown response');
+                throw new MediaConchServerException('Unknown response');
             }
         }
     }

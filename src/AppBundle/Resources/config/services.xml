@@ -102,6 +102,7 @@
             <argument>%app.mediaconch.port%</argument>
             <argument>%app.mediaconch.api.version%</argument>
             <argument type="service" id="logger" />
+            <argument type="service" id="mco.settings" />
         </service>
 
         <service id="mco.checker.analyze" class="AppBundle\Lib\Checker\CheckerAnalyze">

@@ -155,6 +155,25 @@ class SettingsManager
         return $this->getSetting('lastUsedVerbosity');
     }
 
+    public function setMediaConchInstanceID($id)
+    {
+        $this->setSetting('mediaConchInstanceID', $id);
+
+        return $this;
+    }
+
+    public function getMediaConchInstanceID()
+    {
+        return $this->getSetting('mediaConchInstanceID');
+    }
+
+    public function removeMediaConchInstanceID()
+    {
+        $this->removeSetting('mediaConchInstanceID');
+
+        return $this;
+    }
+
     protected function setSetting($name, $value)
     {
         $this->loadSettings();
@@ -172,6 +191,9 @@ class SettingsManager
 
         $setting->setValue(serialize($value));
         $this->em->flush();
+
+        // Save setting in local cache
+        $this->storeSettingInCache($setting);
 
         return $this;
     }
@@ -206,11 +228,17 @@ class SettingsManager
 
             // Get settings from DB
             foreach ($this->repository->findByUser($this->user) as $setting) {
-                $this->userSettings[$setting->getName()] = array('id' => $setting->getId(),
-                    'value' => unserialize($setting->getValue())
-                    );
+                $this->storeSettingInCache($setting);
             }
         }
+
+        return $this;
+    }
+
+    protected function storeSettingInCache(Settings $setting) {
+        $this->userSettings[$setting->getName()] = array('id' => $setting->getId(),
+            'value' => unserialize($setting->getValue())
+            );
 
         return $this;
     }

@@ -204,6 +204,11 @@ function buttonBindings() {
     $('.ruleMediaTrace').on('click', function () {
         policyTreeRulesMT.display(policyTree.getSelectedNode());
     });
+
+    // Reload page
+    $('.reload-page').on('click', function () {
+        location.reload();
+    });
 }
 
 $(document).ready(function () {

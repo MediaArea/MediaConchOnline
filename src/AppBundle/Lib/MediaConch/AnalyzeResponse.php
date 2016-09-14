@@ -20,10 +20,10 @@ class AnalyzeResponse extends MediaConchServerAbstractResponse
             $this->created = $response->ok[0]->create;
         }
         else if (is_array($response->nok) && isset($response->nok[0])) {
-            $this->error = $response->nok[0]->error;
+            throw new MediaConchServerException($response->nok[0]->error);
         }
         else {
-            throw new \Exception('Unknown response');
+            throw new MediaConchServerException('Unknown response');
         }
     }
 }

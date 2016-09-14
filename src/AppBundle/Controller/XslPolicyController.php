@@ -18,6 +18,7 @@ use AppBundle\Entity\XslPolicyFile;
 use AppBundle\Entity\XslPolicyRule;
 use AppBundle\Lib\XslPolicy\XslPolicyFormFields;
 use AppBundle\Lib\XslPolicy\XslPolicyWriter;
+use AppBundle\Lib\MediaConch\MediaConchServerException;
 
 /**
  * @Route("/")
@@ -63,14 +64,19 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $policies = $this->get('mco.policy.getPolicies');
-        $policies->getPolicies(array(), 'JSTREE');
+        // Remove MediaConch-Server-ID setting
+        $settings = $this->get('mco.settings');
+        $settings->removeMediaConchInstanceID();
 
-        if ($policies->getResponse()->getStatus()) {
+        try {
+            $policies = $this->get('mco.policy.getPolicies');
+            $policies->getPolicies(array(), 'JSTREE');
+
             return new JsonResponse(array('policiesTree' => $policies->getResponse()->getPolicies()), 200);
         }
-
-        return new JsonResponse(array('message' => 'Error'), 400);
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
     /**
@@ -89,22 +95,25 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $policyCreate = $this->get('mco.policy.create');
-        $policyCreate->create($parentId);
+        try {
+            // Create policy
+            $policyCreate = $this->get('mco.policy.create');
+            $policyCreate->create($parentId);
 
-        if ($policyCreate->getResponse()->getStatus()) {
+            // Save policy
             $policySave = $this->get('mco.policy.save');
             $policySave->save($policyCreate->getCreatedId());
 
+            // Get policy
             $policy = $this->get('mco.policy.getPolicy');
             $policy->getPolicy($policyCreate->getCreatedId(), 'JSTREE');
 
-            if ($policy->getResponse()->getStatus()) {
-                return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
-            }
-        }
+            return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
 
-        return new JsonResponse(array('message' => 'Error'), 400);
+        }
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
     /**
@@ -127,18 +136,23 @@ class XslPolicyController extends BaseController
         if ($importPolicyForm->isValid()) {
             $data = $importPolicyForm->getData();
             if ($data['policyFile']->isValid()) {
-                $policyImport = $this->get('mco.policy.import');
-                $policyImport->import(file_get_contents($data['policyFile']->getRealPath()));
+                try {
+                    // Import policy
+                    $policyImport = $this->get('mco.policy.import');
+                    $policyImport->import(file_get_contents($data['policyFile']->getRealPath()));
 
-                if ($policyImport->getResponse()->getStatus()) {
+                    // Save policy
                     $policySave = $this->get('mco.policy.save');
                     $policySave->save($policyImport->getCreatedId());
+
+                    // Get policy
                     $policy = $this->get('mco.policy.getPolicy');
                     $policy->getPolicy($policyImport->getCreatedId(), 'JSTREE');
 
-                    if ($policy->getResponse()->getStatus()) {
-                        return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
-                    }
+                    return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+                }
+                catch (MediaConchServerException $e) {
+                    return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
                 }
             }
         }
@@ -157,28 +171,29 @@ class XslPolicyController extends BaseController
      */
     public function xslPolicyTreeExportAction($id)
     {
-        $policyName = $this->get('mco.policy.getPolicyName');
-        $policyName->getPolicyName($id);
-
-        if ($policyName->getResponse()->getStatus()) {
+        try {
+            // Get policy name
+            $policyName = $this->get('mco.policy.getPolicyName');
+            $policyName->getPolicyName($id);
             $policyName = $policyName->getResponse()->getName();
 
+            // Get policy XML
             $policyExport = $this->get('mco.policy.export');
             $policyExport->export($id);
 
-            if ($policyExport->getResponse()->getStatus()) {
-                $response = new Response($policyExport->getPolicyXml());
-                $disposition = $this->downloadFileDisposition($response, $policyName . '.xml');
+            // Prepare response
+            $response = new Response($policyExport->getPolicyXml());
+            $disposition = $this->downloadFileDisposition($response, $policyName . '.xml');
 
-                $response->headers->set('Content-Type', 'text/xml');
-                $response->headers->set('Content-Disposition', $disposition);
-                $response->headers->set('Content-length', strlen($policyExport->getPolicyXml()));
+            $response->headers->set('Content-Type', 'text/xml');
+            $response->headers->set('Content-Disposition', $disposition);
+            $response->headers->set('Content-length', strlen($policyExport->getPolicyXml()));
 
-                return $response;
-            }
+            return $response;
         }
-
-        throw new ServiceUnavailableHttpException();
+        catch (MediaConchServerException $e) {
+            throw new ServiceUnavailableHttpException();
+        }
     }
 
 
@@ -202,20 +217,28 @@ class XslPolicyController extends BaseController
         $policyEditForm->handleRequest($request);
         if ($policyEditForm->isValid()) {
             $data = $policyEditForm->getData();
-            $policyEdit = $this->get('mco.policy.edit');
-            $policyEdit->edit($id, $data['policyName'], $data['policyDescription']);
 
-            $policyEditType = $this->get('mco.policy.editType');
-            $policyEditType->editType($id, $data['policyType']);
+            try {
+                // Edit policy name and description
+                $policyEdit = $this->get('mco.policy.edit');
+                $policyEdit->edit($id, $data['policyName'], $data['policyDescription']);
 
-            $policySave = $this->get('mco.policy.save');
-            $policySave->save($id);
+                // Edit policy type
+                $policyEditType = $this->get('mco.policy.editType');
+                $policyEditType->editType($id, $data['policyType']);
 
-            $policy = $this->get('mco.policy.getPolicy');
-            $policy->getPolicy($id, 'JSTREE');
+                // Save policy
+                $policySave = $this->get('mco.policy.save');
+                $policySave->save($id);
 
-            if ($policy->getResponse()->getStatus()) {
+                // Get policy
+                $policy = $this->get('mco.policy.getPolicy');
+                $policy->getPolicy($id, 'JSTREE');
+
                 return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+            }
+            catch (MediaConchServerException $e) {
+                return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
             }
         }
 
@@ -239,21 +262,24 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $policyDuplicate = $this->get('mco.policy.duplicate');
-        $policyDuplicate->duplicate($id, $dstPolicyId);
+        try {
+            // Duplicate policy
+            $policyDuplicate = $this->get('mco.policy.duplicate');
+            $policyDuplicate->duplicate($id, $dstPolicyId);
 
-        if ($policyDuplicate->getResponse()->getStatus()) {
+            // Save policy
             $policySave = $this->get('mco.policy.save');
             $policySave->save($policyDuplicate->getCreatedId());
+
+            // Get policy
             $policy = $this->get('mco.policy.getPolicy');
             $policy->getPolicy($policyDuplicate->getCreatedId(), 'JSTREE');
 
-            if ($policy->getResponse()->getStatus()) {
-                return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
-            }
+            return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
         }
-
-        return new JsonResponse(array('message' => 'Error'), 400);
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
     /**
@@ -273,21 +299,24 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $policyMove = $this->get('mco.policy.move');
-        $policyMove->move($id, $dstPolicyId);
+        try {
+            // Move policy
+            $policyMove = $this->get('mco.policy.move');
+            $policyMove->move($id, $dstPolicyId);
 
-        if ($policyMove->getResponse()->getStatus()) {
+            // Save policy
             $policySave = $this->get('mco.policy.save');
             $policySave->save($policyMove->getCreatedId());
+
+            // Get policy
             $policy = $this->get('mco.policy.getPolicy');
             $policy->getPolicy($policyMove->getCreatedId(), 'JSTREE');
 
-            if ($policy->getResponse()->getStatus()) {
-                return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
-            }
+            return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
         }
-
-        return new JsonResponse(array('message' => 'Error'), 400);
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
     /**
@@ -306,12 +335,16 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $policyDelete = $this->get('mco.policy.delete');
-        $policyDelete->delete($id);
-        $policySave = $this->get('mco.policy.save');
-        $policySave->save($id);
+        try {
+            // Delete policy
+            $policyDelete = $this->get('mco.policy.delete');
+            $policyDelete->delete($id);
 
-        return new JsonResponse(array('policyId' => $id), 200);
+            return new JsonResponse(array('policyId' => $id), 200);
+        }
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
     /**
@@ -330,21 +363,24 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $ruleCreate = $this->get('mco.policy.rule.create');
-        $ruleCreate->create($policyId);
+        try {
+            // Create rule
+            $ruleCreate = $this->get('mco.policy.rule.create');
+            $ruleCreate->create($policyId);
 
-        if ($ruleCreate->getResponse()->getStatus()) {
+            // Save policy
             $policySave = $this->get('mco.policy.save');
             $policySave->save($policyId);
+
+            // Get rule
             $rule = $this->get('mco.policy.getRule');
             $rule->getRule($ruleCreate->getCreatedId(), $policyId);
 
-            if ($rule->getResponse()->getStatus()) {
-                return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
-            }
+            return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
         }
-
-        return new JsonResponse(array('message' => 'Error'), 400);
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
     /**
@@ -376,15 +412,23 @@ class XslPolicyController extends BaseController
         if ($policyRuleForm->isValid()) {
             $data = $policyRuleForm->getData();
 
-            $ruleEdit = $this->get('mco.policy.rule.edit');
-            $ruleEdit->edit($id, $policyId, $data);
-            $policySave = $this->get('mco.policy.save');
-            $policySave->save($policyId);
-            $rule = $this->get('mco.policy.getRule');
-            $rule->getRule($id, $policyId);
+            try {
+                // Edit rule
+                $ruleEdit = $this->get('mco.policy.rule.edit');
+                $ruleEdit->edit($id, $policyId, $data);
 
-            if ($rule->getResponse()->getStatus()) {
+                // Save policy
+                $policySave = $this->get('mco.policy.save');
+                $policySave->save($policyId);
+
+                // Get rule
+                $rule = $this->get('mco.policy.getRule');
+                $rule->getRule($id, $policyId);
+
                 return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
+            }
+            catch (MediaConchServerException $e) {
+                return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
             }
         }
 
@@ -408,12 +452,20 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $ruleDelete = $this->get('mco.policy.rule.delete');
-        $ruleDelete->delete($id, $policyId);
-        $policySave = $this->get('mco.policy.save');
-        $policySave->save($policyId);
+        try {
+            // Delete rule
+            $ruleDelete = $this->get('mco.policy.rule.delete');
+            $ruleDelete->delete($id, $policyId);
 
-        return new JsonResponse(array('id' => $id), 200);
+            // Save policy
+            $policySave = $this->get('mco.policy.save');
+            $policySave->save($policyId);
+
+            return new JsonResponse(array('id' => $id), 200);
+        }
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
     /**
@@ -434,21 +486,25 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $ruleDuplicate = $this->get('mco.policy.rule.duplicate');
-        $ruleDuplicate->duplicate($id, $policyId, $dstPolicyId);
+        try {
+            // Duplicate rule
+            $ruleDuplicate = $this->get('mco.policy.rule.duplicate');
+            $ruleDuplicate->duplicate($id, $policyId, $dstPolicyId);
 
-        if ($ruleDuplicate->getResponse()->getStatus()) {
+            // Save policy
             $policySave = $this->get('mco.policy.save');
             $policySave->save($policyId);
+
+            // Get rule
             $rule = $this->get('mco.policy.getRule');
             $rule->getRule($ruleDuplicate->getCreatedId(), $dstPolicyId);
 
-            if ($rule->getResponse()->getStatus()) {
-                return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
-            }
-        }
+            return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
 
-        return new JsonResponse(array('message' => 'Error'), 400);
+        }
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
     /**
@@ -469,22 +525,25 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $ruleMove = $this->get('mco.policy.rule.move');
-        $ruleMove->move($id, $policyId, $dstPolicyId);
+        try {
+            // Move rule
+            $ruleMove = $this->get('mco.policy.rule.move');
+            $ruleMove->move($id, $policyId, $dstPolicyId);
 
-        if ($ruleMove->getResponse()->getStatus()) {
+            // Save policy
             $policySave = $this->get('mco.policy.save');
             $policySave->save($dstPolicyId);
             $policySave->save($policyId);
+
+            // Get rule
             $rule = $this->get('mco.policy.getRule');
             $rule->getRule($ruleMove->getCreatedId(), $dstPolicyId);
 
-            if ($rule->getResponse()->getStatus()) {
-                return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
-            }
+            return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
         }
-
-        return new JsonResponse(array('message' => 'Error'), 400);
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 
     /**
@@ -531,13 +590,14 @@ class XslPolicyController extends BaseController
         // Get the value
         $value = $request->request->get('value');
 
-        $valuesList = $this->get('mco.policy.form.values');
-        $valuesList->getValues($type, $field, $value);
+        try {
+            $valuesList = $this->get('mco.policy.form.values');
+            $valuesList->getValues($type, $field, $value);
 
-        if ($valuesList->getResponse()->getStatus()) {
             return new JsonResponse($valuesList->getResponseAsArray());
         }
-
-        return new JsonResponse(array('message' => 'Error'), 400);
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
     }
 }

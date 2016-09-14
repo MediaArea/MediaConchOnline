@@ -17,25 +17,28 @@ var mcoMessage = (function() {
 
     // Handle fail ajax response
     var fail = function(jqXHR, destNode) {
+        if (503 == jqXHR.status) {
+            return error('An error has occured, please try again later');
+        }
+        else if (410 == jqXHR.status) {
+            return error('An error has occured<br />Please <a href="" class="alert-link reload-page">reload</a> the page');
+        }
+
         if (typeof jqXHR.responseJSON !== 'undefined') {
             if (jqXHR.responseJSON.hasOwnProperty('quota')) {
                 if (undefined !== destNode) {
-                    $(destNode).html(jqXHR.responseJSON.quota);
+                    return $(destNode).html(jqXHR.responseJSON.quota);
                 }
                 else {
-                    $(node).html(jqXHR.responseJSON.quota);
+                    return $(node).html(jqXHR.responseJSON.quota);
                 }
             }
             else if (jqXHR.responseJSON.hasOwnProperty('message')) {
-                error(jqXHR.responseJSON.message);
-            }
-            else {
-                error('An error has occured, please try again later');
+                return error(jqXHR.responseJSON.message);
             }
         }
-        else {
-            error('An error has occured, please try again later');
-        }
+
+        return error('An error has occured, please try again later');
     }
 
     // Close message
