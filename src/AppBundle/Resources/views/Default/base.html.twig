@@ -52,7 +52,7 @@
               <ul class="nav navbar navbar-nav navbar-right">
                 <li><a href="{{ path('app_default_homepage') }}">Home</a></li>
                 {# <li><a href="">About</a></li> #}
-                {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+                {% if app.user and is_granted("IS_AUTHENTICATED_REMEMBERED") %}
                     <li><a href="{{ path('app_checker_checker') }}">Checker</a></li>
                     <li><a href="{{ path('app_xslpolicy_xslpolicytree') }}">Policies</a></li>
                     <li><a href="{{ path('app_display_display') }}">Display</a></li>
@@ -70,7 +70,7 @@
                         <ul class="dropdown-menu">
                             <li><a href="{{ path('fos_user_profile_show') }}">Profile</a></li>
                             <li><a href="{{ path('app_user_settings') }}">Settings</a></li>
-                            {% if is_granted('ROLE_ADMIN') %}
+                            {% if app.user and is_granted('ROLE_ADMIN') %}
                                 <li><a href="{{ path('admin') }}">Admin</a></li>
                             {% endif %}
                             <li><a href="{{ path('fos_user_security_logout') }}">{{ 'layout.logout'|trans({}, 'FOSUserBundle') }}</a></li>
