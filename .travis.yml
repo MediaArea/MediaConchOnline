@@ -12,7 +12,7 @@ before_install:
   - phpenv config-rm xdebug.ini || true
 
 install:
-  - composer --no-interaction --quiet install
+  - composer --no-interaction --quiet install -o
   - php app/console doctrine:database:create --env=test
   - php app/console doctrine:schema:create --env=test
   - app/console fos:user:create testUser info@mediaarea.net --env=test testPassword

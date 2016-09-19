@@ -4,24 +4,12 @@ namespace AppBundle\Lib\XslPolicy;
 
 use AppBundle\Lib\MediaConch\MediaConchServer;
 
-class XslPolicyFormValues
+class XslPolicyFormValues extends XslPolicyBase
 {
-    protected $response;
-
-    public function __construct(MediaConchServer $mc)
-    {
-        $this->mc = $mc;
-    }
-
     public function getValues($trackType, $field, $value = null)
     {
         $this->value = $value;
         $this->response = $this->mc->valuesFromType($trackType, $field);
-    }
-
-    public function getServerResponse()
-    {
-        return $this->response;
     }
 
     public function getResponseAsArray()
@@ -32,7 +20,7 @@ class XslPolicyFormValues
     }
 
     protected function getDefaultValues() {
-        if ($this->value) {
+        if (null !== $this->value) {
             $values = $this->response->getValues();
             if (is_array($values) && 1 <= count($values)) {
                 if (!in_array($this->value, $values)) {

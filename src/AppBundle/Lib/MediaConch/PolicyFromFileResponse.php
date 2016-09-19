@@ -2,36 +2,26 @@
 
 namespace AppBundle\Lib\MediaConch;
 
-class PolicyFromFileResponse
+class PolicyFromFileResponse extends MediaConchServerAbstractResponse
 {
-    private $policy;
-    private $error;
+    protected $policyId;
 
-    public function __construct($response)
+    public function getPolicyId()
     {
-        $this->parse($response);
+        return $this->policyId;
     }
 
-    public function getPolicy()
+    protected function parse($response)
     {
-        return $this->policy;
-    }
-
-    public function getError()
-    {
-        return $this->error;
-    }
-
-    private function parse($response)
-    {
-        if (isset($response->policy)) {
-            $this->policy = $response->policy;
+        if (isset($response->policy_id)) {
+            $this->policyId = $response->policy_id;
+            $this->status = true;
         }
         else if (isset($response->nok)) {
-            $this->error = $response->nok;
+            throw new MediaConchServerException($response->nok->error);
         }
         else {
-            throw new \Exception('Unknown response');
+            throw new MediaConchServerException('Unknown response');
         }
     }
 }

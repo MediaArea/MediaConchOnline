@@ -9,14 +9,17 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\EntityManager;
 
 use AppBundle\Lib\Settings\SettingsManager;
+use AppBundle\Lib\XslPolicy\XslPolicyGetPoliciesNamesList;
+use AppBundle\Lib\MediaConch\MediaConchServerException;
 
 class SettingsFormType extends AbstractType
 {
     private $user;
     private $em;
     private $settings;
+    private $policyList;
 
-    public function __construct(TokenStorageInterface $tokenStorage, EntityManager $em, SettingsManager $settings)
+    public function __construct(TokenStorageInterface $tokenStorage, EntityManager $em, SettingsManager $settings, XslPolicyGetPoliciesNamesList $policyList)
     {
         $token = $tokenStorage->getToken();
         if ($token !== null && $token->getUser() instanceof \AppBundle\Entity\User) {
@@ -28,13 +31,22 @@ class SettingsFormType extends AbstractType
 
         $this->em = $em;
         $this->settings = $settings;
+
+        try {
+            $this->policyList = $policyList;
+            $this->policyList->getPoliciesNamesList();
+            $this->policyList = $this->policyList->getListForChoiceForm();
+        }
+        catch (MediaConchServerException $e) {
+            $this->policyList = array();
+        }
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('policy', 'choice', array(
-                'choices' => array('Last used policy' => -2) + $this->em->getRepository('AppBundle:XslPolicyFile')->getUserAndSystemPoliciesChoices($this->user),
+                'choices' => array('Last used policy' => -2) + $this->policyList,
                 'choices_as_values' => true,
                 'placeholder' => 'No default policy',
                 'required' => false,

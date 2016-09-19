@@ -2,127 +2,305 @@
 
 namespace AppBundle\Lib\MediaConch;
 
+use Monolog\Logger;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+
+use AppBundle\Lib\MediaConch\PolicyGetPoliciesResponse;
+use AppBundle\Lib\Settings\SettingsManager;
+
 class MediaConchServer
 {
-    public function __construct($address, $port, $apiVersion)
+    protected $address;
+    protected $port;
+    protected $apiVersion;
+    protected $logger;
+    protected $userSettings;
+
+    public function __construct($address, $port, $apiVersion, Logger  $logger, SettingsManager $userSettings)
     {
         $this->address = $address;
         $this->port = $port;
         $this->apiVersion = $apiVersion;
+        $this->logger = $logger;
+        $this->userSettings = $userSettings;
     }
 
     public function analyse($file)
     {
-        $request = array('ANALYZE' => array('args' => array(array('id' => 0, 'file' => $file))));
-        $response = $this->callApi('analyze', 'POST', json_encode($request));
-        $response = $response->ANALYZE_RESULT;
+        $request = array('CHECKER_ANALYZE' => array('args' => array(array('id' => 0, 'file' => $file))));
 
-        $analyseResponse = new AnalyzeResponse($response);
-
-        return $analyseResponse;
+        return $this->callApiHandler('checker_analyze', 'POST', json_encode($request), 'CHECKER_ANALYZE_RESULT', 'AnalyzeResponse');
     }
 
     public function status($id)
     {
         $request = array('id' => $id);
-        $response = $this->callApi('status', 'GET', $request);
-        $response = $response->STATUS_RESULT;
 
-        $statusReponse = new StatusResponse($response);
-
-        return $statusReponse;
+        return $this->callApiHandler('checker_status', 'GET', $request, 'CHECKER_STATUS_RESULT', 'StatusResponse');
     }
 
-    public function report($id, $report, $displayName, $display = null, $policy = null, $verbosity = -1)
+    public function report($user, $id, $report, $displayName, $display = null, $policy = null, $verbosity = -1)
     {
-        $request = array('REPORT' => array('ids' => array((int) $id), 'reports' => array($report), 'verbosity' => (int) $verbosity));
+        $request = array('CHECKER_REPORT' => array('user' => $user,
+            'ids' => array((int) $id),
+            'reports' => array($report),
+            'options' => array('verbosity' => $verbosity)));
         if ($display && file_exists($display) && is_readable($display)) {
-            $request['REPORT']['display_content'] = file_get_contents($display);
+            $request['CHECKER_REPORT']['display_content'] = file_get_contents($display);
         }
         else {
-            $request['REPORT']['display_name'] = $displayName;
+            $request['CHECKER_REPORT']['display_name'] = $displayName;
         }
 
-        if ($policy && file_exists($policy) && is_readable($policy)) {
-            $request['REPORT']['policies_contents'] = array(file_get_contents($policy));
+        if (null !== $policy) {
+            $request['CHECKER_REPORT']['policies_ids'] = array((int) $policy);
         }
 
-        $response = $this->callApi('report', 'POST', json_encode($request));
-        $response = $response->REPORT_RESULT;
-
-        $reportResponse = new ReportResponse($response);
-
-        return $reportResponse;
+        return $this->callApiHandler('checker_report', 'POST', json_encode($request), 'CHECKER_REPORT_RESULT', 'ReportResponse');
     }
 
-    public function validate($id, $report, $policy = null)
+    public function validate($user, $id, $report, $policy = null)
     {
-        $request = array('VALIDATE' => array('ids' => array((int) $id), 'report' => $report));
-        if ($policy && file_exists($policy)) {
-            $request['VALIDATE']['policies_contents'] = array(file_get_contents($policy));
+        $request = array('CHECKER_VALIDATE' => array('user' => $user, 'ids' => array((int) $id), 'report' => $report));
+        if (null !== $policy) {
+            $request['CHECKER_VALIDATE']['policies_ids'] = array((int) $policy);
         }
-        $response = $this->callApi('validate', 'POST', json_encode($request));
-        $response = $response->VALIDATE_RESULT;
 
-        $reportResponse = new ValidateResponse($response);
-
-        return $reportResponse;
+        return $this->callApiHandler('checker_validate', 'POST', json_encode($request), 'CHECKER_VALIDATE_RESULT', 'ValidateResponse');
     }
 
     public function fileFromId($id)
     {
-        $request = array('FILE_FROM_ID' => array('id' => (int) $id));
+        $request = array('CHECKER_FILE_FROM_ID' => array('id' => (int) $id));
 
-        $response = $this->callApi('file_from_id', 'POST', json_encode($request));
-        $response = $response->FILE_FROM_ID_RESULT;
-
-        $reportResponse = new FileFromIdResponse($response);
-
-        return $reportResponse;
+        return $this->callApiHandler('checker_file_from_id', 'POST', json_encode($request), 'CHECKER_FILE_FROM_ID_RESULT', 'FileFromIdResponse');
     }
 
-    public function policyFromFile($id)
+    public function policyFromFile($user, $id)
     {
-        $request = array('id' => $id);
-        $response = $this->callApi('create_policy_from_file', 'GET', $request);
-        $response = $response->CREATE_POLICY_FROM_FILE_RESULT;
+        $request = array('user' => $user, 'id' => $id);
 
-        $statusReponse = new PolicyFromFileResponse($response);
-
-        return $statusReponse;
+        return $this->callApiHandler('xslt_policy_create_from_file', 'GET', $request, 'XSLT_POLICY_CREATE_FROM_FILE_RESULT', 'PolicyFromFileResponse');
     }
 
     public function valuesFromType($trackType, $field)
     {
         $request = array('type' => $trackType, 'field' => $field);
-        $response = $this->callApi('default_values_for_type', 'GET', $request);
-        $response = $response->DEFAULT_VALUES_FOR_TYPE_RESULT;
 
-        $valuesFromTypeReponse = new ValuesFromTypeResponse($response);
+        return $this->callApiHandler('default_values_for_type', 'GET', $request, 'DEFAULT_VALUES_FOR_TYPE_RESULT', 'ValuesFromTypeResponse');
+    }
 
-        return $valuesFromTypeReponse;
+    public function policyGetPolicy($user, $id, $format)
+    {
+        $request = array('user' => $user, 'id' => (int) $id, 'format' => $format);
+
+        return $this->callApiHandler('policy_get', 'GET', $request, 'POLICY_GET_RESULT', 'PolicyGetPolicyResponse');
+    }
+
+    public function policyGetPolicies($user, $ids, $format)
+    {
+        $request = array('user' => $user, 'format' => $format);
+        if (count($ids) > 0) {
+            $request['id'] = $ids;
+        }
+
+        return $this->callApiHandler('policy_get_policies', 'GET', $request, 'POLICY_GET_POLICIES_RESULT', 'PolicyGetPoliciesResponse');
+    }
+
+    public function policyGetPolicyName($user, $id)
+    {
+        $request = array('user' => $user, 'id' => (int) $id);
+
+        return $this->callApiHandler('policy_get_name', 'GET', $request, 'POLICY_GET_NAME_RESULT', 'PolicyGetPolicyNameResponse');
+    }
+
+    public function policyGetPoliciesNamesList($user)
+    {
+        $request = array('user' => $user);
+
+        return $this->callApiHandler('policy_get_policies_names_list', 'GET', $request, 'POLICY_GET_POLICIES_NAMES_LIST_RESULT', 'PolicyGetPoliciesNamesListResponse');
+    }
+
+    public function policyCreate($user, $parentId, $type)
+    {
+        $request = array('user' => $user, 'parent_id' => (int) $parentId);
+        if (null !== $type) {
+            $request['type'] = $type;
+        }
+
+        return $this->callApiHandler('xslt_policy_create', 'GET', $request, 'XSLT_POLICY_CREATE_RESULT', 'PolicyCreateResponse');
+    }
+
+    public function policySave($user, $policyId)
+    {
+        $request = array('user' => $user, 'id' => (int) $policyId);
+
+        return $this->callApiHandler('policy_save', 'GET', $request, 'POLICY_SAVE_RESULT', 'PolicySaveResponse');
+    }
+
+    public function policyImport($user, $xml)
+    {
+        $request = array('POLICY_IMPORT' => array('user' => $user, 'xml' => $xml));
+
+        return $this->callApiHandler('policy_import', 'POST', json_encode($request), 'POLICY_IMPORT_RESULT', 'PolicyImportResponse');
+    }
+
+    public function policyExport($user, $policyId)
+    {
+        $request = array('user' => $user, 'id' => (int) $policyId);
+
+        return $this->callApiHandler('policy_dump', 'GET', $request, 'POLICY_DUMP_RESULT', 'PolicyExportResponse');
+    }
+
+    public function policyEdit($user, $policyId, $name, $description)
+    {
+        $request = array('POLICY_CHANGE_INFO' => array('user' => $user,
+            'id' => (int) $policyId,
+            'name' => null == $name ? '' : $name,
+            'description' => null == $description ? '' : $description));
+
+        return $this->callApiHandler('policy_change_info', 'POST', json_encode($request), 'POLICY_CHANGE_INFO_RESULT', 'PolicyEditResponse');
+    }
+
+    public function policyEditType($user, $policyId, $type)
+    {
+        $request = array('POLICY_CHANGE_TYPE' => array('user' => $user, 'id' => (int) $policyId, 'type' => $type));
+
+        return $this->callApiHandler('policy_change_type', 'POST', json_encode($request), 'POLICY_CHANGE_TYPE_RESULT', 'PolicyEditTypeResponse');
+    }
+
+    public function policyDelete($user, $policyId)
+    {
+        $request = array('user' => $user, 'id' => (int) $policyId);
+
+        return $this->callApiHandler('policy_remove', 'GET', $request, 'POLICY_REMOVE_RESULT', 'PolicyDeleteResponse');
+    }
+
+    public function policyDuplicate($user, $policyId, $dstPolicyId)
+    {
+        $request = array('user' => $user, 'id' => (int) $policyId, 'dst_policy_id' => (int) $dstPolicyId);
+
+        return $this->callApiHandler('policy_duplicate', 'GET', $request, 'POLICY_DUPLICATE_RESULT', 'PolicyDuplicateResponse');
+    }
+
+    public function policyMove($user, $policyId, $dstPolicyId)
+    {
+        $request = array('user' => $user, 'id' => (int) $policyId, 'dst_policy_id' => (int) $dstPolicyId);
+
+        return $this->callApiHandler('policy_move', 'GET', $request, 'POLICY_MOVE_RESULT', 'PolicyMoveResponse');
+    }
+
+    public function policyRuleCreate($user, $policyId)
+    {
+        $request = array('user' => $user, 'policy_id' => (int) $policyId);
+
+        return $this->callApiHandler('xslt_policy_rule_create', 'GET', $request, 'XSLT_POLICY_RULE_CREATE_RESULT', 'PolicyRuleCreateResponse');
+    }
+
+    public function policyRuleEdit($user, $ruleData, $policyId)
+    {
+        $request = array('XSLT_POLICY_RULE_EDIT' => array('user' => $user,
+            'policy_id' => (int) $policyId,
+            'rule' => $ruleData));
+
+        return $this->callApiHandler('xslt_policy_rule_edit', 'POST', json_encode($request), 'XSLT_POLICY_RULE_EDIT_RESULT', 'PolicyRuleEditResponse');
+    }
+
+    public function policyRuleDelete($user, $ruleId, $policyId)
+    {
+        $request = array('user' => $user, 'policy_id' => (int) $policyId, 'id' => (int) $ruleId);
+
+        return $this->callApiHandler('xslt_policy_rule_delete', 'GET', $request, 'XSLT_POLICY_RULE_DELETE_RESULT', 'PolicyRuleDeleteResponse');
+    }
+
+    public function policyRuleDuplicate($user, $ruleId, $policyId, $dstPolicyId)
+    {
+        $request = array('user' => $user,
+            'policy_id' => (int) $policyId,
+            'id' => (int) $ruleId,
+            'dst_policy_id' => (int) $dstPolicyId);
+
+        return $this->callApiHandler('xslt_policy_rule_duplicate', 'GET', $request, 'XSLT_POLICY_RULE_DUPLICATE_RESULT', 'PolicyRuleDuplicateResponse');
+    }
+
+    public function policyRuleMove($user, $ruleId, $policyId, $dstPolicyId)
+    {
+        $request = array('user' => $user,
+            'policy_id' => (int) $policyId,
+            'id' => (int) $ruleId,
+            'dst_policy_id' => (int) $dstPolicyId);
+
+        return $this->callApiHandler('xslt_policy_rule_move', 'GET', $request, 'XSLT_POLICY_RULE_MOVE_RESULT', 'PolicyRuleMoveResponse');
+    }
+
+    public function policyGetRule($user, $ruleId, $policyId)
+    {
+        $request = array('user' => $user, 'policy_id' => (int) $policyId, 'id' => (int) $ruleId);
+
+        return $this->callApiHandler('xslt_policy_rule_get', 'GET', $request, 'XSLT_POLICY_RULE_GET_RESULT', 'PolicyGetRuleResponse');
+    }
+
+    protected function callApiHandler($uri, $method, $params, $responseString, $responseClass) {
+        try {
+            $response = $this->callApi($uri, $method, $params);
+
+            if (isset($response->$responseString)) {
+                $response = $response->$responseString;
+                $responseClass = 'AppBundle\Lib\MediaConch\\' . $responseClass;
+
+                return new $responseClass($response);
+            }
+            else {
+                throw new MediaConchServerException('Invalid response');
+            }
+        }
+        catch (HttpException $e) {
+            $this->logger->error($e->getMessage());
+
+            throw new MediaConchServerException($e->getMessage(), $e->getStatusCode());
+        }
+
     }
 
     protected function callApi($uri, $method, $params)
     {
         $url = 'http://' . $this->address . '/' . $this->apiVersion . '/' . $uri;
 
-        if ('GET' == $method && 'status' == $uri && isset($params['id']) && is_array($params['id'])) {
+        if ('GET' == $method && in_array($uri, array('checker_status', 'policy_get_policies')) && isset($params['id']) && is_array($params['id'])) {
             $url .= '?id=' . implode('&id=', $params['id']);
+            unset($params['id']);
+            if (count($params) > 0) {
+                $url .= '&' . http_build_query($params);
+            }
         }
-        else if ('GET' == $method) {
+        else if ('GET' == $method && is_array($params)) {
             $url .= '?' . http_build_query($params);
         }
 
+        $header = array();
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_PORT, $this->port);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HEADERFUNCTION, array(&$this, 'HandleHeaderLine'));
+
+        // Add POST fields
         if ('POST' == $method) {
             curl_setopt($curl, CURLOPT_POST, true);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
-            curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+            $header[] = 'Content-type: application/json';
         }
+
+        // Add MediaConch-Instance-ID
+        if (null !== $this->userSettings->getMediaConchInstanceID()) {
+            $header[] = 'X-App-MediaConch-Instance-ID: ' . $this->userSettings->getMediaConchInstanceID();
+        }
+
+        // Add HTTP header
+        if (0 < count($header)) {
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+        }
+
         $response = curl_exec($curl);
         $headers = curl_getinfo($curl);
         curl_close($curl);
@@ -131,8 +309,23 @@ class MediaConchServer
             return json_decode($response);
         }
         else {
-            throw new \Exception('Return code: ' . $headers['http_code'] . ' - Response: ' . $response);
+            if (!isset($headers['http_code']) || 0 == $headers['http_code']) {
+                $headers['http_code'] = 503;
+            }
+
+            throw new HttpException($headers['http_code'], 'MediaConch-Server error - Return code: ' . $headers['http_code'] . ' - Response: ' . $response, null, $headers);
+        }
+    }
+
+    /**
+     * Get custom header sent by MediaConchServer and store MediaConch-Instance-ID
+     *
+     */
+    public function HandleHeaderLine($curl, $headerLine) {
+        if (preg_match('/X-App-MediaConch-Instance-ID: ([0-9]+)/', $headerLine, $matches)) {
+            $this->userSettings->setMediaConchInstanceID($matches[1]);
         }
 
+        return strlen($headerLine);
     }
 }

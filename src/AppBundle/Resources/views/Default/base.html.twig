@@ -7,7 +7,7 @@
         <title>{% block title %}MediaConchOnline{% endblock %}</title>
         {% stylesheets filter='?scssphp' filter='cssrewrite' output='css/bootstrap-main.css'
             'css/bootstrap.css'
-            '@AppBundle/Resources/public/css/main.css'
+            'bundles/app/css/main.css'
         %}
             <link rel="stylesheet" type="text/css" href="{{ asset_url }}"/>
         {% endstylesheets %}
@@ -41,7 +41,11 @@
                      <span class="icon-bar"></span>
                      <span class="icon-bar"></span>
                  </button>
-                <a class="navbar-brand serif" href="{{ path('app_default_homepage') }}"><img src="/static/MediaConch-61x38.png" alt="🐚" title="MediaConch" /> <strong>MediaConch</strong></a>
+                <a class="navbar-brand serif" href="{{ path('app_default_homepage') }}">
+                    {% image '@AppBundle/Resources/public/img/MediaConch-61x38.png' %}
+                        <img src="{{ asset_url }}" alt="🐚" title="MediaConch" />
+                    {% endimage %}
+                    <strong>MediaConch</strong></a>
             </nav>
 
             <nav class="collapse navbar-collapse" id="collapse-1">

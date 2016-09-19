@@ -2,36 +2,26 @@
 
 namespace AppBundle\Lib\MediaConch;
 
-class ValuesFromTypeResponse
+class ValuesFromTypeResponse extends MediaConchServerAbstractResponse
 {
-    private $values;
-    private $error;
-
-    public function __construct($response)
-    {
-        $this->parse($response);
-    }
+    protected $values;
 
     public function getValues()
     {
         return $this->values;
     }
 
-    public function getError()
-    {
-        return $this->error;
-    }
-
-    private function parse($response)
+    protected function parse($response)
     {
         if (isset($response->values)) {
             $this->values = $response->values;
+            $this->status = true;
         }
         else if (isset($response->nok)) {
-            $this->error = $response->nok;
+            throw new MediaConchServerException($response->nok);
         }
         else {
-            throw new \Exception('Unknown response');
+            throw new MediaConchServerException('Unknown response');
         }
     }
 }

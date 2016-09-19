@@ -2,21 +2,16 @@
 
 namespace AppBundle\Lib\MediaConch;
 
-class StatusResponse
+class StatusResponse extends MediaConchServerAbstractResponse
 {
     protected $response = array();
-
-    public function __construct($response)
-    {
-        $this->parse($response);
-    }
 
     public function getResponse()
     {
         return $this->response;
     }
 
-    private function parse($response)
+    protected function parse($response)
     {
         if (is_array($response->ok)) {
             foreach ($response->ok as $ok) {
@@ -40,7 +35,7 @@ class StatusResponse
             }
         }
         else {
-            throw new \Exception('Unknown response');
+            throw new MediaConchServerException('Unknown response');
         }
     }
 }

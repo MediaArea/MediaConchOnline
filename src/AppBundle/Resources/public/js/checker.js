@@ -46,6 +46,9 @@ $(document).ready(function() {
                 updateFileOrAddFile(data.filename, data.transactionId, formValues);
                 startWaitingLoop();
                 successMessage('File added successfuly');
+            }
+            else {
+                errorMessage();
             };
         })
         .fail(function (jqXHR) {
@@ -69,6 +72,9 @@ $(document).ready(function() {
                 updateFileOrAddFile(data.filename, data.transactionId, formValues);
                 startWaitingLoop();
                 successMessage('File added successfuly');
+            }
+            else {
+                errorMessage();
             };
         })
         .fail(function (jqXHR) {
@@ -88,13 +94,21 @@ $(document).ready(function() {
             contentType: false
         })
         .done(function (data) {
+            var success = 0;
             $.each(data, function( index, value ) {
                 if (value.success) {
+                    success++;
                     updateFileOrAddFile(value.filename, value.transactionId, formValues);
                 };
             });
-            startWaitingLoop();
-            successMessage('Files added successfuly');
+
+            if (success > 0) {
+                startWaitingLoop();
+                successMessage('Files added successfuly');
+            }
+            else {
+                errorMessage();
+            }
         })
         .fail(function (jqXHR) {
             failResponse(jqXHR, 'repository');
@@ -314,6 +328,10 @@ $(document).ready(function() {
                     $.get(Routing.generate('app_checker_checkerreportandpolicystatus', { id: statusFileId, reportType: status.tool, policyId: node.data('policy') }), function(data) {
                         implementationCell(data.implemReport, 'result-' + data.implemReport.fileId, data.implemReport.fileId);
                         policyCell(data.statusReport, 'result-' + data.statusReport.fileId, data.statusReport.fileId)
+                    })
+                    .fail(function () {
+                        implementationCellError(statusFileId);
+                        policyCellError(statusFileId);
                     });
                 }
                 else {
@@ -330,6 +348,9 @@ $(document).ready(function() {
                     */
                     $.get(Routing.generate('app_checker_checkerreportstatus', { id: statusFileId, reportType: status.tool }), function(data) {
                         implementationCell(data, 'result-' + data.fileId, data.fileId);
+                    })
+                    .fail(function () {
+                        implementationCellError(statusFileId);
                     });
 
                     // Policy cell with modal button
@@ -422,6 +443,11 @@ $(document).ready(function() {
                 addSpinnerToModal('#modalConformance' + resultId);
                 $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: nodeModal.data('tool'),  displayName: 'html', display: nodeModal.data('display'), verbosity: nodeModal.data('verbosity')}), function(data) {
                     displayReport('#modalConformance' + resultId, data);
+                    $('#modalConformance' + resultId + ' .implem-dld').prop('disabled', false);
+                })
+                .fail(function () {
+                    displayReportError('#modalConformance' + resultId);
+                    $('#modalConformance' + resultId + ' .implem-dld').prop('disabled', true);
                 });
 
                 $('#modalConformance' + resultId + ' .implem-dld').on('click', function(e) {
@@ -443,6 +469,11 @@ $(document).ready(function() {
                     addSpinnerToModal('#modalConformance' + resultId);
                     $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: nodeModal.data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
                         displayReport('#modalConformance' + resultId, data);
+                        $('#modalConformance' + resultId + ' .implem-dld').prop('disabled', false);
+                    })
+                    .fail(function () {
+                        displayReportError('#modalConformance' + resultId);
+                        $('#modalConformance' + resultId + ' .implem-dld').prop('disabled', true);
                     });
                 });
 
@@ -458,6 +489,11 @@ $(document).ready(function() {
                     addSpinnerToModal('#modalConformance' + resultId);
                     $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: nodeModal.data('tool'),  displayName: 'html', display: modalDisplay, verbosity: modalVerbosity}), function(data) {
                         displayReport('#modalConformance' + resultId, data);
+                        $('#modalConformance' + resultId + ' .implem-dld').prop('disabled', false);
+                    })
+                    .fail(function () {
+                        displayReportError('#modalConformance' + resultId);
+                        $('#modalConformance' + resultId + ' .implem-dld').prop('disabled', true);
                     });
                 });
 
@@ -472,6 +508,13 @@ $(document).ready(function() {
             nodeDld = result.$('#' + resultId);
             window.location = Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: nodeDld.data('tool'),  displayName: 'html', display: nodeDld.data('display'), verbosity: nodeDld.data('verbosity')});
         });
+    }
+
+    function implementationCellError(fileId) {
+        nodeCell = result.$('#result-' + fileId);
+        nodeImplem = $(result.cell(nodeCell, 1).node());
+        nodeImplem.addClass('danger');
+        result.cell(nodeCell, 1).data('<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Server Error')
     }
 
     function policyCell(data, resultId, fileId) {
@@ -509,6 +552,13 @@ $(document).ready(function() {
         result.cell('#' + resultId, 2).data('N/A');
     }
 
+    function policyCellError(fileId) {
+        nodeCell = result.$('#result-' + fileId);
+        nodePolicy = $(result.cell(nodeCell, 2).node());
+        nodePolicy.addClass('danger');
+        result.cell(nodeCell, 2).data('<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Server Error')
+    }
+
     function policyModal(resultId, fileId) {
         nodePolicy = $(result.cell('#' + resultId, 2).node());
         nodePolicy.find('.policy-view').on('click', function(e) {
@@ -544,6 +594,11 @@ $(document).ready(function() {
                     addSpinnerToModal('#modalPolicy' + resultId);
                     $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: nodeModal.data('policy'), display: nodeModal.data('display')}), function(data) {
                         displayReport('#modalPolicy' + resultId, data);
+                        $('#modalPolicy' + resultId + ' .policy-dld').prop('disabled', false);
+                    })
+                    .fail(function () {
+                        displayReportError('#modalPolicy' + resultId);
+                        $('#modalPolicy' + resultId + ' .policy-dld').prop('disabled', true);
                     });
                 }
 
@@ -568,7 +623,12 @@ $(document).ready(function() {
                     if (modalPolicy) {
                         addSpinnerToModal('#modalPolicy' + resultId);
                         $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
-                        displayReport('#modalPolicy' + resultId, data);
+                            displayReport('#modalPolicy' + resultId, data);
+                            $('#modalPolicy' + resultId + ' .policy-dld').prop('disabled', false);
+                        })
+                        .fail(function () {
+                            displayReportError('#modalPolicy' + resultId);
+                            $('#modalPolicy' + resultId + ' .policy-dld').prop('disabled', true);
                         });
                     }
                     else {
@@ -589,6 +649,11 @@ $(document).ready(function() {
                         addSpinnerToModal('#modalPolicy' + resultId);
                         $.get(Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: modalPolicy, display: modalDisplay}), function(data) {
                             displayReport('#modalPolicy' + resultId, data);
+                            $('#modalPolicy' + resultId + ' .policy-dld').prop('disabled', false);
+                        })
+                        .fail(function () {
+                            displayReportError('#modalPolicy' + resultId);
+                            $('#modalPolicy' + resultId + ' .policy-dld').prop('disabled', true);
                         });
                     }
                     else {
@@ -627,6 +692,9 @@ $(document).ready(function() {
                 addSpinnerToCell(result.cell('#result-' + fileId, 2));
                 $.get(Routing.generate('app_checker_checkerpolicystatus', { id: fileId, policy: policyId }), function (data) {
                     policyCell(data, 'result-' + fileId, fileId);
+                })
+                .fail(function () {
+                    policyCellError(fileId);
                 });
             }
             else {
@@ -686,6 +754,9 @@ $(document).ready(function() {
                     e.preventDefault();
                     $.get(Routing.generate('app_checker_checkercreatepolicy', { id: fileId }), function (data) {
                         mediaInfoCreatePolicy(data, 'result-' + fileId, fileId);
+                    })
+                    .fail(function (){
+                        mediaInfoCreatePolicyError('result-' + fileId);
                     });
                 });
             }
@@ -710,7 +781,15 @@ $(document).ready(function() {
                 },
                 'multiple' : false,
                 'dblclick_toggle' : false,
-                'data' : {'url' : Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'mi',  displayName: 'jstree'}), 'dataType' : 'json'}
+                'data' : {
+                    'url' : Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'mi',  displayName: 'jstree'}),
+                    'dataType' : 'json',
+                    'error' : function() {
+                        displayReportError('#modalInfo' + resultId);
+                        $('#modalInfo' + resultId + ' .mi-create-report').prop('disabled', true);
+                        $('#modalInfo' + resultId + ' .mi-dld').prop('disabled', true);
+                    }
+                }
             },
             "plugins" : ['search', 'types', 'grid'],
             'types' : {
@@ -749,21 +828,20 @@ $(document).ready(function() {
 
     function mediaInfoCreatePolicy(createPolicy, resultId, fileId) {
         if (createPolicy.result) {
-            $('#modalInfo' + resultId + ' .mi-create-report').fadeOut(200).replaceWith('<div class="alert alert-success alert-modal-create-policy" role="alert"><span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <a href="' + Routing.generate('app_xslpolicy_xslpolicyruleedit', { id: createPolicy.policyId }) + '" target="_blank" title="View the new policy" class="alert-link">Policy</a> successfuly created</div>');
+            $('#modalInfo' + resultId + ' .mi-create-report').fadeOut(200).replaceWith('<div class="alert alert-success alert-modal-create-policy" role="alert"><span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <a href="' + Routing.generate('app_xslpolicy_xslpolicytree') + '" target="_blank" title="View the new policy" class="alert-link">Policy</a> successfuly created</div>');
 
             // Add new policy to all select lists
             $('.policyList').each(function () {
-                if ('User policies' == $(this).children('optgroup:first').attr('label')) {
-                    $(this).children('optgroup:first').append('<option value="' + createPolicy.policyId + '">' + createPolicy.policyName + '</option>');
-                }
-                else {
-                    $(this).append('<optgroup label="User policies"><option value="' + createPolicy.policyId + '">' + createPolicy.policyName + '</option></optgroup>')
-                }
+                $(this).append('<option value="' + createPolicy.policyId + '">' + createPolicy.policyName + '</option>');
             });
         }
         else {
             $('#modalInfo' + resultId + ' .mi-create-report').fadeOut(200).replaceWith('<div class="alert alert-danger alert-modal-create-policy" role="alert"><span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Error policy not created</div>');
         }
+    }
+
+    function mediaInfoCreatePolicyError(resultId) {
+        $('#modalInfo' + resultId + ' .mi-create-report').fadeOut(200).replaceWith('<div class="alert alert-danger alert-modal-create-policy" role="alert"><span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Error policy not created</div>');
     }
 
     function mediaTraceCell(resultId, fileId) {
@@ -828,7 +906,14 @@ $(document).ready(function() {
                 },
                 'multiple' : false,
                 'dblclick_toggle' : false,
-                'data' : {'url' : Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'mt',  displayName: 'jstree'}), 'dataType' : 'json'}
+                'data' : {
+                    'url' : Routing.generate('app_checker_checkerreport', { id: fileId, reportType: 'mt',  displayName: 'jstree'}),
+                    'dataType' : 'json',
+                    'error' : function() {
+                        displayReportError('#modalTrace' + resultId);
+                        $('#modalTrace' + resultId + ' .mi-dld').prop('disabled', true);
+                    }
+                }
             },
             "plugins" : ['search', 'types', 'grid'],
             'types' : {
@@ -928,6 +1013,11 @@ $(document).ready(function() {
         }
     }
 
+    // Display report error in the modal
+    function displayReportError(elemId) {
+        $(elemId + ' .modal-body').html('Error: the requested report can not be retrieved');
+    }
+
     // Remove all results blocks
     $('#checkerResultTitle .close').click(function () {
         result.clear().draw();
@@ -962,6 +1052,10 @@ $(document).ready(function() {
 
     // Display error message
     function errorMessage(message) {
+        if (undefined === message) {
+            var message = 'An error has occured, please try again later';
+        }
+
         $('#checkerInfo div').html('<div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' + message + '</div>')
     }
 
@@ -979,7 +1073,7 @@ $(document).ready(function() {
                 errorMessage(jqXHR.responseJSON.message);
             }
             else {
-                errorMessage('An error has occured, please try again later');
+                errorMessage();
             }
         }
         else {
@@ -988,7 +1082,7 @@ $(document).ready(function() {
                 errorMessage('The file is too big (max ' + uploadFiles.data('file-max-size')  + ')');
             }
             else {
-                errorMessage('An error has occured, please try again later');
+                errorMessage();
             }
         }
     }

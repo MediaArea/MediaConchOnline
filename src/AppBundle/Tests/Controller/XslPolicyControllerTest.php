@@ -8,9 +8,9 @@ class XslPolicyControllerTest extends AbstractAuthControllerTest
 {
     public function testPolicy()
     {
-        $crawler = $this->client->request('GET', '/xslPolicy/');
+        $crawler = $this->client->request('GET', '/xslPolicyTree/');
 
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-        $this->assertCount(1, $crawler->filter('h1:contains("Policies")'));
+        $this->assertCount(1, $crawler->filter('h1:contains("Policy editor")'));
     }
 }

@@ -31,17 +31,7 @@ class SettingsManager
 
     public function setDefaultPolicy($policy)
     {
-        if ($policy instanceof \AppBundle\Entity\XslPolicyFile) {
-            $this->setSetting('defaultPolicy', $policy->getId());
-        }
-        // If last used policy
-        else if (is_int($policy)) {
-            $this->setSetting('defaultPolicy', $policy);
-        }
-        else {
-            $this->setSetting('defaultPolicy', null);
-        }
-
+        $this->setSetting('defaultPolicy', $policy);
 
         return $this;
     }
@@ -57,8 +47,8 @@ class SettingsManager
                 return -2;
             }
         }
-        elseif (null !== $defaultPolicy) {
-            return $this->em->getRepository('AppBundle:XslPolicyFile')->findOneByUserOrSystem($defaultPolicy, $this->user);
+        else {
+            return $defaultPolicy;
         }
     }
 
@@ -118,8 +108,8 @@ class SettingsManager
     }
 
     public function setLastUsedPolicy($policy) {
-        if ($policy instanceof \AppBundle\Entity\XslPolicyFile && -2 === $this->getDefaultPolicy(false)) {
-            $this->setSetting('lastUsedPolicy', $policy->getId());
+        if (is_int($policy) && -2 === $this->getDefaultPolicy(false)) {
+            $this->setSetting('lastUsedPolicy', $policy);
         }
         else {
             $this->removeSetting('lastUsedPolicy');
@@ -129,10 +119,7 @@ class SettingsManager
     }
 
     public function getLastUsedPolicy() {
-        $lastUsedPolicy = $this->getSetting('lastUsedPolicy');
-        if (null !== $lastUsedPolicy) {
-            return $this->em->getRepository('AppBundle:XslPolicyFile')->findOneByUserOrSystem($lastUsedPolicy, $this->user);
-        }
+        return $this->getSetting('lastUsedPolicy');
     }
 
     public function setLastUsedDisplay($display) {
@@ -168,6 +155,25 @@ class SettingsManager
         return $this->getSetting('lastUsedVerbosity');
     }
 
+    public function setMediaConchInstanceID($id)
+    {
+        $this->setSetting('mediaConchInstanceID', $id);
+
+        return $this;
+    }
+
+    public function getMediaConchInstanceID()
+    {
+        return $this->getSetting('mediaConchInstanceID');
+    }
+
+    public function removeMediaConchInstanceID()
+    {
+        $this->removeSetting('mediaConchInstanceID');
+
+        return $this;
+    }
+
     protected function setSetting($name, $value)
     {
         $this->loadSettings();
@@ -185,6 +191,9 @@ class SettingsManager
 
         $setting->setValue(serialize($value));
         $this->em->flush();
+
+        // Save setting in local cache
+        $this->storeSettingInCache($setting);
 
         return $this;
     }
@@ -219,11 +228,17 @@ class SettingsManager
 
             // Get settings from DB
             foreach ($this->repository->findByUser($this->user) as $setting) {
-                $this->userSettings[$setting->getName()] = array('id' => $setting->getId(),
-                    'value' => unserialize($setting->getValue())
-                    );
+                $this->storeSettingInCache($setting);
             }
         }
+
+        return $this;
+    }
+
+    protected function storeSettingInCache(Settings $setting) {
+        $this->userSettings[$setting->getName()] = array('id' => $setting->getId(),
+            'value' => unserialize($setting->getValue())
+            );
 
         return $this;
     }

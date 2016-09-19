@@ -22,6 +22,18 @@ class XslPolicyFormFields
                 );
     }
 
+    public static function getOperators()
+    {
+        return array(
+                '=' => 'Is equal (=)',
+                '!=' => 'Is not equal (!=)',
+                '<' => 'Is less than (<)',
+                '<=' => 'Is less or equal than (<=)',
+                '>' => 'Is greater than (>)',
+                '>=' => 'Is greater or equal than (>=)',
+                );
+    }
+
     public static function getTrackTypes()
     {
         $mcTrackTypes = new MediaConchTrackTypes();

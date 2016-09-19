@@ -2,22 +2,18 @@
 
 namespace AppBundle\Lib\Checker;
 
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+
 use AppBundle\Lib\MediaConch\MediaConchServer;
 
-class CheckerValidate
+class CheckerValidate extends CheckerBase
 {
-    protected $response;
     protected $fileId;
-
-    public function __construct(MediaConchServer $mc)
-    {
-        $this->mc = $mc;
-    }
 
     public function validate($id, $report, $policy = null)
     {
         $this->fileId = $id;
-        $this->response = $this->mc->validate($id, $this->getReportType($report), $policy);
+        $this->response = $this->mc->validate($this->user->getId(), $id, $this->getReportType($report), $policy);
     }
 
     public function getResponseAsArray()

@@ -4,22 +4,10 @@ namespace AppBundle\Lib\Checker;
 
 use AppBundle\Lib\MediaConch\MediaConchServer;
 
-class CheckerStatus
+class CheckerStatus extends CheckerBase
 {
-    protected $response;
-
-    public function __construct(MediaConchServer $mc)
-    {
-        $this->mc = $mc;
-    }
-
     public function getStatus($id)
     {
         $this->response = $this->mc->status($id);
-    }
-
-    public function getResponseAsArray()
-    {
-        return $this->response->getResponse();
     }
 }

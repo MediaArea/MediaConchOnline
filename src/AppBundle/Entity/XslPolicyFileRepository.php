@@ -12,35 +12,6 @@ use Doctrine\ORM\EntityRepository;
  */
 class XslPolicyFileRepository extends EntityRepository
 {
-    public function getUserAndSystemPolicies($user)
-    {
-        $list = array();
-        $policy = $this->getEntityManager()->getRepository('AppBundle:XslPolicyFile')->findByUser($user);
-        foreach ($policy as $policy) {
-            $list['User policies'][$policy->getId()] = $policy;
-        }
-        $policy = $this->getEntityManager()->getRepository('AppBundle:XslPolicyFile')->findByUser(null);
-        foreach ($policy as $policy) {
-            $list['System policies'][$policy->getId()] = $policy;
-        }
-
-        return $list;
-    }
-    public function getUserAndSystemPoliciesChoices($user)
-    {
-        $list = array();
-        $policy = $this->getEntityManager()->getRepository('AppBundle:XslPolicyFile')->findByUser($user);
-        foreach ($policy as $policy) {
-            $list['User policies'][$policy->getPolicyName()] = $policy->getId();
-        }
-        $policy = $this->getEntityManager()->getRepository('AppBundle:XslPolicyFile')->findByUser(null);
-        foreach ($policy as $policy) {
-            $list['System policies'][$policy->getPolicyName()] = $policy->getId();
-        }
-
-        return $list;
-    }
-
     public function findOneByUserOrSystem($policy, $user)
     {
         $query = $this->getEntityManager()->getRepository('AppBundle:XslPolicyFile')->createQueryBuilder('p')

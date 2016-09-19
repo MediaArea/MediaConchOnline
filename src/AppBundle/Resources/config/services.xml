@@ -41,6 +41,7 @@
             <argument type="service" id="security.token_storage" />
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="mco.settings" />
+            <argument type="service" id="mco.policy.getPoliciesNamesList"/>
         </service>
 
         <service id="app.form.type.checker.online" class="AppBundle\Form\Type\CheckerOnlineFormType">
@@ -48,6 +49,7 @@
             <argument type="service" id="security.token_storage" />
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="mco.settings" />
+            <argument type="service" id="mco.policy.getPoliciesNamesList"/>
         </service>
 
         <service id="app.form.type.checker.repository" class="AppBundle\Form\Type\CheckerRepositoryFormType">
@@ -55,6 +57,7 @@
             <argument type="service" id="security.token_storage" />
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="mco.settings" />
+            <argument type="service" id="mco.policy.getPoliciesNamesList"/>
         </service>
 
         <service id="app.form.type.settings" class="AppBundle\Form\Type\SettingsFormType">
@@ -62,22 +65,23 @@
             <argument type="service" id="security.token_storage" />
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="mco.settings" />
-        </service>
-
-        <service id="app.form.type.policy.create" class="AppBundle\Form\Type\XslPolicyCreateFormType">
-            <tag name="form.type" alias="xslPolicyCreate" />
+            <argument type="service" id="mco.policy.getPoliciesNamesList"/>
         </service>
 
         <service id="app.form.type.policy.import" class="AppBundle\Form\Type\XslPolicyImportFormType">
             <tag name="form.type" alias="xslPolicyImport" />
         </service>
 
-        <service id="app.form.type.policy.name" class="AppBundle\Form\Type\XslPolicyNameFormType">
-            <tag name="form.type" alias="xslPolicyName" />
+        <service id="app.form.type.policy.info" class="AppBundle\Form\Type\XslPolicyInfoFormType">
+            <tag name="form.type" alias="xslPolicyInfo" />
         </service>
 
         <service id="app.form.type.policy.rule" class="AppBundle\Form\Type\XslPolicyRuleFormType">
             <tag name="form.type" alias="xslPolicyRule" />
+        </service>
+
+        <service id="app.form.type.policy.rule.mt" class="AppBundle\Form\Type\XslPolicyRuleMtFormType">
+            <tag name="form.type" alias="xslPolicyRuleMt" />
         </service>
 
         <service id="app.form.type.display.import" class="AppBundle\Form\Type\DisplayImportFormType">
@@ -97,34 +101,138 @@
             <argument>%app.mediaconch.address%</argument>
             <argument>%app.mediaconch.port%</argument>
             <argument>%app.mediaconch.api.version%</argument>
+            <argument type="service" id="logger" />
+            <argument type="service" id="mco.settings" />
         </service>
 
         <service id="mco.checker.analyze" class="AppBundle\Lib\Checker\CheckerAnalyze">
             <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
         </service>
 
         <service id="mco.checker.status" class="AppBundle\Lib\Checker\CheckerStatus">
             <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
         </service>
 
         <service id="mco.checker.validate" class="AppBundle\Lib\Checker\CheckerValidate">
             <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
         </service>
 
         <service id="mco.checker.report" class="AppBundle\Lib\Checker\CheckerReport">
             <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
         </service>
 
         <service id="mco.checker.filename" class="AppBundle\Lib\Checker\CheckerFilename">
             <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.create" class="AppBundle\Lib\XslPolicy\XslPolicyCreate">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.save" class="AppBundle\Lib\XslPolicy\XslPolicySave">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.import" class="AppBundle\Lib\XslPolicy\XslPolicyImport">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.export" class="AppBundle\Lib\XslPolicy\XslPolicyExport">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.edit" class="AppBundle\Lib\XslPolicy\XslPolicyEdit">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.editType" class="AppBundle\Lib\XslPolicy\XslPolicyEditType">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.delete" class="AppBundle\Lib\XslPolicy\XslPolicyDelete">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.duplicate" class="AppBundle\Lib\XslPolicy\XslPolicyDuplicate">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.move" class="AppBundle\Lib\XslPolicy\XslPolicyMove">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.getPolicy" class="AppBundle\Lib\XslPolicy\XslPolicyGetPolicy">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.getPolicies" class="AppBundle\Lib\XslPolicy\XslPolicyGetPolicies">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.getPolicyName" class="AppBundle\Lib\XslPolicy\XslPolicyGetPolicyName">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.getPoliciesNamesList" class="AppBundle\Lib\XslPolicy\XslPolicyGetPoliciesNamesList">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.rule.create" class="AppBundle\Lib\XslPolicy\XslPolicyRuleCreate">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.rule.edit" class="AppBundle\Lib\XslPolicy\XslPolicyRuleEdit">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.rule.delete" class="AppBundle\Lib\XslPolicy\XslPolicyRuleDelete">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.rule.duplicate" class="AppBundle\Lib\XslPolicy\XslPolicyRuleDuplicate">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.rule.move" class="AppBundle\Lib\XslPolicy\XslPolicyRuleMove">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
+        <service id="mco.policy.getRule" class="AppBundle\Lib\XslPolicy\XslPolicyGetRule">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
         </service>
 
         <service id="mco.policy.fromFile" class="AppBundle\Lib\XslPolicy\XslPolicyFromFile">
             <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
         </service>
 
         <service id="mco.policy.form.values" class="AppBundle\Lib\XslPolicy\XslPolicyFormValues">
             <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
         </service>
 
         <service id="mco.settings" class="AppBundle\Lib\Settings\SettingsManager">

@@ -2,27 +2,23 @@
 
 namespace AppBundle\Lib\MediaConch;
 
-class FileFromIdResponse
+class FileFromIdResponse extends MediaConchServerAbstractResponse
 {
-    private $file;
-
-    public function __construct($response)
-    {
-        $this->parse($response);
-    }
+    protected $file;
 
     public function getFile()
     {
         return $this->file;
     }
 
-    private function parse($response)
+    protected function parse($response)
     {
         if (isset($response->file)) {
             $this->file = $response->file;
+            $this->status = true;
         }
         else {
-            throw new \Exception('Unknown response');
+            throw new MediaConchServerException('Unknown response');
         }
     }
 }

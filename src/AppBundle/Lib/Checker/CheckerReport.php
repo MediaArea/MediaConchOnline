@@ -2,21 +2,16 @@
 
 namespace AppBundle\Lib\Checker;
 
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+
 use AppBundle\Lib\MediaConch\MediaConchServer;
 
-class CheckerReport
+class CheckerReport extends CheckerBase
 {
-    protected $response;
     protected $report;
     protected $displayName;
-    protected $policy;
     protected $fullPath = false;
     protected $filename;
-
-    public function __construct(MediaConchServer $mc)
-    {
-        $this->mc = $mc;
-    }
 
     public function report($id, $report, $displayName, $display = null, $policy = null, $verbosity = -1)
     {
@@ -35,7 +30,7 @@ class CheckerReport
             $display = null;
         }
 
-        $this->response = $this->mc->report($id, $this->getReportType(), $this->getDisplayName(), $display, $policy, $verbosity);
+        $this->response = $this->mc->report($this->user->getId(), $id, $this->getReportType(), $this->getDisplayName(), $display, $policy, $verbosity);
     }
 
     public function getResponseAsArray()

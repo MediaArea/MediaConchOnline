@@ -2,16 +2,10 @@
 
 namespace AppBundle\Lib\MediaConch;
 
-class ReportResponse
+class ReportResponse extends MediaConchServerAbstractResponse
 {
-    private $report;
-    private $valid;
-    private $error;
-
-    public function __construct($response)
-    {
-        $this->parse($response);
-    }
+    protected $report;
+    protected $valid;
 
     public function getReport()
     {
@@ -23,23 +17,19 @@ class ReportResponse
         return $this->report;
     }
 
-    public function getError()
-    {
-        return $this->error;
-    }
-
-    private function parse($response)
+    protected function parse($response)
     {
         if (isset($response->ok->report)) {
             $this->report = $response->ok->report;
+            $this->status = true;
             if (isset($response->ok->valid))
                 $this->valid = $response->ok->valid;
         }
         else if (is_array($response->nok) && isset($response->nok[0])) {
-            $this->error = $response->nok[0]->error;
+            throw new MediaConchServerException($response->nok[0]->error);
         }
         else {
-            throw new \Exception('Unknown response');
+            throw new MediaConchServerException('Unknown response');
         }
     }
 }
