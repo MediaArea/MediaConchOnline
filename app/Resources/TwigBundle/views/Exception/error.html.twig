@@ -1,0 +1,10 @@
+{% extends 'AppBundle:Default:base.html.twig' %}
+
+{% block title %}
+MediaConchOnline error ({{ status_code }})
+{% endblock %}
+
+{% block body %}
+<h1>MediaConchOnline error</h1>
+<h3>{{ status_code }} - {{ status_text }}</h3>
+{% endblock %}
