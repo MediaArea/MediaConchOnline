@@ -140,6 +140,8 @@ fos_user:
     from_email:
         address:        info@mediaarea.net
         sender_name:    MediaConchOnline
+    service:
+        mailer: mco.mailer.user
 
 # VichUploader
 vich_uploader:
@@ -193,3 +195,7 @@ app:
         address: 127.0.0.1
         port: 4242
         api_version: 1.8
+        absolute_url_for_mail:
+            host: ~
+            scheme: ~
+            baseUrl: ~

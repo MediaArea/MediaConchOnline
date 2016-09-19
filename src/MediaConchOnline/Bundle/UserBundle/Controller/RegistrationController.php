@@ -53,8 +53,15 @@ class RegistrationController extends BaseController
     {
         $user = $this->container->get('fos_user.user_manager')->findUserByConfirmationToken($token);
 
+        // Add flash message and redirect user to login page
         if (null === $user) {
-            throw new NotFoundHttpException(sprintf('The user with confirmation token "%s" does not exist', $token));
+            $this->setFlash(
+                'danger',
+                '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>User not found or already confirmed'
+                );
+            $url = $this->container->get('router')->generate('fos_user_security_login');
+
+            return new RedirectResponse($url);
         }
 
         $user->setConfirmationToken(null);
