@@ -43,6 +43,8 @@ assetic:
     use_controller: false
     bundles:
       - AppBundle
+    workers:
+        cache_busting: ~
     #java: /usr/bin/java
     filters:
         cssrewrite: ~
