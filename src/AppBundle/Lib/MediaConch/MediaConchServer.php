@@ -107,6 +107,13 @@ class MediaConchServer
         return $this->callApiHandler('policy_get_policies', 'GET', $request, 'POLICY_GET_POLICIES_RESULT', 'PolicyGetPoliciesResponse');
     }
 
+    public function policyGetPoliciesCount($user)
+    {
+        $request = array('user' => $user);
+
+        return $this->callApiHandler('policy_get_policies_count', 'GET', $request, 'POLICY_GET_POLICIES_COUNT_RESULT', 'PolicyGetPoliciesCountResponse');
+    }
+
     public function policyGetPolicyName($user, $id)
     {
         $request = array('user' => $user, 'id' => (int) $id);

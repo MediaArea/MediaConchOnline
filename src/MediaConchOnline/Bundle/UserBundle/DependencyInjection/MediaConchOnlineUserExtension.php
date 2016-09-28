@@ -24,5 +24,7 @@ class MediaConchOnlineUserExtension extends Extension
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
+
+        $container->setAlias('mco.guest.register.form.handler', 'mco.guest.register.form.handler.default');
     }
 }

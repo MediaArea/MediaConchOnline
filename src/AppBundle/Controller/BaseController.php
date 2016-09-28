@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 class BaseController extends Controller
 {
     protected function addFlashBag($type, $message) {
-        $this->get('session')->getFlashBag()->add(
+        $this->addFlash(
             $type,
             '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' . $message
             );

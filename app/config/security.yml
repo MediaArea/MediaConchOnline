@@ -1,13 +1,17 @@
 # you can read more about security in the related section of the documentation
 # http://symfony.com/doc/current/book/security.html
 security:
+    # Refresh authenticated user after role change
+    always_authenticate_before_granting:  true
     # http://symfony.com/doc/current/book/security.html#encoding-the-user-s-password
     encoders:
         FOS\UserBundle\Model\UserInterface: bcrypt
 
     # http://symfony.com/doc/current/book/security.html#hierarchical-roles
     role_hierarchy:
-        ROLE_ADMIN:       ROLE_USER
+        ROLE_GUEST:       ROLE_USER
+        ROLE_BASIC:       ROLE_USER
+        ROLE_ADMIN:       ROLE_BASIC
         ROLE_SUPER_ADMIN: ROLE_ADMIN
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
@@ -44,6 +48,10 @@ security:
                 path:   /logout
                 target: /
             anonymous:    true
+            remember_me:
+                key: '%secret%'
+                lifetime: 2592000 # 30 days in seconds
+                always_remember_me: false
 
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods
@@ -54,6 +62,7 @@ security:
         - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/ajaxChecker, role: IS_AUTHENTICATED_ANONYMOUSLY, ips: [127.0.0.1, ::1] }
+        - { path: ^/profile/edit, role: ROLE_BASIC, methods: [POST]}
+        - { path: ^/profile/change-password, role: ROLE_BASIC, methods: [POST]}
         - { path: ^/admin/, role: ROLE_ADMIN }
-        - { path: ^/, role: ROLE_USER }
+        #- { path: ^/, role: ROLE_USER }

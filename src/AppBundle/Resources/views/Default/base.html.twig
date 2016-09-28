@@ -68,12 +68,18 @@
                     <li class="dropdown">
                         <a href="{{ path('fos_user_profile_show') }}" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} <span class="caret"></span></a>
                         <ul class="dropdown-menu">
+                            {% if app.user and is_granted('ROLE_GUEST') %}
+                                <li><a href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a></li>
+                                <li><a href="{{ path('app_user_guestregister') }}">{{ 'layout.register'|trans({}, 'FOSUserBundle') }}</a></li>
+                            {% endif %}
                             <li><a href="{{ path('fos_user_profile_show') }}">Profile</a></li>
                             <li><a href="{{ path('app_user_settings') }}">Settings</a></li>
                             {% if app.user and is_granted('ROLE_ADMIN') %}
                                 <li><a href="{{ path('admin') }}">Admin</a></li>
                             {% endif %}
-                            <li><a href="{{ path('fos_user_security_logout') }}">{{ 'layout.logout'|trans({}, 'FOSUserBundle') }}</a></li>
+                            {% if app.user and is_granted('ROLE_BASIC') %}
+                                <li><a href="{{ path('fos_user_security_logout') }}">{{ 'layout.logout'|trans({}, 'FOSUserBundle') }}</a></li>
+                            {% endif %}
                         </ul>
                     </li>
                 {% else %}

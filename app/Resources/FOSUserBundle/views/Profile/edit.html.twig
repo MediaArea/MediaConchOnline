@@ -1,7 +1,11 @@
 {% extends "FOSUserBundle::layout.html.twig" %}
-
 {% block fos_user_content %}
-{% include "FOSUserBundle:Profile:edit_content.html.twig" %}
+    {% if app.user and not is_granted('ROLE_GUEST') %}
+        {% include "FOSUserBundle:Profile:edit_content.html.twig" %}
 
-<p class="registration">Fields marked by asterisks (*) are required</p>
+        <p class="registration">Fields marked by asterisks (*) are required</p>
+    {% else %}
+        <p>Guest users cannot access this page</p>
+        <p><a href="{{ path('app_user_guestregister') }}">Register your account to edit your profile</a></p>
+    {% endif %}
 {% endblock fos_user_content %}
