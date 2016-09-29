@@ -44,7 +44,8 @@ assetic:
     bundles:
       - AppBundle
     workers:
-        cache_busting: ~
+        cache_busting:
+            enabled: false
     #java: /usr/bin/java
     filters:
         cssrewrite: ~
