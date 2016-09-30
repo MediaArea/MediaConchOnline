@@ -34,6 +34,10 @@ class RegistrationController extends BaseController
             if ($authUser) {
                 $this->authenticateUser($user, $response);
 
+                // Add basic role
+                $user->addRole('ROLE_BASIC');
+                $this->container->get('fos_user.user_manager')->updateUser($user);
+
                 // Set quotas for new user with mail activation disabled
                 $this->container->get('mediaconch_user.quotas')->setQuotasForNewUser();
             }
@@ -67,6 +71,12 @@ class RegistrationController extends BaseController
         $user->setConfirmationToken(null);
         $user->setEnabled(true);
         $user->setLastLogin(new \DateTime());
+
+        // Add basic role
+        if ($user->hasRole('ROLE_GUEST')) {
+            $user->removeRole('ROLE_GUEST');
+        }
+        $user->addRole('ROLE_BASIC');
 
         $this->container->get('fos_user.user_manager')->updateUser($user);
         $response = new RedirectResponse($this->container->get('router')->generate('fos_user_registration_confirmed'));

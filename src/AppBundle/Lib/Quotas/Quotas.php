@@ -7,19 +7,23 @@ use Doctrine\ORM\EntityManager;
 
 use AppBundle\Entity\User;
 use AppBundle\Entity\UserQuotas;
+use AppBundle\Lib\XslPolicy\XslPolicyGetPoliciesCount;
+use AppBundle\Lib\MediaConch\MediaConchServerException;
 
 class Quotas
 {
     protected $user;
     protected $em;
+    protected $policiesCount;
     protected $defaultQuotas;
     protected $date;
     protected $datePeriod;
 
-    public function __construct(TokenStorageInterface $tokenStorage, EntityManager $em)
+    public function __construct(TokenStorageInterface $tokenStorage, EntityManager $em, XslPolicyGetPoliciesCount $policiesCount)
     {
         $this->user = $this->getUser($tokenStorage);
         $this->em = $em;
+        $this->policiesCount = $policiesCount;
         $this->defaultQuotas = $this->getDefaultQuotas();
         $this->date = new \DateTime();
         // Clone DateTime object as add/sub method modify the object itself
@@ -29,6 +33,15 @@ class Quotas
 
     public function setQuotasForNewUser()
     {
+        // Check if quotas have already been set
+        $userQuotas = $this->em
+            ->getRepository('AppBundle:UserQuotas')
+            ->findOneByUser($this->user);
+
+        if ($userQuotas) {
+            return $this->resetQuotas();
+        }
+
         $userQuotas = new UserQuotas();
         $userQuotas->setPolicies($this->defaultQuotas['policies'])
             ->setUploads($this->defaultQuotas['uploads'])
@@ -41,6 +54,30 @@ class Quotas
 
         $this->em->persist($userQuotas);
         $this->em->flush();
+
+        return $userQuotas;
+    }
+
+    public function resetQuotas()
+    {
+        $userQuotas = $this->em
+            ->getRepository('AppBundle:UserQuotas')
+            ->findOneByUser($this->user);
+
+        if ($userQuotas) {
+            $userQuotas->setPolicies($this->defaultQuotas['policies'])
+                ->setUploads($this->defaultQuotas['uploads'])
+                ->setUploadsTimestamp($this->datePeriod)
+                ->setUrls($this->defaultQuotas['urls'])
+                ->setUrlsTimestamp($this->datePeriod)
+                ->setPolicyChecks($this->defaultQuotas['policyChecks'])
+                ->setPolicyChecksTimestamp($this->datePeriod)
+                ->setUser($this->user);
+            $this->em->flush();
+        }
+        else {
+            $userQuotas = $this->setQuotasForNewUser();
+        }
 
         return $userQuotas;
     }
@@ -150,14 +187,13 @@ class Quotas
 
     private function countPolicies()
     {
-        $xslPolicy = $this->em
-            ->getRepository('AppBundle:XslPolicyFile')
-            ->createQueryBuilder('p')
-                ->select('COUNT(p)')
-                ->where('p.user = :user')
-                ->setParameter('user', $this->user)
-            ->getQuery()
-            ->getSingleScalarResult();
+        try {
+            $this->policiesCount->getPoliciesCount();
+            $xslPolicy = $this->policiesCount->getResponse()->getCount();
+        }
+        catch (MediaConchServerException $e) {
+            $xslPolicy = 0;
+        }
 
         $display = $this->em
             ->getRepository('AppBundle:DisplayFile')
@@ -198,25 +234,41 @@ class Quotas
 
     private function getDefaultQuotas()
     {
-        $defaultQuotas = array('period' => 3600,
-            'policies' => 20,
-            'uploads' => 10,
-            'urls' => 10,
-            'policyChecks' => 100,
-        );
+        if ($this->user->hasRole('ROLE_ADMIN')) {
+            $defaultQuotas = array('period' => 3600,
+                'policies' => 200,
+                'uploads' => 100,
+                'urls' => 100,
+                'policyChecks' => 1000,
+            );
+        }
+        else if ($this->user->hasRole('ROLE_BASIC')) {
+            $defaultQuotas = array('period' => 3600,
+                'policies' => 20,
+                'uploads' => 10,
+                'urls' => 10,
+                'policyChecks' => 100,
+            );
+        }
+        else {
+            $defaultQuotas = array('period' => 3600,
+                'policies' => 10,
+                'uploads' => 5,
+                'urls' => 5,
+                'policyChecks' => 50,
+            );
+        }
 
-        if ($this->user instanceof User) {
-            $defaultUserQuotas = $this->em
-            ->getRepository('AppBundle:UserQuotasDefault')
-            ->findOneByUser($this->user);
-            if ($defaultUserQuotas) {
-                $defaultQuotas = array('period' => 3600,
-                    'policies' => $defaultUserQuotas->getPolicies(),
-                    'uploads' => $defaultUserQuotas->getUploads(),
-                    'urls' => $defaultUserQuotas->getUrls(),
-                    'policyChecks' => $defaultUserQuotas->getPolicyChecks(),
-                );
-            }
+        $defaultUserQuotas = $this->em
+        ->getRepository('AppBundle:UserQuotasDefault')
+        ->findOneByUser($this->user);
+        if ($defaultUserQuotas) {
+            $defaultQuotas = array('period' => 3600,
+                'policies' => $defaultUserQuotas->getPolicies(),
+                'uploads' => $defaultUserQuotas->getUploads(),
+                'urls' => $defaultUserQuotas->getUrls(),
+                'policyChecks' => $defaultUserQuotas->getPolicyChecks(),
+            );
         }
 
         return $defaultQuotas;

@@ -18,6 +18,7 @@
         <service id="mediaconch_user.quotas" class="AppBundle\Lib\Quotas\Quotas">
             <argument type="service" id="security.token_storage" />
             <argument type="service" id="doctrine.orm.entity_manager" />
+            <argument type="service" id="mco.policy.getPoliciesCount" />
         </service>
 
         <service id="app.form.type.professional" class="AppBundle\Form\Type\ProfessionalType">
@@ -185,6 +186,11 @@
             <argument type="service" id="security.token_storage" />
         </service>
 
+        <service id="mco.policy.getPoliciesCount" class="AppBundle\Lib\XslPolicy\XslPolicyGetPoliciesCount">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
         <service id="mco.policy.getPolicyName" class="AppBundle\Lib\XslPolicy\XslPolicyGetPolicyName">
             <argument type="service" id="mco.mediaconch.server"/>
             <argument type="service" id="security.token_storage" />
@@ -253,6 +259,37 @@
                 </argument>
                 <argument key="absolute_url_for_mail">%app.mediaconch.absolute_url_for_mail%</argument>
             </argument>
+        </service>
+
+        <service id="mco.guest.register.form" factory-method="createNamed" factory-service="form.factory" class="Symfony\Component\Form\Form">
+            <argument>%fos_user.profile.form.name%</argument>
+            <argument>mco_guest_register</argument>
+            <argument>null</argument>
+            <argument type="collection">
+                <argument key="validation_groups">%fos_user.profile.form.validation_groups%</argument>
+            </argument>
+        </service>
+
+        <service id="mco.guest.register.form.type" class="MediaConchOnline\Bundle\UserBundle\Form\Type\GuestRegisterFormType">
+            <argument>%fos_user.model.user.class%</argument>
+            <tag name="form.type" alias="mco_guest_register" />
+        </service>
+
+        <service id="mco.guest.register.form.handler.default" class="MediaConchOnline\Bundle\UserBundle\Form\Handler\GuestRegisterFormHandler" scope="request" public="false">
+            <argument type="service" id="mco.guest.register.form" />
+            <argument type="service" id="request" />
+            <argument type="service" id="fos_user.user_manager" />
+            <argument type="service" id="fos_user.mailer" />
+            <argument type="service" id="fos_user.util.token_generator" />
+        </service>
+
+        <service id="mco.security.authentication.rememberme.services.simplehash" alias="security.authentication.rememberme.services.simplehash.main" public="true" />
+
+        <service id="mco.guest.authentication" class="AppBundle\EventListener\GuestListener">
+            <argument>%fos_user.firewall_name%</argument>
+            <argument type="service" id="security.authorization_checker"/>
+            <tag name="kernel.event_listener" event="kernel.controller" method="guestAuthentication" />
+            <tag name="kernel.event_listener" event="kernel.response" method="rememberMeGuestCookie" />
         </service>
     </services>
 </container>

@@ -23,7 +23,7 @@ use AppBundle\Lib\MediaConch\MediaConchServerException;
 /**
  * @Route("/")
  */
-class XslPolicyController extends BaseController
+class XslPolicyController extends BaseController implements MCOControllerInterface
 {
     /**
      * Policy editor page
