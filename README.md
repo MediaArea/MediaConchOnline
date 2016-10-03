@@ -43,13 +43,13 @@ All open source digital assets for the software developed by MediaArea during th
 
 * Apache web server >= 2.2 (should also work on nginx and lighttpd)
     * mod rewrite is recommended
-* Php >= 5.4
+* Php >= 5.5
     * Mandatory packages for debian-like distributions : libapache2-mod-php5, php5-cli, php5-intl, php5-mysqlnd, php5-curl
     * Mandatory packages for RedHat-like distributions : php, php-cli, php-intl, php-mbstring, php-mysql, php-pdo, php-process, php-xml
     * Optional packages for RedHat-like distributions : php-pecl-apc or php-opcache
     * date.timezone parameter should be set in your php.ini (both cli and apache module)
 * MySQL >= 5.1
-* [MediaConch-Server](https://mediaarea.net/MediaConch/download.html) >= 16.05 (depends on [libmediainfo >= 0.7.86](https://mediaarea.net/en/MediaInfo/Download) and [libzen >= 0.4.33](https://mediaarea.net/en/MediaInfo/Download))
+* [MediaConch-Server](https://mediaarea.net/MediaConch/download.html) >= 16.09 (depends on [libmediainfo >= 0.7.89](https://mediaarea.net/en/MediaInfo/Download) and [libzen >= 0.4.33](https://mediaarea.net/en/MediaInfo/Download))
 * [Composer](https://getcomposer.org/download/)
 
 ## Get MediaConchOnline sourcecode
@@ -65,8 +65,8 @@ git clone https://github.com/MediaArea/MediaConchOnline.git
 
 Download and extract tarball
 ```
-wget "https://mediaarea.net/download/source/mediaconch/16.05/MediaConchOnline_16.05.tar.xz"
-tar -Jxf MediaConchOnline_16.05.tar.xz
+wget "https://mediaarea.net/download/source/mediaconch/16.09/MediaConchOnline_16.09.tar.xz"
+tar -Jxf MediaConchOnline_16.09.tar.xz
 ```
 
 ## Configure MediaConchOnline
@@ -162,13 +162,13 @@ Allow apache user to write in cache and log directory, some methods are explain 
 
 To configure MediaConch-Server refer to the [config documentation](https://github.com/MediaArea/MediaConch_SourceCode/blob/master/Documentation/Config.md) and [server configuration](https://github.com/MediaArea/MediaConch_SourceCode/blob/master/Documentation/Daemon.md)
 
-Update MediaConchOnline confif according to your MediaConch-server config :
+Update MediaConchOnline config according to your MediaConch-server config :
 ```
 # app/config/config.yml
 app:
     mediaconch:
         address: 127.0.0.1
         port: 4242
-        api_version: 1.4
+        api_version: 1.8
 ```
 
