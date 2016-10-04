@@ -523,11 +523,11 @@ $(document).ready(function() {
         policyResultText = '<span class="policyResult">';
         if (data.valid) {
             nodePolicy.removeClass().addClass('success');
-            policyResultText += '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> '
+            policyResultText += '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span><span class="hidden">P</span> '
         }
         else {
             nodePolicy.removeClass().addClass('danger');
-            policyResultText += '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> ';
+            policyResultText += '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span><span class="hidden">F</span> ';
         }
 
         policyResultText += '<span title="' + nodeCell.data('policyName') + '">' + truncateString(nodeCell.data('policyName'), 16) + '</span>';
@@ -556,7 +556,7 @@ $(document).ready(function() {
         nodeCell = result.$('#result-' + fileId);
         nodePolicy = $(result.cell(nodeCell, 2).node());
         nodePolicy.addClass('danger');
-        result.cell(nodeCell, 2).data('<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Server Error')
+        result.cell(nodeCell, 2).data('<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span><span class="hidden">F</span> Server Error')
     }
 
     function policyModal(resultId, fileId) {
