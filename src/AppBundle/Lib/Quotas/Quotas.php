@@ -247,15 +247,15 @@ class Quotas
                 'policies' => 20,
                 'uploads' => 10,
                 'urls' => 10,
-                'policyChecks' => 100,
+                'policyChecks' => 200,
             );
         }
         else {
             $defaultQuotas = array('period' => 3600,
                 'policies' => 10,
-                'uploads' => 5,
-                'urls' => 5,
-                'policyChecks' => 50,
+                'uploads' => 3,
+                'urls' => 3,
+                'policyChecks' => 100,
             );
         }
 
