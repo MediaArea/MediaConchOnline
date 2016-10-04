@@ -36,7 +36,11 @@ MediaConchOnline Policy Management
 
             <div>
                 <h2>Create a policy</h2>
-                <button class="policyCreate btn btn-warning">Add a new policy</button>
+                {% if importPolicyForm is defined and importPolicyForm %}
+                    <button class="policyCreate btn btn-warning">Add a new policy</button>
+                {% else %}
+                    {{ include('AppBundle:Default:quotaExceeded.html.twig') }}
+                {% endif %}
             </div>
         </div>
 

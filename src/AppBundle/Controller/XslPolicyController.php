@@ -95,6 +95,11 @@ class XslPolicyController extends BaseController implements MCOControllerInterfa
             throw new NotFoundHttpException();
         }
 
+        // Check quota only if policy is created on the top level
+        if (-1 == $parentId && !$this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+            return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
+        }
+
         try {
             // Create policy
             $policyCreate = $this->get('mco.policy.create');
@@ -129,6 +134,11 @@ class XslPolicyController extends BaseController implements MCOControllerInterfa
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
+        }
+
+        // Check quota
+        if (!$this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+            return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
         $importPolicyForm = $this->createForm('xslPolicyImport');
@@ -260,6 +270,11 @@ class XslPolicyController extends BaseController implements MCOControllerInterfa
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
+        }
+
+        // Check quota only if policy is duplicated on the top level
+        if (-1 == $dstPolicyId && !$this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+            return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
         try {

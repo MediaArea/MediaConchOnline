@@ -182,7 +182,7 @@ class Quotas
 
     public function hasPolicyCreationRights()
     {
-        return $this->countPolicies() < $this->getQuotasByUser()->getPolicies();
+        return $this->countPolicies() < $this->defaultQuotas['policies'];
     }
 
     private function countPolicies()
