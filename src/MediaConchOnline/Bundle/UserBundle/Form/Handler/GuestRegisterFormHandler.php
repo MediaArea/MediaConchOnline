@@ -38,9 +38,8 @@ class GuestRegisterFormHandler
     /**
      * @param boolean $confirmation
      */
-    public function process($confirmation = false)
+    public function process($user, $confirmation = false)
     {
-        $user = $this->createUser();
         $this->form->setData($user);
 
         if ('POST' === $this->request->getMethod()) {

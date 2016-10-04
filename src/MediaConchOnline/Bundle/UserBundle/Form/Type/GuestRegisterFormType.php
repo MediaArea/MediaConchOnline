@@ -54,8 +54,8 @@ class GuestRegisterFormType extends AbstractType
     protected function buildUserForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username', null, array('label' => 'form.username', 'translation_domain' => 'FOSUserBundle'))
-            ->add('email', 'email', array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle'))
+            ->add('username', null, array('label' => 'form.username', 'translation_domain' => 'FOSUserBundle', 'data' => null))
+            ->add('email', 'email', array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle', 'data' => null))
             ->add('plainPassword', 'repeated', array(
                 'type' => 'password',
                 'options' => array('translation_domain' => 'FOSUserBundle'),
