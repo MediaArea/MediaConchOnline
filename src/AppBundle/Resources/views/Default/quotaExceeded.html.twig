@@ -1,3 +1,7 @@
 <div class="alert alert-danger" role="alert">
-    Quota exceeded, please <a href="mailto:info@mediaarea.net?subject=Quota exceeded" class="alert-link">contact us</a> to increase your quotas.
+    {% if app.user and is_granted('ROLE_GUEST') %}
+        Quota exceeded, please <a href="{{ path('app_user_guestregister') }}" class="alert-link">register your account</a> to increase your quotas.
+    {% else %}
+        Quota exceeded, please <a href="mailto:info@mediaarea.net?subject=Quota exceeded" class="alert-link">contact us</a> to increase your quotas.
+    {% endif %}
 </div>

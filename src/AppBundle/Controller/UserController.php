@@ -59,10 +59,8 @@ class UserController extends BaseController implements MCOControllerInterface
         $formHandler = $this->container->get('mco.guest.register.form.handler');
         $confirmationEnabled = $this->container->getParameter('fos_user.registration.confirmation.enabled');
 
-        $process = $formHandler->process($confirmationEnabled);
+        $process = $formHandler->process($user, $confirmationEnabled);
         if ($process) {
-            $user = $form->getData();
-
             $authUser = false;
             if ($confirmationEnabled) {
                 $this->container->get('session')->set('fos_user_send_confirmation_email/email', $user->getEmail());

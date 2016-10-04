@@ -288,8 +288,17 @@
         <service id="mco.guest.authentication" class="AppBundle\EventListener\GuestListener">
             <argument>%fos_user.firewall_name%</argument>
             <argument type="service" id="security.authorization_checker"/>
+            <argument type="service" id="security.token_storage" />
+            <argument type="service" id="mco.security.authentication.rememberme.services.simplehash" />
             <tag name="kernel.event_listener" event="kernel.controller" method="guestAuthentication" />
             <tag name="kernel.event_listener" event="kernel.response" method="rememberMeGuestCookie" />
+        </service>
+
+        <service id="mco.rememberme.cookie.update" class="AppBundle\EventListener\RememberMeCookieUpdateListener">
+            <argument type="service" id="security.token_storage" />
+            <argument type="service" id="mco.security.authentication.rememberme.services.simplehash" />
+            <tag name="kernel.event_listener" event="security.interactive_login" method="onSecurityInteractiveLogin" />
+            <tag name="kernel.event_listener" event="kernel.response" method="rememberMeUpdateCookie" />
         </service>
     </services>
 </container>

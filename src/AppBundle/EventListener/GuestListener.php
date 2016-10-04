@@ -7,6 +7,8 @@ use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Http\RememberMe\RememberMeServicesInterface;
 
 use AppBundle\Controller\MCOControllerInterface;
 
@@ -14,11 +16,15 @@ class GuestListener
 {
     protected $firewallName;
     protected $authorizationChecker;
+    protected $tokenStorage;
+    protected $rememberMeService;
 
-    public function __construct($firewallName, AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct($firewallName, AuthorizationCheckerInterface $authorizationChecker, TokenStorageInterface $tokenStorage, RememberMeServicesInterface $rememberMeServices)
     {
         $this->firewallName = $firewallName;
         $this->authorizationChecker = $authorizationChecker;
+        $this->tokenStorage = $tokenStorage;
+        $this->rememberMeServices = $rememberMeServices;
     }
 
     public function guestAuthentication(FilterControllerEvent $event)
@@ -65,19 +71,8 @@ class GuestListener
                 $this->firewallName,
                 $user);
 
-            // Force _remember_me value to yes
-            $event->getRequest()->query->set('_remember_me', 'yes');
-
-            // Set rememberme cookie in fake response
-            $response = new Response();
-            $rememberMeServices = $ctrl->get('mco.security.authentication.rememberme.services.simplehash');
-            $rememberMeServices->loginSuccess($event->getRequest(), $response, $ctrl->get('security.token_storage')->getToken());
-
-            // Save cookie in attributes if exists
-            $cookies = $response->headers->getCookies();
-            if (isset($cookies[0])) {
-                $event->getRequest()->attributes->set('remember_me_guest_cookie', $cookies[0]);
-            }
+            // Set remember_me attribute to add cookie in response
+            $event->getRequest()->attributes->set('remember_me_guest_cookie', true);
         }
 
         // Check if user have at least ROLE_GUEST
@@ -88,15 +83,14 @@ class GuestListener
 
     public function rememberMeGuestCookie(FilterResponseEvent $event)
     {
-        // Check if cookie is present
-        if (!$cookie = $event->getRequest()->attributes->get('remember_me_guest_cookie')) {
-            return;
+        // Check if remember_me attribute has been set and add cookie to response
+        if (true == $event->getRequest()->attributes->get('remember_me_guest_cookie')) {
+            // Force _remember_me value to yes
+            $event->getRequest()->query->set('_remember_me', 'yes');
+
+            // Set rememberme cookie by calling loginSuccess
+            $this->rememberMeServices->loginSuccess($event->getRequest(), $event->getResponse(), $this->tokenStorage->getToken());
         }
-
-        $response = $event->getResponse();
-
-        // Add cookie in response
-        $response->headers->setCookie($cookie);
     }
 
     protected function generateRandomGuestUsername()
