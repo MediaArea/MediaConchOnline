@@ -138,7 +138,7 @@ $(document).ready(function() {
         node = result.$('#result-' + fileId);
 
         // Update policy if it has changed
-        if (node.data('policy') != formValues.policy && (2 == node.data('tool') || undefined == node.data('tool'))) {
+        if (node.data('policy') != formValues.policy) {
             node.data('policy', formValues.policy);
             node.data('policyName', formValues.policyText);
 
@@ -146,7 +146,7 @@ $(document).ready(function() {
         }
 
         // Update display if it has changed
-        if (node.data('display') != formValues.display && (2 == node.data('tool') || undefined == node.data('tool'))) {
+        if (node.data('display') != formValues.display) {
             node.data('display', formValues.display);
 
             removeImplemModalIfExists(fileId);
@@ -312,7 +312,7 @@ $(document).ready(function() {
                 statusCellSuccess($(result.cell(node, 5).node()));
 
                 // Implementation and Policy
-                if (2 == status.tool && node.data('policy')) {
+                if (node.data('policy')) {
                     addSpinnerToCell(result.cell(node, 1));
                     addSpinnerToCell(result.cell(node, 2));
 
@@ -353,14 +353,7 @@ $(document).ready(function() {
                         implementationCellError(statusFileId);
                     });
 
-                    // Policy cell with modal button
-                    if (2 == status.tool) {
-                        policyCellEmptyWithModal(statusResultId, statusFileId)
-                    }
-                    // Policy cell without modal button
-                    else {
-                        policyCellEmptyWithoutModal(statusResultId)
-                    }
+                    policyCellEmptyWithModal(statusResultId, statusFileId)
 
                 }
 
@@ -974,14 +967,12 @@ $(document).ready(function() {
         result.$('tr').each(function () {
             node = result.$('#' + $(this).prop('id'));
 
-            if (2 == node.data('tool') || undefined == node.data('tool')) {
-                if (node.data('policy') != $('#applyAllPolicy').val()) {
-                    // Update policy
-                    node.data('policy', $('#applyAllPolicy').val());
-                    node.data('policyName', $('#applyAllPolicy option:selected').text());
+            if (node.data('policy') != $('#applyAllPolicy').val()) {
+                // Update policy
+                node.data('policy', $('#applyAllPolicy').val());
+                node.data('policyName', $('#applyAllPolicy option:selected').text());
 
-                    updatePolicyCell(node.data('fileId'), node.data('policy'));
-                }
+                updatePolicyCell(node.data('fileId'), node.data('policy'));
             }
         });
     }
