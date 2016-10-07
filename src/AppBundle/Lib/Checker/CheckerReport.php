@@ -24,12 +24,6 @@ class CheckerReport extends CheckerBase
             $display = null;
         }
 
-        // Force XML report for VERAPDF and DPFMANAGER
-        if (in_array($this->report, array(5, 6))) {
-            $this->displayName = 'xml';
-            $display = null;
-        }
-
         $this->response = $this->mc->report($this->user->getId(), $id, $this->getReportType(), $this->getDisplayName(), $display, $policy, $verbosity);
     }
 
