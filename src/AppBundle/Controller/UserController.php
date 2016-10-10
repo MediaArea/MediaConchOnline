@@ -17,7 +17,7 @@ use AppBundle\Controller\BaseController;
 /**
  * @Route("/")
  */
-class UserController extends BaseController implements MCOControllerInterface
+class UserController extends BaseController
 {
 
     /**

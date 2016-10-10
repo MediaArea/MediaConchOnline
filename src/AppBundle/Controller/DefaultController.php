@@ -8,10 +8,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+use AppBundle\Controller\BaseController;
+
 /**
  * @Route("/")
  */
-class DefaultController extends Controller implements MCOControllerInterface
+class DefaultController extends BaseController
 {
     /**
      * @Route("/")

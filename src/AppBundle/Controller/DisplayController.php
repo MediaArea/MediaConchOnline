@@ -15,7 +15,7 @@ use AppBundle\Entity\DisplayFile;
 /**
  * @Route("/")
  */
-class DisplayController extends BaseController implements MCOControllerInterface
+class DisplayController extends BaseController
 {
     /**
      * @Route("/display/")

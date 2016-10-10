@@ -11,6 +11,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Http\RememberMe\RememberMeServicesInterface;
 
 use AppBundle\Controller\MCOControllerInterface;
+use DeviceDetector\Parser\Bot AS BotParser;
 
 class GuestListener
 {
@@ -45,34 +46,63 @@ class GuestListener
         }
 
         $ctrl = $controller[0];
-        // Create anonymous user
         if (null == $ctrl->getUser()) {
+            // Check bots
+            $botParser = new BotParser();
+            $botParser->discardDetails();
+            $botParser->setUserAgent($event->getRequest()->headers->get('User-Agent'));
+
             $userManager = $ctrl->get('fos_user.user_manager');
-            // Generate unique username
-            do {
-                $username = $this->generateRandomGuestUsername();
+
+            if (true === $botParser->parse()) {
+                // Bot user
+                $username = 'guest';
+
+                // Create user if not exists
+                if (null === $user = $userManager->findUserByUsername($username)) {
+                    $user = $ctrl->get('fos_user.util.user_manipulator')->create(
+                        $username,
+                        $ctrl->get('fos_user.util.token_generator')->generateToken(),
+                        $username . '@mco',
+                        1,
+                        0);
+
+                    // Add guest role
+                    $user->addRole('ROLE_BOT');
+                    $userManager->updateUser($user);
+                }
             }
-            while (null !== $userManager->findUserByUsername($username));
+            else {
+                // Guest user
+                // Generate unique username
+                do {
+                    $username = $this->generateRandomGuestUsername();
+                }
+                while (null !== $userManager->findUserByUsername($username));
 
-            // Create user
-            $user = $ctrl->get('fos_user.util.user_manipulator')->create(
-                $username,
-                $ctrl->get('fos_user.util.token_generator')->generateToken(),
-                $username . '@mco',
-                1,
-                0);
+                // Create user
+                $user = $ctrl->get('fos_user.util.user_manipulator')->create(
+                    $username,
+                    $ctrl->get('fos_user.util.token_generator')->generateToken(),
+                    $username . '@mco',
+                    1,
+                    0);
 
-            // Add guest role
-            $user->addRole('ROLE_GUEST');
-            $userManager->updateUser($user);
+                // Update last login date
+                $user->setLastLogin(new \DateTime());
+
+                // Add guest role
+                $user->addRole('ROLE_GUEST');
+                $userManager->updateUser($user);
+
+                // Set remember_me attribute to add cookie in response
+                $event->getRequest()->attributes->set('remember_me_guest_cookie', true);
+            }
 
             // Log in user
             $ctrl->get('fos_user.security.login_manager')->loginUser(
                 $this->firewallName,
                 $user);
-
-            // Set remember_me attribute to add cookie in response
-            $event->getRequest()->attributes->set('remember_me_guest_cookie', true);
         }
 
         // Check if user have at least ROLE_GUEST
