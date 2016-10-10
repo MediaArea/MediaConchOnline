@@ -202,3 +202,27 @@ app:
             host: ~
             scheme: ~
             baseUrl: ~
+        quotas :
+            enabled: true
+            default:
+                policies: 0
+                uploads: 0
+                urls: 0
+                policyChecks: 0
+                period: 3600
+            by_role:
+                ROLE_ADMIN:
+                    policies: 200
+                    uploads: 100
+                    urls: 100
+                    policyChecks: 2000
+                ROLE_BASIC:
+                    policies: 20
+                    uploads: 10
+                    urls: 10
+                    policyChecks: 200
+                ROLE_GUEST:
+                    policies: 10
+                    uploads: 3
+                    urls: 3
+                    policyChecks: 100

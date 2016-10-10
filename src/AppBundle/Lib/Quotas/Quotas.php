@@ -18,9 +18,11 @@ class Quotas
     protected $defaultQuotas;
     protected $date;
     protected $datePeriod;
+    protected $options;
 
-    public function __construct(TokenStorageInterface $tokenStorage, EntityManager $em, XslPolicyGetPoliciesCount $policiesCount)
+    public function __construct(TokenStorageInterface $tokenStorage, EntityManager $em, XslPolicyGetPoliciesCount $policiesCount, $options)
     {
+        $this->options = $options;
         $this->user = $this->getUser($tokenStorage);
         $this->em = $em;
         $this->policiesCount = $policiesCount;
@@ -234,41 +236,46 @@ class Quotas
 
     private function getDefaultQuotas()
     {
-        if ($this->user->hasRole('ROLE_ADMIN')) {
-            $defaultQuotas = array('period' => 3600,
-                'policies' => 200,
-                'uploads' => 100,
-                'urls' => 100,
-                'policyChecks' => 1000,
-            );
-        }
-        else if ($this->user->hasRole('ROLE_BASIC')) {
-            $defaultQuotas = array('period' => 3600,
-                'policies' => 20,
-                'uploads' => 10,
-                'urls' => 10,
-                'policyChecks' => 200,
-            );
-        }
-        else {
-            $defaultQuotas = array('period' => 3600,
-                'policies' => 10,
-                'uploads' => 3,
-                'urls' => 3,
-                'policyChecks' => 100,
-            );
+        // Check if user has special quotas
+        if (false !== $defaultQuotas = $this->getUserQuotasDefault()) {
+            return $defaultQuotas;
         }
 
+        // Get quotas corresponding to user role
+        if (0 < count($this->options['by_role'])) {
+            $defaultQuotas = $this->options['default'];
+            foreach ($this->options['by_role'] as $role => $values) {
+                if ($this->user->hasRole(strtoupper($role))) {
+                    foreach ($values as $key => $value) {
+                        if (false !== $value) {
+                            $defaultQuotas[$key] = $value;
+                        }
+                    }
+
+                    return $defaultQuotas;
+                }
+            }
+        }
+
+        // Default quotas if no other quotas found
+        return $this->options['default'];
+    }
+
+    protected function getUserQuotasDefault()
+    {
         $defaultUserQuotas = $this->em
         ->getRepository('AppBundle:UserQuotasDefault')
         ->findOneByUser($this->user);
         if ($defaultUserQuotas) {
-            $defaultQuotas = array('period' => 3600,
+            $defaultQuotas = array('period' => $this->options['default']['period'],
                 'policies' => $defaultUserQuotas->getPolicies(),
                 'uploads' => $defaultUserQuotas->getUploads(),
                 'urls' => $defaultUserQuotas->getUrls(),
                 'policyChecks' => $defaultUserQuotas->getPolicyChecks(),
             );
+        }
+        else {
+            $defaultQuotas = false;
         }
 
         return $defaultQuotas;

@@ -22,4 +22,3 @@ parameters:
     # MediaConch config
     mco_check_folder: /some/folder/
     mco_ga_tracking: ~
-
