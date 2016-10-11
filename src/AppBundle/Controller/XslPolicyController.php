@@ -8,16 +8,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 
 use AppBundle\Controller\BaseController;
-use AppBundle\Entity\XslPolicy;
-use AppBundle\Entity\XslPolicyFile;
-use AppBundle\Entity\XslPolicyRule;
 use AppBundle\Lib\XslPolicy\XslPolicyFormFields;
-use AppBundle\Lib\XslPolicy\XslPolicyWriter;
 use AppBundle\Lib\MediaConch\MediaConchServerException;
 
 /**
