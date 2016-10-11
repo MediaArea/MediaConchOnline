@@ -20,12 +20,6 @@ class User extends BaseUser
     protected $id;
 
     /**
-     * @ORM\OneToMany(targetEntity="AppBundle\Entity\XslPolicyFile", mappedBy="user", cascade={"persist", "remove"})
-     * @Assert\Valid()
-     */
-    protected $xslPolicy;
-
-    /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\DisplayFile", mappedBy="user", cascade={"persist", "remove"})
      * @Assert\Valid()
      */
@@ -266,39 +260,6 @@ class User extends BaseUser
     public function getQuotas()
     {
         return $this->quotas;
-    }
-
-    /**
-     * Add xslPolicy
-     *
-     * @param \AppBundle\Entity\XslPolicy $xslPolicy
-     * @return User
-     */
-    public function addXslPolicy(\AppBundle\Entity\XslPolicyFile $xslPolicy)
-    {
-        $this->xslPolicy[] = $xslPolicy;
-
-        return $this;
-    }
-
-    /**
-     * Remove xslPolicy
-     *
-     * @param \AppBundle\Entity\XslPolicy $xslPolicy
-     */
-    public function removeXslPolicy(\AppBundle\Entity\XslPolicyFile $xslPolicy)
-    {
-        $this->xslPolicy->removeElement($xslPolicy);
-    }
-
-    /**
-     * Get xslPolicy
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getXslPolicy()
-    {
-        return $this->xslPolicy;
     }
 
     /**

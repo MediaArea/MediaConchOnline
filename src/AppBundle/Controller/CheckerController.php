@@ -15,7 +15,6 @@ use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 use Symfony\Component\Finder\Finder;
 
 use AppBundle\Controller\BaseController;
-use AppBundle\Entity\XslPolicyFile;
 use AppBundle\Lib\MediaConch\MediaConchServerException;
 
 /**

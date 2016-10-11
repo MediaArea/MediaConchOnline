@@ -51,7 +51,7 @@ class SettingsFormType extends AbstractType
                 'placeholder' => 'No default policy',
                 'required' => false,
                 'label' => 'Default Policy',
-                'data' => (-2 === $this->settings->getDefaultPolicy(false)) ? -2 : (($this->settings->getDefaultPolicy() instanceof \AppBundle\Entity\XslPolicyFile) ? $this->settings->getDefaultPolicy()->getId() : $this->settings->getDefaultPolicy()),
+                'data' => (-2 === $this->settings->getDefaultPolicy(false)) ? -2 : $this->settings->getDefaultPolicy(),
                 'attr' => array('class' => 'policyList'))
                 )
             ->add('display', 'choice', array(
@@ -60,7 +60,7 @@ class SettingsFormType extends AbstractType
                 'placeholder' => 'Default display (MediaConch Html)',
                 'required' => false,
                 'label' => 'Default Display',
-                'data' => (-2 === $this->settings->getDefaultDisplay(false)) ? -2 : (($this->settings->getDefaultDisplay() instanceof \AppBundle\Entity\DisplayFile) ? $this->settings->getDefaultDisplay()->getId() : $this->settings->getDefaultPolicy()),
+                'data' => (-2 === $this->settings->getDefaultDisplay(false)) ? -2 : (($this->settings->getDefaultDisplay() instanceof \AppBundle\Entity\DisplayFile) ? $this->settings->getDefaultDisplay()->getId() : $this->settings->getDefaultDisplay()),
                 'attr' => array('class' => 'displayList'))
                 )
             ->add('verbosity', 'choice', array('choices' => array('Default verbosity level' => -1, 'Last used verbosity' => -2, '0 (least verbose)' => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4, '5 (most verbose)' => 5),
