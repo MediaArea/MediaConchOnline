@@ -25,6 +25,12 @@ class RememberMeCookieUpdateListener
     {
         // Set remember_me attribute to add cookie in response
         $event->getRequest()->attributes->set('remember_me_update_cookie', true);
+
+        // Set guest cookie attribute to add cookie in response if user is a guest
+        $user = $this->tokenStorage->getToken()->getUser();
+        if ($user->hasRole('ROLE_GUEST')) {
+            $event->getRequest()->attributes->set('guest_cookie', $user->getUsername() . ':' . $user->getGuestToken()->getToken());
+        }
     }
 
     /**

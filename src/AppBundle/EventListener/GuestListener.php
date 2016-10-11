@@ -5,12 +5,15 @@ namespace AppBundle\EventListener;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\RememberMe\RememberMeServicesInterface;
+use Doctrine\ORM\NoResultException;
 
 use AppBundle\Controller\MCOControllerInterface;
+use AppBundle\Entity\GuestToken;
 use DeviceDetector\Parser\Bot AS BotParser;
 
 class GuestListener
@@ -72,31 +75,41 @@ class GuestListener
                     $userManager->updateUser($user);
                 }
             }
-            else {
-                // Guest user
-                // Generate unique username
-                do {
-                    $username = $this->generateRandomGuestUsername();
+            else if ($event->getRequest()->cookies->has('guest')) {
+                // Read guest cookie
+                if (false !== strpos($event->getRequest()->cookies->get('guest'), ':')) {
+                    list($username, $token) = explode(':', $event->getRequest()->cookies->get('guest'));
+                    if ('guest' == mb_substr($username, 0, 5) && preg_match('/^[a-z0-9]+$/', $username)) {
+                        // Get guest user token from DB
+                        $em = $ctrl->getDoctrine()->getManager();
+                        $query = $em->createQueryBuilder()->select('t.token')
+                            ->from('AppBundle:User', 'u')
+                            ->join('AppBundle:GuestToken', 't')
+                            ->where('u.id = t.user')
+                            ->andWhere('u.username = :user')
+                            ->setParameter('user', $username)
+                            ->setMaxResults(1)
+                            ->getQuery();
+
+                        try {
+                            if ($token == $query->getSingleScalarResult()) {
+                                // Get user if token matches
+                                $user = $userManager->findUserByUsername($username);
+
+                                // Set remember_me attribute to add cookie in response
+                                $event->getRequest()->attributes->set('remember_me_guest_cookie', true);
+                            }
+                        }
+                        catch (NoResultException $e) {
+                            // Do nothing guest user will be created after
+                        }
+                    }
                 }
-                while (null !== $userManager->findUserByUsername($username));
+            }
 
-                // Create user
-                $user = $ctrl->get('fos_user.util.user_manipulator')->create(
-                    $username,
-                    $ctrl->get('fos_user.util.token_generator')->generateToken(),
-                    $username . '@mco',
-                    1,
-                    0);
-
-                // Update last login date
-                $user->setLastLogin(new \DateTime());
-
-                // Add guest role
-                $user->addRole('ROLE_GUEST');
-                $userManager->updateUser($user);
-
-                // Set remember_me attribute to add cookie in response
-                $event->getRequest()->attributes->set('remember_me_guest_cookie', true);
+            // Create guest user if not done before
+            if (!isset($user)) {
+                $user = $this->createGuestUser($ctrl, $event);
             }
 
             // Log in user
@@ -121,6 +134,59 @@ class GuestListener
             // Set rememberme cookie by calling loginSuccess
             $this->rememberMeServices->loginSuccess($event->getRequest(), $event->getResponse(), $this->tokenStorage->getToken());
         }
+
+        // Check if guest cookie attribute has been set and add cookie to response
+        if (null !== $cookie = $event->getRequest()->attributes->get('guest_cookie')) {
+            $cookie = new Cookie('guest', $cookie);
+            $event->getResponse()->headers->setCookie($cookie);
+        }
+
+        // Check if guest cookie remove attribute has been set and remove cookie
+        if (true == $event->getRequest()->attributes->get('remove_guest_cookie')) {
+            $cookie = new Cookie('guest', null);
+            $event->getResponse()->headers->setCookie($cookie);
+        }
+    }
+
+    protected function createGuestUser($ctrl, $event)
+    {
+        $userManager = $ctrl->get('fos_user.user_manager');
+
+        // Generate unique username
+        do {
+            $username = $this->generateRandomGuestUsername();
+        }
+        while (null !== $userManager->findUserByUsername($username));
+
+        // Create user
+        $user = $ctrl->get('fos_user.util.user_manipulator')->create(
+            $username,
+            $ctrl->get('fos_user.util.token_generator')->generateToken(),
+            $username . '@mco',
+            1,
+            0);
+
+        // Update last login date
+        $user->setLastLogin(new \DateTime());
+
+        // Add guest role
+        $user->addRole('ROLE_GUEST');
+        $userManager->updateUser($user);
+
+        // Set token
+        $token = $ctrl->get('fos_user.util.token_generator')->generateToken();
+        $guestToken = new GuestToken();
+        $guestToken->setUser($user);
+        $guestToken->setToken($token);
+        $em = $ctrl->getDoctrine()->getManager();
+        $em->persist($guestToken);
+        $em->flush();
+        $event->getRequest()->attributes->set('guest_cookie', $username . ':' . $token);
+
+        // Set remember_me attribute to add cookie in response
+        $event->getRequest()->attributes->set('remember_me_guest_cookie', true);
+
+        return $user;
     }
 
     protected function generateRandomGuestUsername()
