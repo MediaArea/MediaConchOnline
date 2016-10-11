@@ -16,7 +16,7 @@ class MediaConchServer
     protected $logger;
     protected $userSettings;
 
-    public function __construct($address, $port, $apiVersion, Logger  $logger, SettingsManager $userSettings)
+    public function __construct($address, $port, $apiVersion, Logger $logger, SettingsManager $userSettings)
     {
         $this->address = $address;
         $this->port = $port;

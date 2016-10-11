@@ -21,7 +21,7 @@ use AppBundle\Lib\MediaConch\MediaConchServerException;
 /**
  * @Route("/")
  */
-class CheckerController extends BaseController implements MCOControllerInterface
+class CheckerController extends BaseController
 {
     /**
      * @Route("/checker")

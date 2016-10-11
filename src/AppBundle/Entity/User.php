@@ -50,6 +50,12 @@ class User extends BaseUser
     protected $settings;
 
     /**
+     * @ORM\OneToOne(targetEntity="AppBundle\Entity\GuestToken", mappedBy="user", cascade={"persist", "remove"})
+     * @Assert\Valid()
+     */
+    protected $guestToken;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      *
      * @Assert\Length(
@@ -326,5 +332,61 @@ class User extends BaseUser
     public function getDisplay()
     {
         return $this->display;
+    }
+
+    /**
+     * Add settings
+     *
+     * @param \AppBundle\Entity\Settings $settings
+     * @return User
+     */
+    public function addSetting(\AppBundle\Entity\Settings $settings)
+    {
+        $this->settings[] = $settings;
+
+        return $this;
+    }
+
+    /**
+     * Remove settings
+     *
+     * @param \AppBundle\Entity\Settings $settings
+     */
+    public function removeSetting(\AppBundle\Entity\Settings $settings)
+    {
+        $this->settings->removeElement($settings);
+    }
+
+    /**
+     * Get settings
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getSettings()
+    {
+        return $this->settings;
+    }
+
+    /**
+     * Set guestToken
+     *
+     * @param \AppBundle\Entity\GuestToken $guestToken
+     * @return User
+     */
+    public function setGuestToken(\AppBundle\Entity\GuestToken $guestToken = null)
+    {
+        $this->guestToken = $guestToken;
+
+        return $this;
+    }
+
+    /**
+     * Get guestToken
+     *
+     * @return \AppBundle\Entity\GuestToken
+     */
+    public function getGuestToken()
+    {
+        return $this->guestToken;
     }
 }

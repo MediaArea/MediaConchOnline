@@ -17,7 +17,7 @@ use AppBundle\Controller\BaseController;
 /**
  * @Route("/")
  */
-class UserController extends BaseController implements MCOControllerInterface
+class UserController extends BaseController
 {
 
     /**
@@ -81,6 +81,17 @@ class UserController extends BaseController implements MCOControllerInterface
                 // Switch role to basic
                 $user->removeRole('ROLE_GUEST');
                 $user->addRole('ROLE_BASIC');
+
+                // Remove guest token in DB
+                $token = $user->getGuestToken();
+                $em = $this->get('doctrine.orm.entity_manager');
+                $em->remove($token);
+                $em->flush();
+
+                // Remove guest token cookie
+                $this->getRequest()->attributes->set('remove_guest_cookie', true);
+
+                // Update user
                 $this->container->get('fos_user.user_manager')->updateUser($user);
 
                 // Set quotas for new user with mail activation disabled

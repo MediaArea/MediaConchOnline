@@ -29,5 +29,6 @@ class AppExtension extends Extension
         $container->setParameter('app.mediaconch.port', $config['mediaconch']['port']);
         $container->setParameter('app.mediaconch.api.version', $config['mediaconch']['api_version']);
         $container->setParameter('app.mediaconch.absolute_url_for_mail', $config['mediaconch']['absolute_url_for_mail']);
+        $container->setParameter('app.mediaconch.quotas', $config['mediaconch']['quotas']);
     }
 }

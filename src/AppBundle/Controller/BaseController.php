@@ -5,7 +5,7 @@ namespace AppBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
-class BaseController extends Controller
+abstract class BaseController extends Controller implements MCOControllerInterface
 {
     protected function addFlashBag($type, $message) {
         $this->addFlash(

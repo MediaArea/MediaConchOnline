@@ -19,6 +19,7 @@
             <argument type="service" id="security.token_storage" />
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="mco.policy.getPoliciesCount" />
+            <argument>%app.mediaconch.quotas%</argument>
         </service>
 
         <service id="app.form.type.professional" class="AppBundle\Form\Type\ProfessionalType">
