@@ -233,7 +233,7 @@ class XslPolicyController extends BaseController
                 $policyEditType->editType($id, $data['policyType']);
 
                 // Edit policy visibility if policy is top level
-                if (1 == $data['policyTopLevel']) {
+                if (1 == $data['policyTopLevel'] && $this->get('security.authorization_checker')->isGranted('ROLE_BASIC')) {
                     $policyEditVisibility = $this->get('mco.policy.editVisibility');
                     $policyEditVisibility->editVisibility($id, $data['policyVisibility']);
                 }

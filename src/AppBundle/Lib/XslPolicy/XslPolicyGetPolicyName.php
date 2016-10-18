@@ -8,4 +8,9 @@ class XslPolicyGetPolicyName extends XslPolicyBase
     {
         $this->response = $this->mc->policyGetPolicyName($this->user->getId(), $id);
     }
+
+    public function getPublicPolicyName($id, $userId)
+    {
+        $this->response = $this->mc->policyGetPolicyName($userId, $id);
+    }
 }

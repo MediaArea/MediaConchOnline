@@ -9,6 +9,11 @@ class XslPolicyExport extends XslPolicyBase
         $this->response = $this->mc->policyExport($this->user->getId(), $id);
     }
 
+    public function publicExport($id, $userId)
+    {
+        $this->response = $this->mc->policyExport($userId, $id, true);
+    }
+
     public function getPolicyXml()
     {
         return $this->response->getXml();

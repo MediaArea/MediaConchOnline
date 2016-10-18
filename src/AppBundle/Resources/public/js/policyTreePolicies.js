@@ -36,12 +36,16 @@ var policyTreePolicies = (function() {
         // Visibility
         if ('u_p' == node.parent) {
             $('#xslPolicyInfo_policyTopLevel').val(1);
-            $('#xslPolicyInfo_policyVisibility').removeClass('hidden');
-            $('#xslPolicyInfo_policyVisibility option[value="' + ('true' == node.data.isPublic ? 1 : 0) + '"]').prop('selected', true);
+            if ($('#xslPolicyInfo_policyVisibility').length) {
+                $('#xslPolicyInfo_policyVisibility').removeClass('hidden');
+                $('#xslPolicyInfo_policyVisibility option[value="' + (true == node.data.isPublic ? 1 : 0) + '"]').prop('selected', true);
+            }
         }
         else {
             $('#xslPolicyInfo_policyTopLevel').val(0);
-            $('#xslPolicyInfo_policyVisibility').addClass('hidden');
+            if ($('#xslPolicyInfo_policyVisibility').length) {
+                $('#xslPolicyInfo_policyVisibility').addClass('hidden');
+            }
         }
 
         $('.policyManage').addClass('hidden');

@@ -76,6 +76,7 @@
 
         <service id="app.form.type.policy.info" class="AppBundle\Form\Type\XslPolicyInfoFormType">
             <tag name="form.type" alias="xslPolicyInfo" />
+            <argument type="service" id="security.authorization_checker" />
         </service>
 
         <service id="app.form.type.policy.rule" class="AppBundle\Form\Type\XslPolicyRuleFormType">
@@ -206,6 +207,12 @@
             <argument type="service" id="mco.mediaconch.server"/>
             <argument type="service" id="security.token_storage" />
         </service>
+
+        <service id="mco.policy.getPublicPolicies" class="AppBundle\Lib\XslPolicy\XslPolicyGetPublicPolicies">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
 
         <service id="mco.policy.rule.create" class="AppBundle\Lib\XslPolicy\XslPolicyRuleCreate">
             <argument type="service" id="mco.mediaconch.server"/>

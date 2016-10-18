@@ -186,6 +186,10 @@ fos_js_routing:
         - app_xslpolicy_xslpolicytreeruledelete
         - app_xslpolicy_xslpolicytreeruleduplicate
         - app_xslpolicy_xslpolicytreerulemove
+        - app_publicpolicies_policyexport
+        - app_publicpolicies_policyimport
+        - app_publicapi_publicpolicieslist
+        - app_publicapi_publicpoliciespolicy
 
 services:
     twig.extension.text:

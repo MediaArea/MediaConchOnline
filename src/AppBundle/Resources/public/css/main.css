@@ -251,12 +251,58 @@ p.registration {
 
 .alert-modal-create-policy {
     display: inline-block;
-    margin-top: inherit;
+    margin-top: 0;
     margin-bottom: inherit;
     font-size: 16px;
     padding: 6px 12px;
+    line-height: 1.42857143;
 }
 
 .alert-modal-create-policy a {
     text-decoration: underline;
+}
+
+.policiesList .col-xs-12 {
+    margin-bottom: 20px;
+}
+
+.policiesList .col-xs-12 .policyBox {
+    border: 1px solid #ddd;
+    padding: 15px 30px;
+    font-size: 14px;
+    line-height: 1.1;
+    border-radius: 4px;
+    display: block;
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+.policyBox h4 {
+    margin-top: 0;
+    text-align: center;
+}
+
+.policyBox h4 a:hover {
+    text-decoration: none;
+}
+
+.policyBox .policyDescription {
+    color: #808080;
+    display: block;
+    text-align: justify;
+}
+
+.policyBox .policyAuthor {
+    color: #808080;
+    margin-top: 10px;
+    display: block;
+}
+
+.policyBox .policyActions {
+    margin-top: 20px;
+}
+
+#policyTree .popover-content ul {
+    padding-left: 14px;
+    list-style-type: initial;
 }
