@@ -197,7 +197,7 @@ app:
     mediaconch:
         address: 127.0.0.1
         port: 4242
-        api_version: 1.8
+        api_version: 1.11
         absolute_url_for_mail:
             host: ~
             scheme: ~

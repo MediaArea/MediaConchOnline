@@ -162,6 +162,11 @@
             <argument type="service" id="security.token_storage" />
         </service>
 
+        <service id="mco.policy.editVisibility" class="AppBundle\Lib\XslPolicy\XslPolicyEditVisibility">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
         <service id="mco.policy.delete" class="AppBundle\Lib\XslPolicy\XslPolicyDelete">
             <argument type="service" id="mco.mediaconch.server"/>
             <argument type="service" id="security.token_storage" />

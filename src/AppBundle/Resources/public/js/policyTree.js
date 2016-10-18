@@ -465,6 +465,9 @@ var policyTree = (function() {
         instance.rename_node(selectedPolicy, policy.text);
         selectedPolicy.data.description = policy.data.description;
         selectedPolicy.data.type = policy.data.type;
+        if (undefined !== policy.data.isPublic) {
+            selectedPolicy.data.isPublic = policy.data.isPublic;
+        }
         mcoMessage.success('Policy info changed successfuly');
     }
 

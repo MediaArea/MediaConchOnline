@@ -15,6 +15,11 @@ class XslPolicyInfoFormType extends AbstractType
                 'choices_as_values' => true,
                 'placeholder' => false)
                 )
+            ->add('policyVisibility', 'choice', array('choices' => array('Private' => false, 'Public' => true),
+                'choices_as_values' => true,
+                'placeholder' => false)
+                )
+            ->add('policyTopLevel', 'hidden')
             ->add('SavePolicyInfo', 'submit', array('attr' => array('class' => 'btn-warning')));
     }
 

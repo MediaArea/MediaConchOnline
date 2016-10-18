@@ -232,6 +232,12 @@ class XslPolicyController extends BaseController
                 $policyEditType = $this->get('mco.policy.editType');
                 $policyEditType->editType($id, $data['policyType']);
 
+                // Edit policy visibility if policy is top level
+                if (1 == $data['policyTopLevel']) {
+                    $policyEditVisibility = $this->get('mco.policy.editVisibility');
+                    $policyEditVisibility->editVisibility($id, $data['policyVisibility']);
+                }
+
                 // Save policy
                 $policySave = $this->get('mco.policy.save');
                 $policySave->save($id);

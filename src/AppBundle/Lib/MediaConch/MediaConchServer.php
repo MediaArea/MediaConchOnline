@@ -176,6 +176,13 @@ class MediaConchServer
         return $this->callApiHandler('policy_change_type', 'POST', json_encode($request), 'POLICY_CHANGE_TYPE_RESULT', 'PolicyEditTypeResponse');
     }
 
+    public function policyEditVisibility($user, $policyId, $visibility)
+    {
+        $request = array('POLICY_CHANGE_IS_PUBLIC' => array('user' => $user, 'id' => (int) $policyId, 'is_public' => (bool) $visibility));
+
+        return $this->callApiHandler('policy_change_is_public', 'POST', json_encode($request), 'POLICY_CHANGE_IS_PUBLIC_RESULT', 'PolicyEditVisibilityResponse');
+    }
+
     public function policyDelete($user, $policyId)
     {
         $request = array('user' => $user, 'id' => (int) $policyId);
