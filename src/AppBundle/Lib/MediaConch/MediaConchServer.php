@@ -173,12 +173,13 @@ class MediaConchServer
         return $this->callApiHandler('policy_dump', 'GET', $request, 'POLICY_DUMP_RESULT', 'PolicyExportResponse');
     }
 
-    public function policyEdit($user, $policyId, $name, $description)
+    public function policyEdit($user, $policyId, $name, $description, $license)
     {
         $request = array('POLICY_CHANGE_INFO' => array('user' => (int) $user,
             'id' => (int) $policyId,
             'name' => null == $name ? '' : $name,
-            'description' => null == $description ? '' : $description));
+            'description' => null == $description ? '' : $description,
+            'license' => $license));
 
         return $this->callApiHandler('policy_change_info', 'POST', json_encode($request), 'POLICY_CHANGE_INFO_RESULT', 'PolicyEditResponse');
     }

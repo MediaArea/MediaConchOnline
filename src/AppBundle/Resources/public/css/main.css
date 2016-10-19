@@ -292,9 +292,12 @@ p.registration {
     text-align: justify;
 }
 
-.policyBox .policyAuthor {
+.policyBox .policyInfos {
     color: #808080;
     margin-top: 10px;
+}
+
+.policyBox .policyAuthor, .policyBox .policyLicense {
     display: block;
 }
 
@@ -302,7 +305,14 @@ p.registration {
     margin-top: 20px;
 }
 
-#policyTree .popover-content ul {
+#policyTree .popover-content ul, .policyEdit .popover-content ul {
     padding-left: 14px;
     list-style-type: initial;
+}
+
+.popover-content footer {
+    border-top: 1px solid #ccc;
+    border-bottom: none;
+    margin-top: 10px;
+    padding-top: 10px;
 }

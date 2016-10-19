@@ -226,7 +226,7 @@ class XslPolicyController extends BaseController
             try {
                 // Edit policy name and description
                 $policyEdit = $this->get('mco.policy.edit');
-                $policyEdit->edit($id, $data['policyName'], $data['policyDescription']);
+                $policyEdit->edit($id, $data['policyName'], $data['policyDescription'], $data['policyLicense']);
 
                 // Edit policy type
                 $policyEditType = $this->get('mco.policy.editType');

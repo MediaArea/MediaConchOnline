@@ -35,6 +35,10 @@ function modalBinding() {
 var publicPoliciesList = (function() {
     var displayList = function(list) {
         $.each(list, function(index, policy) {
+            if (undefined === policy.license || '' == policy.license) {
+                policy.license = 'Other';
+            }
+
             $('#publicPoliciesList').append(
 '<div class="col-xs-12 col-sm-6"> \
     <div class="policyBox" data-policy-id="' + policy.id + '" data-user-id="' + policy.user.id + '"> \
@@ -42,7 +46,10 @@ var publicPoliciesList = (function() {
             <h4><a href="#" data-toggle="modal" data-target="#modalPolicy" title="View policy">' + policy.name + '</a></h4> \
             <span class="policyDescription">' + policy.description + '</span> \
         </header> \
-        <span class="policyAuthor">Maintainer: ' + policy.user.name + '</span> \
+        <p class="policyInfos"> \
+            <span class="policyAuthor">Maintainer: ' + policy.user.name + '</span> \
+            <span class="policyLicense">License: ' + policy.license + '</span> \
+        </p> \
         <div class="policyActions"> \
             <button type="button" class="btn btn-default policyImport">Add to my policies</button> \
             <button type="button" class="btn btn-default pull-right policyExport">Export</button> \

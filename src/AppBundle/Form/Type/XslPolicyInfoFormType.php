@@ -18,8 +18,12 @@ class XslPolicyInfoFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('policyName', null, array('required' => false))
-            ->add('policyDescription', null, array('required' => false))
+            ->add('policyDescription', 'textarea', array('required' => false))
             ->add('policyType', 'choice', array('choices' => array('AND' => 'and', 'OR' => 'or'),
+                'choices_as_values' => true,
+                'placeholder' => false)
+                )
+            ->add('policyLicense', 'choice', array('choices' => array('MIT License' => 'MIT', 'Apache license version 2' => 'Apache-2.0', 'GNU GPL version 3 or later' => 'GPL-3.0+', 'Other' => 'Other'),
                 'choices_as_values' => true,
                 'placeholder' => false)
                 )
