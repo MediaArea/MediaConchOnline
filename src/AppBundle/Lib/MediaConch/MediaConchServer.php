@@ -25,16 +25,16 @@ class MediaConchServer
         $this->userSettings = $userSettings;
     }
 
-    public function analyse($file)
+    public function analyse($user, $file)
     {
-        $request = array('CHECKER_ANALYZE' => array('args' => array(array('id' => 0, 'file' => $file))));
+        $request = array('CHECKER_ANALYZE' => array('args' => array(array('user' => (int) $user, 'id' => 0, 'file' => $file))));
 
         return $this->callApiHandler('checker_analyze', 'POST', json_encode($request), 'CHECKER_ANALYZE_RESULT', 'AnalyzeResponse');
     }
 
-    public function status($id)
+    public function status($user, $id)
     {
-        $request = array('id' => $id);
+        $request = array('user' => (int) $user, 'id' => $id);
 
         return $this->callApiHandler('checker_status', 'GET', $request, 'CHECKER_STATUS_RESULT', 'StatusResponse');
     }
@@ -69,9 +69,9 @@ class MediaConchServer
         return $this->callApiHandler('checker_validate', 'POST', json_encode($request), 'CHECKER_VALIDATE_RESULT', 'ValidateResponse');
     }
 
-    public function fileFromId($id)
+    public function fileFromId($user, $id)
     {
-        $request = array('CHECKER_FILE_FROM_ID' => array('id' => (int) $id));
+        $request = array('CHECKER_FILE_FROM_ID' => array('user' => (int) $user, 'id' => (int) $id));
 
         return $this->callApiHandler('checker_file_from_id', 'POST', json_encode($request), 'CHECKER_FILE_FROM_ID_RESULT', 'FileFromIdResponse');
     }

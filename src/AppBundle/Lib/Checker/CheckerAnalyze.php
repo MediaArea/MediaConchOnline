@@ -12,7 +12,7 @@ class CheckerAnalyze extends CheckerBase
     public function analyse($file)
     {
         $this->source = $file;
-        $this->response = $this->mc->analyse($file);
+        $this->response = $this->mc->analyse($this->user->getId(), $file);
     }
 
     public function getResponseAsArray()
