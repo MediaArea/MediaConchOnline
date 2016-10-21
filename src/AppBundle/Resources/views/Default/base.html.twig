@@ -34,75 +34,82 @@
         {% block stylesheets %}{% endblock %}
     </head>
     <body id="body" class="container">
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#mco-navbar" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                  </button>
+                  <a class="navbar-brand serif" href="{{ path('app_default_homepage') }}">
+                      {% image '@AppBundle/Resources/public/img/MediaConch-61x38.png' %}
+                          <img src="{{ asset_url }}" alt="🐚" title="MediaConch" />
+                      {% endimage %}
+                      <span class="hidden-sm"><strong>MediaConch</strong></span>
+                  </a>
+                </div>
 
-            <nav class="navbar-default page-scroll">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#collapse-1">
-                     <span class="icon-bar"></span>
-                     <span class="icon-bar"></span>
-                     <span class="icon-bar"></span>
-                 </button>
-                <a class="navbar-brand serif" href="{{ path('app_default_homepage') }}">
-                    {% image '@AppBundle/Resources/public/img/MediaConch-61x38.png' %}
-                        <img src="{{ asset_url }}" alt="🐚" title="MediaConch" />
-                    {% endimage %}
-                    <strong>MediaConch</strong></a>
-            </nav>
-
-            <nav class="collapse navbar-collapse" id="collapse-1">
-              <ul class="nav navbar navbar-nav navbar-right">
-                <li><a href="{{ path('app_default_homepage') }}">Home</a></li>
-                {# <li><a href="">About</a></li> #}
-                {% if app.user and is_granted("IS_AUTHENTICATED_REMEMBERED") %}
-                    <li><a href="{{ path('app_checker_checker') }}">Checker</a></li>
-                    <li class="dropdown">
-                        <a href="{{ path('app_xslpolicy_xslpolicytree') }}" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" target="_blank">Policies <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ path('app_xslpolicy_xslpolicytree') }}">Policy editor</a></li>
-                            <li><a href="{{ path('app_publicpolicies_list') }}">Public policies</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="{{ path('app_display_display') }}">Display</a></li>
-                    <li class="dropdown">
-                        <a href="https://mediaarea.net/MediaConch/documentation/About.html" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" target="_blank">Help <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="https://mediaarea.net/MediaConch/documentation/About.html" target="_blank" class="no-close-alert">About</a></li>
-                            <li><a href="https://mediaarea.net/MediaConch/documentation/FAQ.html" target="_blank" class="no-close-alert">FAQ</a></li>
-                            <li><a href="https://mediaarea.net/MediaConch/documentation/HowToUse.html" target="_blank" class="no-close-alert">How to Use</a></li>
-                            <li><a href="https://mediaarea.net/MediaConch/documentation/DataFormat.html" target="_blank" class="no-close-alert">Data Format</a></li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
-                        <a href="{{ path('fos_user_profile_show') }}" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            {% if app.user and is_granted('ROLE_GUEST') %}
-                                <li><a href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a></li>
-                                <li><a href="{{ path('app_user_guestregister') }}">{{ 'layout.register'|trans({}, 'FOSUserBundle') }}</a></li>
-                            {% endif %}
-                            <li><a href="{{ path('fos_user_profile_show') }}">Profile</a></li>
-                            <li><a href="{{ path('app_user_settings') }}">Settings</a></li>
-                            {% if app.user and is_granted('ROLE_ADMIN') %}
-                                <li><a href="{{ path('admin') }}">Admin</a></li>
-                            {% endif %}
-                            {% if app.user and is_granted('ROLE_BASIC') %}
-                                <li><a href="{{ path('fos_user_security_logout') }}">{{ 'layout.logout'|trans({}, 'FOSUserBundle') }}</a></li>
-                            {% endif %}
-                        </ul>
-                    </li>
-                {% else %}
-                    <li class="dropdown">
-                        <a href="https://mediaarea.net/MediaConch/documentation/About.html" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" target="_blank">Help <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="https://mediaarea.net/MediaConch/documentation/About.html" target="_blank" class="no-close-alert">About</a></li>
-                            <li><a href="https://mediaarea.net/MediaConch/documentation/FAQ.html" target="_blank" class="no-close-alert">FAQ</a></li>
-                            <li><a href="https://mediaarea.net/MediaConch/documentation/HowToUse.html" target="_blank" class="no-close-alert">How to Use</a></li>
-                            <li><a href="https://mediaarea.net/MediaConch/documentation/DataFormat.html" target="_blank" class="no-close-alert">Data Format</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a></li>
-                    <li><a href="{{ path('fos_user_registration_register') }}">{{ 'layout.register'|trans({}, 'FOSUserBundle') }}</a></li>
-                {% endif %}
-                </ul>
-            </nav>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="mco-navbar">
+                    <ul class="nav navbar navbar-nav navbar-right">
+                      <li class="hidden-xs hidden-sm hidden-md"><a href="{{ path('app_default_homepage') }}">Home</a></li>
+                      {% if app.user and is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+                          <li><a href="{{ path('app_checker_checker') }}">Checker</a></li>
+                          <li class="dropdown">
+                              <a href="{{ path('app_xslpolicy_xslpolicytree') }}" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" target="_blank">Policies <span class="caret"></span></a>
+                              <ul class="dropdown-menu">
+                                  <li><a href="{{ path('app_xslpolicy_xslpolicytree') }}">Policy editor</a></li>
+                                  <li><a href="{{ path('app_publicpolicies_list') }}">Public policies</a></li>
+                                  <li class="hidden-md hidden-lg"><a href="{{ path('app_display_display') }}">Display</a></li>
+                              </ul>
+                          </li>
+                          <li class="hidden-xs hidden-sm"><a href="{{ path('app_display_display') }}">Display</a></li>
+                          <li class="dropdown">
+                              <a href="https://mediaarea.net/MediaConch/documentation/About.html" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" target="_blank">Help <span class="caret"></span></a>
+                              <ul class="dropdown-menu">
+                                  <li><a href="https://mediaarea.net/MediaConch/documentation/About.html" target="_blank" class="no-close-alert">About</a></li>
+                                  <li><a href="https://mediaarea.net/MediaConch/documentation/FAQ.html" target="_blank" class="no-close-alert">FAQ</a></li>
+                                  <li><a href="https://mediaarea.net/MediaConch/documentation/HowToUse.html" target="_blank" class="no-close-alert">How to Use</a></li>
+                                  <li><a href="https://mediaarea.net/MediaConch/documentation/DataFormat.html" target="_blank" class="no-close-alert">Data Format</a></li>
+                              </ul>
+                          </li>
+                          <li class="dropdown">
+                              <a href="{{ path('fos_user_profile_show') }}" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} <span class="caret"></span></a>
+                              <ul class="dropdown-menu">
+                                  {% if app.user and is_granted('ROLE_GUEST') %}
+                                      <li><a href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a></li>
+                                      <li><a href="{{ path('app_user_guestregister') }}">{{ 'layout.register'|trans({}, 'FOSUserBundle') }}</a></li>
+                                  {% endif %}
+                                  <li><a href="{{ path('fos_user_profile_show') }}">Profile</a></li>
+                                  <li><a href="{{ path('app_user_settings') }}">Settings</a></li>
+                                  {% if app.user and is_granted('ROLE_ADMIN') %}
+                                      <li><a href="{{ path('admin') }}">Admin</a></li>
+                                  {% endif %}
+                                  {% if app.user and is_granted('ROLE_BASIC') %}
+                                      <li><a href="{{ path('fos_user_security_logout') }}">{{ 'layout.logout'|trans({}, 'FOSUserBundle') }}</a></li>
+                                  {% endif %}
+                              </ul>
+                          </li>
+                      {% else %}
+                          <li class="dropdown">
+                              <a href="https://mediaarea.net/MediaConch/documentation/About.html" class="dropdown-toggle no-close-alert" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" target="_blank">Help <span class="caret"></span></a>
+                              <ul class="dropdown-menu">
+                                  <li><a href="https://mediaarea.net/MediaConch/documentation/About.html" target="_blank" class="no-close-alert">About</a></li>
+                                  <li><a href="https://mediaarea.net/MediaConch/documentation/FAQ.html" target="_blank" class="no-close-alert">FAQ</a></li>
+                                  <li><a href="https://mediaarea.net/MediaConch/documentation/HowToUse.html" target="_blank" class="no-close-alert">How to Use</a></li>
+                                  <li><a href="https://mediaarea.net/MediaConch/documentation/DataFormat.html" target="_blank" class="no-close-alert">Data Format</a></li>
+                              </ul>
+                          </li>
+                          <li><a href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a></li>
+                          <li><a href="{{ path('fos_user_registration_register') }}">{{ 'layout.register'|trans({}, 'FOSUserBundle') }}</a></li>
+                      {% endif %}
+                      </ul>
+                </div>
+            </div>
+        </nav>
 
         <div>
         {% for type, messages in app.session.flashBag.all %}
@@ -121,15 +128,15 @@
                 </div>
             </div>
 
-        <footer>
-          <div class="navbar">
-            <div class="col-md-12">
-                <span class="pull-left">&#169; <a href="//mediaarea.net">MediaArea.net</a> - MediaConch is part of <a href="http://www.preforma-project.eu/" target="_blank">PREFORMA</a> project co-funded by the <a href="http://europa.eu/" target="_blank">European Commission</a></span>
-                <span class="pull-right">Licensing under <a href="https://www.mozilla.org/en-US/MPL/2.0/" target="_blank">MPL v2+</a> and <a href="http://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GPL v3+</a></span>
+            <footer>
+            <div class="navbar">
+                <div class="col-md-12">
+                    <span class="pull-left">&#169; <a href="//mediaarea.net">MediaArea.net</a> - MediaConch is part of <a href="http://www.preforma-project.eu/" target="_blank">PREFORMA</a> project co-funded by the <a href="http://europa.eu/" target="_blank">European Commission</a></span>
+                    <span class="pull-right">Licensing under <a href="https://www.mozilla.org/en-US/MPL/2.0/" target="_blank">MPL v2+</a> and <a href="http://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GPL v3+</a></span>
+                </div>
             </div>
-          </div>
-        </footer>
-    </div> <!-- ends container -->
+            </footer>
+        </div> <!-- ends container -->
 
         {% javascripts output='js/jquery-bootstrap.js'
             'js/jquery.js'
