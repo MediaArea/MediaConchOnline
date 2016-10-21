@@ -82,8 +82,8 @@ class PublicApiController extends Controller
                 foreach ($policyList as $policy) {
                     $list[] = array('id' => $policy->id,
                         'user' => array('id' => $policy->user, 'name' => $userList[$policy->user]),
-                        'name' => $policy->name,
-                        'description' => $policy->description,
+                        'name' => htmlspecialchars($policy->name),
+                        'description' => htmlspecialchars($policy->description),
                         'license' => isset($policy->license) ? $policy->license : '',
                         );
                 }
