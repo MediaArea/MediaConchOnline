@@ -12,7 +12,6 @@ function modalBinding() {
     $('#modalPolicy').on('show.bs.modal', function (event) {
         var policyElem = $(event.relatedTarget).parent().parent().parent();
 
-
         policyTree.refreshData(policyElem.data('policy-id'), policyElem.data('user-id'));
 
         // Set policyId and userId in modal

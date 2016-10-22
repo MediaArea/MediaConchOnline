@@ -14,14 +14,14 @@ use AppBundle\Controller\BaseController;
 use AppBundle\Lib\MediaConch\MediaConchServerException;
 
 /**
- * @Route("/")
+ * @Route("/publicPolicies")
  */
 class PublicPoliciesController extends BaseController
 {
     /**
      * Public policies page
      *
-     * @Route("/publicPolicies")
+     * @Route("")
      * @Template()
      */
     public function listAction(Request $request)
@@ -36,7 +36,7 @@ class PublicPoliciesController extends BaseController
      *
      * @return XML
      *
-     * @Route("/publicPolicies/export/{id}/{userId}", requirements={"id": "\d+", "userId": "\d+"})
+     * @Route("/export/{id}/{userId}", requirements={"id": "\d+", "userId": "\d+"})
      * @Method("GET")
      */
     public function policyExportAction($id, $userId)
@@ -74,7 +74,7 @@ class PublicPoliciesController extends BaseController
      * @return json
      * {"policyId":ID}
      *
-     * @Route("/publicPolicies/import/{id}/{userId}", requirements={"id": "\d+", "userId": "\d+"})
+     * @Route("/import/{id}/{userId}", requirements={"id": "\d+", "userId": "\d+"})
      * @Method("GET")
      */
     public function policyImportAction(Request $request, $id, $userId)

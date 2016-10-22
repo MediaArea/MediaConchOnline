@@ -18,6 +18,8 @@ var publicPoliciesListAjax = (function() {
     var getApiPolicyUrl = function(policyId, policyUserId) {
         /**
          * Url of policy API
+         * @param int policyId policy ID of the policy
+         * @param int policyUserId user ID of the policy
          *
          * @return string
          * /api/public/v1/publicpolicies/policy/POLICYID/POLICYUSERID
@@ -37,6 +39,14 @@ var publicPoliciesListAjax = (function() {
     };
 
     var policyImport = function(policyId, policyUserId, button) {
+        /**
+        * Import a policy to user policies
+        * @param int policyId policy ID of the policy to export
+        * @param int policyUserId user ID of the policy to export
+        *
+        * @return json
+        * {"policyId":ID}
+        */
         $.get(Routing.generate('app_publicpolicies_policyimport', {id: policyId, userId: policyUserId}))
         .done(function(data) {
             importPolicy.success(data.policyId, button);

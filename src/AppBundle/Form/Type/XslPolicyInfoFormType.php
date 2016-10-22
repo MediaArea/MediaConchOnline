@@ -23,7 +23,7 @@ class XslPolicyInfoFormType extends AbstractType
                 'choices_as_values' => true,
                 'placeholder' => false)
                 )
-            ->add('policyLicense', 'choice', array('choices' => array('MIT License' => 'MIT', 'Apache license version 2' => 'Apache-2.0', 'GNU GPL version 3 or later' => 'GPL-3.0+', 'Other' => 'Other'),
+            ->add('policyLicense', 'choice', array('choices' => array('Creative Commons Zero' => 'CC0-1.0+', 'Creative Commons Attribution' => 'CC-BY-4.0+', 'Creative Commons Attribution-ShareAlike' => 'CC-BY-SA-4.0+', 'Other' => 'Other'),
                 'choices_as_values' => true,
                 'placeholder' => false)
                 )

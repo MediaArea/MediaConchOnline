@@ -233,7 +233,7 @@ function policyEditHelp() {
 
     // License
     $('label[for="xslPolicyInfo_policyLicense"]').append('&nbsp;<span class="glyphicon glyphicon-info-sign policyLicenseHelp" aria-hidden="true"></span>');
-    var policyLicenseHelp = $('.policyLicenseHelp').popover({title: 'Help', content: '<ul><li>MIT License : I want it simple and permissive</li><li>Apache license version 2 : I’m concerned about patents</li><li>GNU GPL version 3 or later : I care about sharing  improvements</li><li>Other: for a license not in the predefined list</li><footer>More information about how to choose a license for your policies may be found on <a href="http://choosealicense.com" target="_blank">choosealicense.com</a></footer>', placement: 'auto top', trigger: 'manual', html: true});
+    var policyLicenseHelp = $('.policyLicenseHelp').popover({title: 'Help', content: '<ul><li>Creative Commons Zero (1.0 or later): I like public domain</li><li>Creative Commons Attribution (4.0 or later): I want it permissive</li><li>Creative Commons Attribution-ShareAlike (4.0 or later): I care about sharing improvements</li><li>Other: a license not in the predefined list</li><footer>More information about how to choose a license for your policies may be found on <a href="https://creativecommons.org/share-your-work/" target="_blank">Creative Commons website</a></footer>', placement: 'auto top', trigger: 'manual', html: true});
     popoverManualBinding(policyLicenseHelp);
 }
 

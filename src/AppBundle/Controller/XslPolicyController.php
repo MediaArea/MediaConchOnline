@@ -33,7 +33,7 @@ class XslPolicyController extends BaseController
     /**
      * Policy editor page
      *
-     * @Route("/policyEditor/")
+     * @Route("/policyEditor")
      * @Template()
      */
     public function xslPolicyTreeAction(Request $request)

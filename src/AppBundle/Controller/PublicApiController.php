@@ -22,6 +22,7 @@ class PublicApiController extends Controller
     /**
      * Public policies page
      *
+     * @return json
      * @Route("/publicpolicies/list")
      */
     public function publicPoliciesListAction(Request $request)
@@ -98,16 +99,15 @@ class PublicApiController extends Controller
 
     /**
      * Public policies get policy
+     * @param int id policy ID of the policy to import
+     * @param int userId user ID of the policy to import
      *
+     * @return json
+     * {"policy":POLICY_JSTREE_JSON}
      * @Route("/publicpolicies/policy/{id}/{userId}", requirements={"id": "\d+", "userId": "\d+"})
-     * @Route("/publicpolicies/policy/", defaults={"id" = -1, "userId" = -1})
      */
     public function publicPoliciesPolicyAction(Request $request, $id, $userId)
     {
-        if (-1 == $id) {
-            return new JsonResponse(null);
-        }
-
         try {
             // Get policy
             $policy = $this->get('mco.policy.getPolicy');

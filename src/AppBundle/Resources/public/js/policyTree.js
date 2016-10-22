@@ -450,8 +450,8 @@ var policyTree = (function() {
     }
 
     var policyCreate = function(policy, selectedPolicy) {
-        // Force MIT license by default
-        policy.data.license = 'MIT';
+        // Force CC-BY-SA-4.0+ license by default
+        policy.data.license = 'CC-BY-SA-4.0+';
 
         if ('s_p' == selectedPolicy.id) {
             var policyNodeId = instance.create_node('u_p', policy);

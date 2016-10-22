@@ -21,10 +21,10 @@ MediaConchOnline Policy Management
 </div>
 <div class="col-md-4 policyRightCol">
     <div id="policyFix" class="row">
-        <div id="policyInfo" class="row">
+        <div id="policyInfo">
             <div></div>
         </div>
-        <div class="row policyManage">
+        <div class="policyManage">
             {% if importPolicyForm is defined and importPolicyForm %}
                 <div>
                     <h2>Import a policy</h2>
@@ -40,7 +40,7 @@ MediaConchOnline Policy Management
             {% endif %}
         </div>
 
-        <div class="row policyEdit hidden">
+        <div class="policyEdit hidden">
             <div>
                 <h4>Edition:</h4>
                 {{ form(policyInfoForm) }}
@@ -59,7 +59,7 @@ MediaConchOnline Policy Management
             </div>
         </div>
 
-        <div class="row policyEditRule hidden">
+        <div class="policyEditRule hidden">
             <div class="form-group">
                 <label class="control-label">Rule type</label>
                 <div class="btn-group btn-group-sm" role="group">
