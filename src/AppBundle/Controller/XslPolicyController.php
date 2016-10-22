@@ -21,9 +21,19 @@ use AppBundle\Lib\MediaConch\MediaConchServerException;
 class XslPolicyController extends BaseController
 {
     /**
-     * Policy editor page
+     * Old policy editor page
      *
      * @Route("/xslPolicyTree/")
+     */
+    public function xslPolicyTreeOldAction()
+    {
+        return $this->redirectToRoute('app_xslpolicy_xslpolicytree', array(), 301);
+    }
+
+    /**
+     * Policy editor page
+     *
+     * @Route("/policyEditor/")
      * @Template()
      */
     public function xslPolicyTreeAction(Request $request)

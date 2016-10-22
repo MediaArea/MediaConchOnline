@@ -105,11 +105,16 @@ footer .navbar {
 .content {
     padding-top: 25px;
     background-color: #F2F5F8;
-    padding-bottom: 80px;
+    padding-bottom: 30px;
 }
 
 .content .col-lg-offset-1 {
     margin-left: 4.16666667%;
+}
+
+.main {
+    padding-left: 30px;
+    padding-right: 30px;
 }
 
 .panel {
@@ -163,7 +168,8 @@ footer .navbar {
     text-align: left;
 }
 
-#file label.col-sm-2, #url label.col-sm-2, #repository label.col-sm-2 {
+#file label.col-sm-2, #url label.col-sm-2, #repository label.col-sm-2,
+    #file label.col-sm-3, #url label.col-sm-3, #repository label.col-sm-3 {
     padding-right: 0;
     padding-left: 0;
 }

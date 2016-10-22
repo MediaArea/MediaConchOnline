@@ -525,7 +525,7 @@ $(document).ready(function() {
             policyResultText += '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span><span class="hidden">F</span> ';
         }
 
-        policyResultText += '<span title="' + nodeCell.data('policyName') + '">' + truncateString(nodeCell.data('policyName'), 16) + '</span>';
+        policyResultText += '<span title="' + nodeCell.data('policyName') + '">' + truncateString(nodeCell.data('policyName'), 20) + '</span>';
         policyResultText += '</span>';
 
         result.cell(nodeCell, 2).data(policyResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy' + resultId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" data-target="#modalPolicy' + resultId + '" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
