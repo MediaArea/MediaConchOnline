@@ -8,7 +8,7 @@ class CheckerFilename extends CheckerBase
 {
     public function fileFromId($id)
     {
-        $this->response = $this->mc->fileFromId($id);
+        $this->response = $this->mc->fileFromId($this->user->getId(), $id);
     }
 
     public function getResponseAsArray()

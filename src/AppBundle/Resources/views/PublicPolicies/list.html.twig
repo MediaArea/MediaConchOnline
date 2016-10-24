@@ -1,0 +1,61 @@
+{% extends 'AppBundle:Default:base.html.twig' %}
+
+{% block title %}
+Public policies
+{% endblock %}
+
+{% block body %}
+<div class="row displayMessages"></div>
+
+<h1>Public policies</h1>
+
+<div id="publicPoliciesList" class="row policiesList"></div>
+
+<div id="modalPolicy" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Policy</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <i class="glyphicon glyphicon-search"></i><input type="text" value="" class="jstreeSearch" id="policyTreeSearch" placeholder="Search" />
+                    </div>
+                    <div class="col-md-12">
+                        <div id="policyTree"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary modalPolicyImport">Add to my policies</button>
+                <button type="button" class="btn btn-primary modalPolicyExport">Export</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', {'callback': 'fos.Router.setData'}) }}"></script>
+    {% javascripts filter='?jsqueeze' output='js/publicPoliciesList.js'
+        'js/jstree.min.js'
+        '@AppBundle/Resources/public/js/message.js'
+        '@AppBundle/Resources/public/js/publicPolicies/list.js'
+        '@AppBundle/Resources/public/js/publicPolicies/listPolicyTree.js'
+        '@AppBundle/Resources/public/js/publicPolicies/listAjax.js'
+    %}
+        <script src="{{ asset_url }}"></script>
+    {% endjavascripts %}
+{% endblock %}
+
+{% block stylesheets %}
+    {% stylesheets filter='?scssphp' output='css/publicPoliciesList.css'
+        'css/jstree.min.css'
+    %}
+        <link rel="stylesheet" type="text/css" href="{{ asset_url }}"/>
+    {% endstylesheets %}
+{% endblock %}

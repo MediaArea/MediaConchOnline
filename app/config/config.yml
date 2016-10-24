@@ -186,6 +186,10 @@ fos_js_routing:
         - app_xslpolicy_xslpolicytreeruledelete
         - app_xslpolicy_xslpolicytreeruleduplicate
         - app_xslpolicy_xslpolicytreerulemove
+        - app_publicpolicies_policyexport
+        - app_publicpolicies_policyimport
+        - app_publicapi_publicpolicieslist
+        - app_publicapi_publicpoliciespolicy
 
 services:
     twig.extension.text:
@@ -197,7 +201,7 @@ app:
     mediaconch:
         address: 127.0.0.1
         port: 4242
-        api_version: 1.8
+        api_version: 1.11
         absolute_url_for_mail:
             host: ~
             scheme: ~

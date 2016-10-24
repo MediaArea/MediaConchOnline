@@ -8,6 +8,6 @@ class CheckerStatus extends CheckerBase
 {
     public function getStatus($id)
     {
-        $this->response = $this->mc->status($id);
+        $this->response = $this->mc->status($this->user->getId(), $id);
     }
 }

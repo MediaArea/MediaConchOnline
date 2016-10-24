@@ -21,9 +21,19 @@ use AppBundle\Lib\MediaConch\MediaConchServerException;
 class XslPolicyController extends BaseController
 {
     /**
-     * Policy editor page
+     * Old policy editor page
      *
      * @Route("/xslPolicyTree/")
+     */
+    public function xslPolicyTreeOldAction()
+    {
+        return $this->redirectToRoute('app_xslpolicy_xslpolicytree', array(), 301);
+    }
+
+    /**
+     * Policy editor page
+     *
+     * @Route("/policyEditor")
      * @Template()
      */
     public function xslPolicyTreeAction(Request $request)
@@ -226,11 +236,17 @@ class XslPolicyController extends BaseController
             try {
                 // Edit policy name and description
                 $policyEdit = $this->get('mco.policy.edit');
-                $policyEdit->edit($id, $data['policyName'], $data['policyDescription']);
+                $policyEdit->edit($id, $data['policyName'], $data['policyDescription'], $data['policyLicense']);
 
                 // Edit policy type
                 $policyEditType = $this->get('mco.policy.editType');
                 $policyEditType->editType($id, $data['policyType']);
+
+                // Edit policy visibility if policy is top level
+                if (1 == $data['policyTopLevel'] && $this->get('security.authorization_checker')->isGranted('ROLE_BASIC')) {
+                    $policyEditVisibility = $this->get('mco.policy.editVisibility');
+                    $policyEditVisibility->editVisibility($id, $data['policyVisibility']);
+                }
 
                 // Save policy
                 $policySave = $this->get('mco.policy.save');
