@@ -8,6 +8,7 @@ use AppBundle\Lib\MediaConch\MediaConchServer;
 
 class XslPolicyBase
 {
+    protected $mc;
     protected $response;
     protected $user;
 

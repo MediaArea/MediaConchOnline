@@ -27,6 +27,10 @@ class PublicApiController extends Controller
      */
     public function publicPoliciesListAction(Request $request)
     {
+        // Remove MediaConch-Server-ID setting
+        $settings = $this->get('mco.settings');
+        $settings->removeMediaConchInstanceID();
+
         // Get start value
         $start = $request->request->get('start', 0);
 
@@ -118,5 +122,31 @@ class PublicApiController extends Controller
         catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
+    }
+
+    /**
+     * Public policies get policy
+     * @param int id policy ID of the policy to import
+     * @param int userId user ID of the policy to import
+     *
+     * @return XML
+     * @Route("/publicpolicies/policy/export/{id}/{userId}", requirements={"id": "\d+", "userId": "\d+"})
+     */
+    public function publicPoliciesPolicyExportAction(Request $request, $id, $userId)
+    {
+        try {
+            // Get policy XML
+            $policyExport = $this->get('mco.policy.export');
+            $policyExport->publicExport($id, $userId);
+
+            $response = new Response($policyExport->getPolicyXml());
+        }
+        catch (MediaConchServerException $e) {
+            $response = new Response('<?xml version="1.0"?><error />', $e->getStatusCode());
+        }
+
+        $response->headers->set('Content-Type', 'xml');
+
+        return $response;
     }
 }

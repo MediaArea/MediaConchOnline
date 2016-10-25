@@ -28,6 +28,10 @@ class CheckerController extends BaseController
      */
     public function checkerAction(Request $request)
     {
+        // Remove MediaConch-Server-ID setting
+        $settings = $this->get('mco.settings');
+        $settings->removeMediaConchInstanceID();
+
         if ($this->get('mediaconch_user.quotas')->hasUploadsRights()) {
             $formUpload = $this->createForm('checkerUpload');
         }
