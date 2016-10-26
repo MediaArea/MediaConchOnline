@@ -15,7 +15,7 @@ class XslPolicyRuleMtFormType extends AbstractType
             ->add('field', 'text')
             ->add('validator', 'choice', array('placeholder' => 'Must exist', 'choices' => XslPolicyFormFields::getOperators(), 'required' => false))
             ->add('value', 'text', array('required' => false))
-            ->add('scope', 'hidden', array('data' => 'mt'))
+            ->add('scope', 'hidden', array('data' => 'mmt'))
 
             ->add('SaveRule', 'submit', array('label' => 'Save', 'attr' => array('class' => 'btn-warning')))
             ->add('DuplicateRule', 'submit', array('label' => 'Duplicate', 'attr' => array('class' => 'btn-warning')))
