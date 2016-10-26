@@ -51,7 +51,7 @@ var policyTreePolicies = (function() {
 
             // License
             $('#xslPolicyInfo_policyLicense').parent().removeClass('hidden');
-            if (undefined === node.data.license) {
+            if (undefined === node.data.license || !$('#xslPolicyInfo_policyLicense option[value="' + node.data.license + '"]').length) {
                 // Select Other license by default if field is empty (old policy)
                 $('#xslPolicyInfo_policyLicense option:last').prop('selected', true);
             }
