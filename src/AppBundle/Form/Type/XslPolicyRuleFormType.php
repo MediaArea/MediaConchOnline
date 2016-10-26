@@ -20,7 +20,7 @@ class XslPolicyRuleFormType extends AbstractType
             ->add('field', 'choice', array('placeholder' => 'Choose a field'))
             ->add('occurrence', 'integer', array('attr' => array('min' => 1), 'required' => false))
             ->add('validator', 'choice', array('placeholder' => 'Must exist', 'choices' => XslPolicyFormFields::getOperators(), 'required' => false))
-            ->add('value')
+            ->add('value', null, array('label' => 'Content'))
             ->add('scope', 'hidden', array('data' => ''))
 
             ->add('SaveRule', 'submit', array('label' => 'Save', 'attr' => array('class' => 'btn-warning')))
