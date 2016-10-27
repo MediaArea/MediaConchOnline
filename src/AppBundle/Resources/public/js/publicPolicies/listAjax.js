@@ -8,9 +8,11 @@ var publicPoliciesListAjax = (function() {
          */
         $.get(Routing.generate('app_publicapi_publicpolicieslist'))
         .done(function(data) {
+            policyListSpinner.hide();
             publicPoliciesList.displayList(data.list);
         })
         .fail(function (jqXHR) {
+            policyListSpinner.hide();
             mcoMessage.fail(jqXHR);
         })
     };
