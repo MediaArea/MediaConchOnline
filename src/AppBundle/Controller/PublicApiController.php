@@ -88,7 +88,7 @@ class PublicApiController extends Controller
                     $list[] = array('id' => $policy->id,
                         'user' => array('id' => $policy->user, 'name' => $userList[$policy->user]),
                         'name' => htmlspecialchars($policy->name),
-                        'description' => htmlspecialchars($policy->description),
+                        'description' => nl2br(htmlspecialchars($policy->description)),
                         'license' => isset($policy->license) ? $policy->license : '',
                         );
                 }
