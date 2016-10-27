@@ -43,7 +43,7 @@ All open source digital assets for the software developed by MediaArea during th
 
 * Apache web server >= 2.2 (should also work on nginx and lighttpd)
     * mod rewrite is recommended
-* Php >= 5.5
+* Php >= 5.6
     * Mandatory packages for debian-like distributions : libapache2-mod-php5, php5-cli, php5-intl, php5-mysqlnd, php5-curl
     * Mandatory packages for RedHat-like distributions : php, php-cli, php-intl, php-mbstring, php-mysql, php-pdo, php-process, php-xml
     * Optional packages for RedHat-like distributions : php-pecl-apc or php-opcache
