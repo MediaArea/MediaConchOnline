@@ -13,6 +13,7 @@ use Symfony\Component\Security\Http\RememberMe\RememberMeServicesInterface;
 use Doctrine\ORM\NoResultException;
 
 use AppBundle\Controller\MCOControllerInterface;
+use AppBundle\Controller\PublicApiController;
 use AppBundle\Entity\GuestToken;
 use DeviceDetector\Parser\Bot AS BotParser;
 
@@ -40,15 +41,35 @@ class GuestListener
          * This is not usual in Symfony but it may happen.
          * If it is a class, it comes in array format
          */
-        if (!is_array($controller)) {
+        if (!is_array($controller) && !isset($controller[0])) {
             return;
         }
-
-        if (!$controller[0] instanceof MCOControllerInterface) {
-            return;
-        }
-
         $ctrl = $controller[0];
+
+        // Public API user
+        if ($ctrl instanceof PublicApiController) {
+            $username = 'publicAPI';
+            $userManager = $ctrl->get('fos_user.user_manager');
+
+            // Create user if not exists
+            if (null === $user = $userManager->findUserByUsername($username)) {
+                $user = $ctrl->get('fos_user.util.user_manipulator')->create(
+                    $username,
+                    $ctrl->get('fos_user.util.token_generator')->generateToken(),
+                    $username . '@mco',
+                    1,
+                    0);
+            }
+
+            // Log in user
+            $ctrl->get('fos_user.security.login_manager')->loginUser(
+                $this->firewallName,
+                $user);
+        }
+        else if (!$ctrl instanceof MCOControllerInterface) {
+            return;
+        }
+
         if (null == $ctrl->getUser()) {
             // Check bots
             $botParser = new BotParser();

@@ -4,6 +4,15 @@ var policyTree = (function() {
     var policyUserId = null;
 
     var init = function() {
+        // Disable F2 shortcut (rename) in jstree, needs to be done before jstree initialization
+        $('#policyTree').on('keydown.jstree', '.jstree-anchor', function(event) {
+            if (113 == event.keyCode) {
+                event.stopImmediatePropagation();
+
+                return false;
+            }
+        });
+
         $('#policyTree').jstree({
             core: {
                 check_callback: function (operation, node, parent, position, more) {
@@ -96,7 +105,7 @@ var policyTree = (function() {
         var data = '';
         if ('u' == node.type) {
             if ('' != node.data.description) {
-                data = node.data.description;
+                data = textUtils.nl2br(textUtils.sanitizeHtml(node.data.description));
             }
         }
         else if ('r' == node.type) {

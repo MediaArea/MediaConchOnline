@@ -31,6 +31,10 @@ class XslPolicyFormFields
                 '<=' => 'Is less or equal than (<=)',
                 '>' => 'Is greater than (>)',
                 '>=' => 'Is greater or equal than (>=)',
+                'exists' => 'Exists',
+                'must not exist' => 'Must not exist',
+                'starts with' => 'Starts with',
+                'must not start with' => 'Must not start with',
                 );
     }
 

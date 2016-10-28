@@ -37,6 +37,12 @@ security:
 #        default:
 #            anonymous: ~
 
+        # Firewall for public API
+        public_api:
+            pattern: ^/api/public/
+            stateless: true
+            security: false
+
         main:
             pattern: ^/
             form_login:

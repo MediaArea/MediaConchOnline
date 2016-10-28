@@ -9,7 +9,9 @@ Public policies
 
 <h1>Public policies</h1>
 
-<div id="publicPoliciesList" class="row policiesList"></div>
+<div id="publicPoliciesList" class="row policiesList">
+    <div class="publicPoliciesListSpinner col-xs-12"><span class="spinner-status"></span> Please wait while loading public policies list</div>
+</div>
 
 <div id="modalPolicy" class="modal fade">
     <div class="modal-dialog modal-lg">
@@ -44,6 +46,7 @@ Public policies
     {% javascripts filter='?jsqueeze' output='js/publicPoliciesList.js'
         'js/jstree.min.js'
         '@AppBundle/Resources/public/js/message.js'
+        '@AppBundle/Resources/public/js/utils/text.js'
         '@AppBundle/Resources/public/js/publicPolicies/list.js'
         '@AppBundle/Resources/public/js/publicPolicies/listPolicyTree.js'
         '@AppBundle/Resources/public/js/publicPolicies/listAjax.js'
