@@ -13,7 +13,7 @@ class XslPolicyRuleMtFormType extends AbstractType
     {
         $builder->add('title', 'text', array('label' => 'Rule name', 'required' => false))
             ->add('field', 'text')
-            ->add('validator', 'choice', array('placeholder' => 'Must exist', 'choices' => XslPolicyFormFields::getOperators(), 'required' => false))
+            ->add('validator', 'choice', array('placeholder' => false, 'choices' => XslPolicyFormFields::getOperators(), 'required' => false))
             ->add('value', 'text', array('required' => false))
             ->add('scope', 'hidden', array('data' => 'mmt'))
 
