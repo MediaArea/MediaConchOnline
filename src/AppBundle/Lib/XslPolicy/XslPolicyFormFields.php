@@ -25,16 +25,16 @@ class XslPolicyFormFields
     public static function getOperators()
     {
         return array(
+                'exists' => 'Exists',
+                'must not exist' => 'Does not exist',
                 '=' => 'Is equal (=)',
                 '!=' => 'Is not equal (!=)',
                 '<' => 'Is less than (<)',
                 '<=' => 'Is less or equal than (<=)',
                 '>' => 'Is greater than (>)',
                 '>=' => 'Is greater or equal than (>=)',
-                'exists' => 'Exists',
-                'must not exist' => 'Must not exist',
                 'starts with' => 'Starts with',
-                'must not start with' => 'Must not start with',
+                'must not start with' => 'Does not start with',
                 );
     }
 

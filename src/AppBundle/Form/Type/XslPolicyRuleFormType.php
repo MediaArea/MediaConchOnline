@@ -19,7 +19,7 @@ class XslPolicyRuleFormType extends AbstractType
             ->add('trackType', 'choice', array('placeholder' => 'Choose a track type', 'choices' => XslPolicyFormFields::getTrackTypes()))
             ->add('field', 'choice', array('placeholder' => 'Choose a field'))
             ->add('occurrence', 'integer', array('attr' => array('min' => 1), 'required' => false))
-            ->add('validator', 'choice', array('placeholder' => 'Must exist', 'choices' => XslPolicyFormFields::getOperators(), 'required' => false))
+            ->add('validator', 'choice', array('placeholder' => false, 'choices' => XslPolicyFormFields::getOperators(), 'required' => false))
             ->add('value', null, array('label' => 'Content'))
             ->add('scope', 'hidden', array('data' => ''))
 
