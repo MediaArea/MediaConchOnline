@@ -29,7 +29,11 @@ class RememberMeCookieUpdateListener
         // Set guest cookie attribute to add cookie in response if user is a guest
         $user = $this->tokenStorage->getToken()->getUser();
         if ($user->hasRole('ROLE_GUEST')) {
-            $event->getRequest()->attributes->set('guest_cookie', $user->getUsername() . ':' . $user->getGuestToken()->getToken());
+            // Only for guest users created after guestToken have been used
+            if (null !== $user->getGuestToken()) {
+                $event->getRequest()->attributes->set('guest_cookie', $user->getUsername() . ':' . $user->getGuestToken()->getToken());
+            }
+
         }
     }
 
