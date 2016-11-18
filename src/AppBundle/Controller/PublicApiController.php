@@ -98,10 +98,7 @@ class PublicApiController extends Controller
             // Empty list
         }
 
-        $response = new JsonResponse(array('list' => $list));
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-
-        return $response;
+        return new JsonResponse(array('list' => $list));
     }
 
     /**
@@ -120,15 +117,11 @@ class PublicApiController extends Controller
             $policy = $this->get('mco.policy.getPolicy');
             $policy->getPublicPolicy($id, $userId, 'JSTREE');
 
-            $response = new JsonResponse($policy->getResponse()->getPolicy());
+            return new JsonResponse($policy->getResponse()->getPolicy());
         }
         catch (MediaConchServerException $e) {
-            $response = new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
-
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-
-        return $response;
     }
 
     /**
@@ -153,7 +146,6 @@ class PublicApiController extends Controller
         }
 
         $response->headers->set('Content-Type', 'xml');
-        $response->headers->set('Access-Control-Allow-Origin', '*');
 
         return $response;
     }
