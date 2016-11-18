@@ -19,6 +19,8 @@ security:
     providers:
         fos_userbundle:
             id: fos_user.user_provider.username_email
+        api_key_user_provider:
+            id: api_key_user_provider
 
 #        in_memory:
 #            memory:
@@ -42,6 +44,14 @@ security:
             pattern: ^/api/public/
             stateless: true
             security: false
+
+        # Firewall for protected API
+        protected_api:
+            pattern: ^/api/protected/
+            stateless: true
+            simple_preauth:
+                authenticator: apikey_authenticator
+            provider: api_key_user_provider
 
         main:
             pattern: ^/
@@ -72,4 +82,5 @@ security:
         - { path: ^/profile/edit, role: ROLE_BASIC, methods: [POST]}
         - { path: ^/profile/change-password, role: ROLE_BASIC, methods: [POST]}
         - { path: ^/admin/, role: ROLE_ADMIN }
+        - { path: ^/api/protected/, role: ROLE_BASIC }
         #- { path: ^/, role: ROLE_USER }

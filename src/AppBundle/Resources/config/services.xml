@@ -313,5 +313,18 @@
             <tag name="kernel.event_listener" event="security.interactive_login" method="onSecurityInteractiveLogin" />
             <tag name="kernel.event_listener" event="kernel.response" method="rememberMeUpdateCookie" />
         </service>
+
+        <service id="mco.apikey.manager" class="AppBundle\Lib\ApiKey\ApiKeyManager">
+            <argument type="service" id="doctrine.orm.entity_manager" />
+            <argument type="service" id="request_stack" />
+            <argument type="service" id="fos_user.util.token_generator" />
+            <argument type="service" id="security.encoder_factory" />
+        </service>
+
+        <service id="api_key_user_provider" class="AppBundle\Security\ApiKeyUserProvider">
+            <argument type="service" id="mco.apikey.manager" />
+        </service>
+
+        <service id="apikey_authenticator" class="AppBundle\Security\ApiKeyAuthenticator" public="false" />
     </services>
 </container>

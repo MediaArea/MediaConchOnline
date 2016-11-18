@@ -211,6 +211,11 @@ nelmio_cors:
             allow_origin: ['*']
             allow_methods: ['GET', 'POST']
             max_age: 3600
+        '^/api/protected/':
+            allow_origin: ['*']
+            allow_headers: ['X-apiKey', 'accept', 'content-type']
+            allow_methods: ['GET', 'POST']
+            max_age: 3600
 
 app:
     mediaconch:

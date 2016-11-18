@@ -149,4 +149,32 @@ class PublicApiController extends Controller
 
         return $response;
     }
+
+    /**
+     * Get the ApiKey for a user
+     *
+     * @return json
+     * @Route("/login/ckeck")
+     * @Method({"POST"})
+     */
+    public function getApiKeyAction(Request $request)
+    {
+        // Get the username value
+        $username = $request->request->get('username');
+        // Get the password value
+        $password = $request->request->get('password');
+        // Get the app value
+        $app = $request->request->get('app');
+        // Get the app version value
+        $version = $request->request->get('version');
+
+        $apiKey = $this->get('mco.apikey.manager')->getApiKeyForUser($username, $password, $app, $version);
+
+        if ($apiKey) {
+            return new JsonResponse(array('key' => $apiKey->getToken()));
+        }
+        else {
+            return new JsonResponse(array('error' => 'Invalid user or password'), 401);
+        }
+    }
 }
