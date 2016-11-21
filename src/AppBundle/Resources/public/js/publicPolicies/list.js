@@ -38,6 +38,11 @@ var publicPoliciesList = (function() {
                 policy.license = 'Other';
             }
 
+            // Start wrapper line
+            if (0 == index % 2) {
+                $('#publicPoliciesList').append('<div class="col-xs-12 policiesLineWrapper">');
+            }
+
             $('#publicPoliciesList').append(
 '<div class="col-xs-12 col-sm-6"> \
     <div class="policyBox" data-policy-id="' + policy.id + '" data-user-id="' + policy.user.id + '"> \
@@ -56,6 +61,16 @@ var publicPoliciesList = (function() {
     </div> \
 </div>'
             );
+
+            // End wrapper line
+            if (1 == index % 2) {
+                $('#publicPoliciesList').append('</div>');
+            }
+            else {
+                if (list.length == (index + 1)) {
+                    $('#publicPoliciesList').append('</div>');
+                }
+            }
         });
 
         policyDescriptionHeight();
