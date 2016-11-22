@@ -4,25 +4,26 @@ namespace AppBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 
+use AppBundle\Controller\BaseController;
 use AppBundle\Lib\MediaConch\MediaConchServerException;
 
 /**
- * @Route("/api/public/v1")
+ * @Route("/api/connected/v1")
  */
-class PublicApiController extends Controller
+class ConnectedApiController extends BaseController
 {
     /**
-     * Public policies page
+     * Public policies list
      *
      * @return json
      * @Route("/publicpolicies/list")
+     * @Method({"GET"})
      */
     public function publicPoliciesListAction(Request $request)
     {
@@ -102,79 +103,23 @@ class PublicApiController extends Controller
     }
 
     /**
-     * Public policies get policy
-     * @param int id policy ID of the policy to import
-     * @param int userId user ID of the policy to import
+     * Unpublish a public policy
      *
      * @return json
-     * {"policy":POLICY_JSTREE_JSON}
-     * @Route("/publicpolicies/policy/{id}/{userId}", requirements={"id": "\d+", "userId": "\d+"})
+     * @Route("/publicpolicies/unpublish/{id}", requirements={"id": "\d+"})
+     * @Method({"PUT"})
      */
-    public function publicPoliciesPolicyAction(Request $request, $id, $userId)
+    public function publicPoliciesUnpublishAction($id)
     {
         try {
-            // Get policy
-            $policy = $this->get('mco.policy.getPolicy');
-            $policy->getPublicPolicy($id, $userId, 'JSTREE');
+            // Make policy private
+            $policyEditVisibility = $this->get('mco.policy.editVisibility');
+            $policyEditVisibility->editVisibility($id, false);
 
-            return new JsonResponse($policy->getResponse()->getPolicy());
+            return new JsonResponse(array('policyId' => $id));
         }
         catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
-        }
-    }
-
-    /**
-     * Public policies get policy
-     * @param int id policy ID of the policy to import
-     * @param int userId user ID of the policy to import
-     *
-     * @return XML
-     * @Route("/publicpolicies/policy/export/{id}/{userId}", requirements={"id": "\d+", "userId": "\d+"})
-     */
-    public function publicPoliciesPolicyExportAction(Request $request, $id, $userId)
-    {
-        try {
-            // Get policy XML
-            $policyExport = $this->get('mco.policy.export');
-            $policyExport->publicExport($id, $userId);
-
-            $response = new Response($policyExport->getPolicyXml());
-        }
-        catch (MediaConchServerException $e) {
-            $response = new Response('<?xml version="1.0"?><error />', $e->getStatusCode());
-        }
-
-        $response->headers->set('Content-Type', 'xml');
-
-        return $response;
-    }
-
-    /**
-     * Get the ApiKey for a user
-     *
-     * @return json
-     * @Route("/login/ckeck")
-     * @Method({"POST"})
-     */
-    public function getApiKeyAction(Request $request)
-    {
-        // Get the username value
-        $username = $request->request->get('username');
-        // Get the password value
-        $password = $request->request->get('password');
-        // Get the app value
-        $app = $request->request->get('app');
-        // Get the app version value
-        $version = $request->request->get('version');
-
-        $apiKey = $this->get('mco.apikey.manager')->getApiKeyForUser($username, $password, $app, $version);
-
-        if ($apiKey) {
-            return new JsonResponse(array('key' => $apiKey->getToken()));
-        }
-        else {
-            return new JsonResponse(array('error' => 'Invalid user or password'), 401);
         }
     }
 }

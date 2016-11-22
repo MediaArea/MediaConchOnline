@@ -190,6 +190,8 @@ fos_js_routing:
         - app_publicpolicies_policyimport
         - app_publicapi_publicpolicieslist
         - app_publicapi_publicpoliciespolicy
+        - app_connectedapi_publicpolicieslist
+        - app_connectedapi_publicpoliciesunpublish
 
 services:
     twig.extension.text:
@@ -214,7 +216,7 @@ nelmio_cors:
         '^/api/protected/':
             allow_origin: ['*']
             allow_headers: ['X-apiKey', 'accept', 'content-type']
-            allow_methods: ['GET', 'POST']
+            allow_methods: ['GET', 'POST', 'PUT']
             max_age: 3600
 
 app:

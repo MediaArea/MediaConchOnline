@@ -6,7 +6,7 @@ var publicPoliciesListAjax = (function() {
          * @return json
          * {"policiesTree":POLICIES_JSTREE_JSON}
          */
-        $.get(Routing.generate('app_publicapi_publicpolicieslist'))
+        $.get(Routing.generate('app_connectedapi_publicpolicieslist'))
         .done(function(data) {
             policyListSpinner.hide();
             publicPoliciesList.displayList(data.list);
@@ -58,10 +58,31 @@ var publicPoliciesListAjax = (function() {
         })
     };
 
+    var policyUnpublish = function(policyId, button) {
+        /**
+        * Unpublish a policy
+        * @param int id policy ID of the policy to unpublish
+        *
+        * @return json
+        * {"policyId":ID}
+        */
+        $.ajax({
+            url: Routing.generate('app_connectedapi_publicpoliciesunpublish', {id: policyId}),
+            method: 'PUT'
+        })
+        .done(function(data) {
+            unpublishPolicy.success(button);
+        })
+        .fail(function (jqXHR) {
+            unpublishPolicy.error(button);
+        })
+    };
+
     return {
         getList: getList,
         getApiPolicyUrl: getApiPolicyUrl,
         policyExport: policyExport,
         policyImport: policyImport,
+        policyUnpublish: policyUnpublish,
     };
 })();
