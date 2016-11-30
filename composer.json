@@ -9,7 +9,7 @@
         }
     },
     "require": {
-        "php": ">=5.4.0",
+        "php": ">=5.6.0",
         "symfony/symfony": "2.7.*",
         "doctrine/orm": "~2.2,>=2.2.3,<2.5",
         "doctrine/dbal": "<2.5",
@@ -32,7 +32,8 @@
         "vakata/jstree": "^3.3",
         "twbs/bootstrap": "^3.3",
         "ivaynberg/select2": "^4.0",
-        "piwik/device-detector": "^3.7"
+        "piwik/device-detector": "^3.7",
+        "nelmio/cors-bundle": "^1.4"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

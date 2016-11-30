@@ -50,6 +50,12 @@ class User extends BaseUser
     protected $guestToken;
 
     /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\ApiKey", mappedBy="user", cascade={"persist", "remove"}, fetch="EXTRA_LAZY")
+     * @Assert\Valid()
+     */
+    protected $apiKey;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      *
      * @Assert\Length(
@@ -349,5 +355,38 @@ class User extends BaseUser
     public function getGuestToken()
     {
         return $this->guestToken;
+    }
+
+    /**
+     * Add apiKey
+     *
+     * @param \AppBundle\Entity\ApiKey $apiKey
+     * @return User
+     */
+    public function addApiKey(\AppBundle\Entity\ApiKey $apiKey)
+    {
+        $this->apiKey[] = $apiKey;
+
+        return $this;
+    }
+
+    /**
+     * Remove apiKey
+     *
+     * @param \AppBundle\Entity\ApiKey $apiKey
+     */
+    public function removeApiKey(\AppBundle\Entity\ApiKey $apiKey)
+    {
+        $this->apiKey->removeElement($apiKey);
+    }
+
+    /**
+     * Get apiKey
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getApiKey()
+    {
+        return $this->apiKey;
     }
 }

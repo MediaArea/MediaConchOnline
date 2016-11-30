@@ -297,7 +297,7 @@ p.registration {
     text-decoration: underline;
 }
 
-.policiesList .col-xs-12 {
+.policiesLineWrapper {
     margin-bottom: 20px;
 }
 
@@ -308,6 +308,10 @@ p.registration {
     line-height: 1.1;
     border-radius: 4px;
     display: block;
+    background-color: ghostwhite;
+}
+
+.policiesList .col-xs-12 .policyBox.policyBoxDisabled {
 }
 
 .policyBox h4 {

@@ -5,7 +5,7 @@ Public policies
 {% endblock %}
 
 {% block body %}
-<div class="row displayMessages"></div>
+<div class="row"><div class="col-xs-12 displayMessages"></div></div>
 
 <h1>Public policies</h1>
 
@@ -36,6 +36,7 @@ Public policies
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary modalPolicyImport">Add to my policies</button>
+                <button type="button" class="btn btn-primary modalPolicyUnpublish" title="Remove my policy from the public policies list">Unpublish</button>
                 <button type="button" class="btn btn-primary modalPolicyExport">Export</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
