@@ -27,7 +27,7 @@ class UserControllerTest extends AbstractAuthControllerTest
         $crawler = $this->client->request('GET', '/profile/edit');
 
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-        $this->assertCount(1, $crawler->filter('label:contains("Username:")'));
+        $this->assertCount(1, $crawler->filter('label:contains("Username")'));
     }
 
     public function testProfilePassword()
@@ -35,6 +35,6 @@ class UserControllerTest extends AbstractAuthControllerTest
         $crawler = $this->client->request('GET', '/profile/change-password');
 
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-        $this->assertCount(1, $crawler->filter('label:contains("Current password:")'));
+        $this->assertCount(1, $crawler->filter('label:contains("Current password")'));
     }
 }
