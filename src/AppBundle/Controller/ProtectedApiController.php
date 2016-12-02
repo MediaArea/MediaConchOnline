@@ -151,6 +151,10 @@ class ProtectedApiController extends Controller
              $policyEditVisibility = $this->get('mco.policy.editVisibility');
              $policyEditVisibility->editVisibility($id, false);
 
+             // Save policy
+             $policySave = $this->get('mco.policy.save');
+             $policySave->save($id);
+
              return new JsonResponse(array('policyId' => $id));
          }
          catch (MediaConchServerException $e) {
