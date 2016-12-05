@@ -23,12 +23,16 @@ class ProtectedApiController extends Controller
       *
       * @return json
       * @Route("/publicpolicies/import")
+      * @Route("/policies/import")
       * @Method({"POST"})
       */
-      public function importPolicyToPublicPoliciesAction(Request $request)
+      public function importPolicyAction(Request $request)
       {
           // Get the policy XML
           $xml = $request->request->get('xml');
+
+          // Get the policy visibility
+          $visibility = $request->request->get('visibility', 'public');
 
           if (null === $xml || '' == $xml) {
               return new JsonResponse(array('message' => 'The policy XML is empty'), 400);
@@ -39,9 +43,15 @@ class ProtectedApiController extends Controller
               $policyImport = $this->get('mco.policy.import');
               $policyImport->import($xml);
 
-              // Make policy public
               $policyEditVisibility = $this->get('mco.policy.editVisibility');
-              $policyEditVisibility->editVisibility($policyImport->getCreatedId(), 'public');
+              if ('public' == $visibility) {
+                  // Make policy public
+                  $policyEditVisibility->editVisibility($policyImport->getCreatedId(), true);
+              }
+              else {
+                  // Make policy private
+                  $policyEditVisibility->editVisibility($policyImport->getCreatedId(), false);
+              }
 
               // Save policy
               $policySave = $this->get('mco.policy.save');
