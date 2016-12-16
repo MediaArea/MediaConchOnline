@@ -26,6 +26,10 @@
             <tag name="form.type" alias="professional" />
         </service>
 
+        <service id="app.form.type.policy.create.from.file" class="AppBundle\Form\Type\XslPolicyCreateFromFileFormType">
+            <tag name="form.type" alias="xslPolicyCreateFromFile" />
+        </service>
+
         <service id="app.form.type.entity.disables" class="AppBundle\Form\Type\EntityDisabledType">
             <tag name="form.type" alias="entity_disabled" />
         </service>

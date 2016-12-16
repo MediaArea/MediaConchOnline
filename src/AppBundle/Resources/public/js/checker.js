@@ -30,7 +30,7 @@ $(document).ready(function() {
         {
             uploadFiles = $(this).find(':file');
 
-            if (uploadFiles[0].files[0].size > humanSizeToBytes(uploadFiles.data('file-max-size'))) {
+            if (uploadFiles[0].files[0].size > sizeUtils.humanToBytes(uploadFiles.data('file-max-size'))) {
                 errorMessage('The file is too big (max ' + uploadFiles.data('file-max-size')  + ')');
                 return;
             }
@@ -1095,21 +1095,6 @@ $(document).ready(function() {
             else {
                 errorMessage();
             }
-        }
-    }
-
-    // Convert human readable size to bytes
-    function humanSizeToBytes(size) {
-        var powers = {'k': 1, 'm': 2, 'g': 3, 't': 4};
-        var regex = /(\d+(?:\.\d+)?)\s?(k|m|g|t)?b?/i;
-
-        var res = regex.exec(size);
-
-        if (res[2] !== undefined) {
-            return res[1] * Math.pow(1024, powers[res[2].toLowerCase()]);
-        }
-        else {
-            return size;
         }
     }
 });

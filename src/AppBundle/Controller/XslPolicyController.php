@@ -41,16 +41,18 @@ class XslPolicyController extends BaseController
         // Forms
         $policyRuleForm = $this->createForm('xslPolicyRule');
         $policyRuleMtForm = $this->createForm('xslPolicyRuleMt');
+        $policyInfoForm = $this->createForm('xslPolicyInfo');
 
         if ($this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
             $importPolicyForm = $this->createForm('xslPolicyImport');
+            $policyCreateFromFileForm = $this->createForm('xslPolicyCreateFromFile');
         }
-        $policyInfoForm = $this->createForm('xslPolicyInfo');
 
         return array(
             'policyRuleForm' => $policyRuleForm->createView(),
             'policyRuleMtForm' => $policyRuleMtForm->createView(),
             'importPolicyForm' => isset($importPolicyForm) ? $importPolicyForm->createView() : false,
+            'policyCreateFromFileForm' => isset($policyCreateFromFileForm) ? $policyCreateFromFileForm->createView() : false,
             'policyInfoForm' => $policyInfoForm->createView(),
             );
     }
@@ -119,7 +121,6 @@ class XslPolicyController extends BaseController
             $policy->getPolicy($policyCreate->getCreatedId(), 'JSTREE');
 
             return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
-
         }
         catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
@@ -167,6 +168,89 @@ class XslPolicyController extends BaseController
                     return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
                 }
                 catch (MediaConchServerException $e) {
+                    return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+                }
+            }
+        }
+
+        return new JsonResponse(array('message' => 'Error'), 400);
+    }
+
+    /**
+     * Create a policy from a file (the file is provided as POST data from a form)
+     *
+     * @return json
+     * {"policy":POLICY_JSTREE_JSON}
+     *
+     * @Route("/xslPolicyTree/ajax/createFromFile")
+     * @Method("POST")
+     */
+    public function xslPolicyTreeCreateFromFileAction(Request $request)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
+
+        // Check quota
+        if (!$this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+            return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
+        }
+
+        $policyCreateFromFileForm = $this->createForm('xslPolicyCreateFromFile');
+        $policyCreateFromFileForm->handleRequest($request);
+        if ($policyCreateFromFileForm->isValid()) {
+            $data = $policyCreateFromFileForm->getData();
+            if ($data['file']->isValid()) {
+                $path = $this->container->getParameter('kernel.root_dir').'/../files/uploadTmp/' . $this->getUser()->getId();
+                $filename =  $data['file']->getClientOriginalName();
+                $file = $data['file']->move($path . '/', $filename);
+
+                try {
+                    // Analyze file
+                    $checks = $this->get('mco.checker.analyze');
+                    $checks->analyse($file->getRealPath());
+                    $response = $checks->getResponseAsArray();
+                    $transactionId = $response['transactionId'];
+
+                    // Wait for analyze is complete
+                    usleep(200000);
+                    $status = $this->get('mco.checker.status');
+                    for ($loop = 100; $loop--; $loop >= 0) {
+                        $status->getStatus($transactionId);
+                        $response = $status->getResponse()->getResponse();
+                        // Stop the loop when analyze is finish
+                        if (isset($response[$transactionId]['finish']) && true === $response[$transactionId]['finish']) {
+                            $loop = 0;
+                        }
+                        else if (0 == $loop) {
+                            throw new MediaConchServerException('Analyze is not finish', 400);
+                        }
+                        else {
+                            usleep(500000);
+                        }
+                    }
+
+                    // Remove tmp file
+                    unlink($file);
+
+                    // Generate policy
+                    $policyFromFile = $this->get('mco.policy.fromFile');
+                    $policyFromFile->getPolicy($transactionId);
+
+                    // Save policy
+                    $policySave = $this->get('mco.policy.save');
+                    $policySave->save($policyFromFile->getCreatedId());
+
+                    // Get policy
+                    $policy = $this->get('mco.policy.getPolicy');
+                    $policy->getPolicy($policyFromFile->getCreatedId(), 'JSTREE');
+
+                    return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
+                }
+                catch (MediaConchServerException $e) {
+                    // Remove tmp file
+                    unlink($file);
+
                     return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
                 }
             }

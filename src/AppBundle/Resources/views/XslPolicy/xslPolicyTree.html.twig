@@ -30,10 +30,15 @@ MediaConchOnline Policy Management
                     <h2>Import a policy</h2>
                     {{ form(importPolicyForm) }}
                 </div>
-
+                <hr>
                 <div>
-                    <h2>Create a policy</h2>
+                    <h2>Create a new policy</h2>
                     <button class="policyCreate btn btn-warning">Add a new policy</button>
+                </div>
+                <hr>
+                <div>
+                    <h2>Policy from a file</h2>
+                    {{ form(policyCreateFromFileForm) }}
                 </div>
             {% else %}
                 {{ include('AppBundle:Default:quotaExceeded.html.twig') }}
@@ -94,6 +99,7 @@ MediaConchOnline Policy Management
         '@AppBundle/Resources/public/js/policyTreeRulesMT.js'
         '@AppBundle/Resources/public/js/policyAjax.js'
         '@AppBundle/Resources/public/js/policy.js'
+        '@AppBundle/Resources/public/js/utils/size.js'
     %}
         <script src="{{ asset_url }}"></script>
     {% endjavascripts %}

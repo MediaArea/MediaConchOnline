@@ -64,6 +64,24 @@ function formBindings() {
         policyTreeAjax.policyImport($(this));
     });
 
+    // Create policy from file form
+    $('form[name="xslPolicyCreateFromFile"]').on('submit', function (e) {
+        e.preventDefault();
+
+        // Check file size
+        if ( window.File )
+        {
+            uploadFiles = $(this).find(':file');
+
+            if (uploadFiles[0].files[0].size > sizeUtils.humanToBytes(uploadFiles.data('file-max-size'))) {
+                mcoMessage.error('The file is too big (max ' + uploadFiles.data('file-max-size')  + ')');
+                return;
+            }
+        }
+
+        policyTreeAjax.policyCreateFromFile($(this));
+    });
+
     // Policy edit form
     $('form[name="xslPolicyInfo"]').on('submit', function (e) {
         e.preventDefault();
@@ -298,6 +316,21 @@ function policyRuleHelp() {
     // Validator
     addHelp('validator', 'Applies the appropriate operator to the rule.', 'Validator');
 }
+
+var createPolicyFromFile = (function() {
+    var addSpinner = function() {
+        $('#xslPolicyCreateFromFile_CreatePolicyFromFile').after('<span class="spinner-policy"></span>');
+    }
+
+    var removeSpinner = function() {
+        $('.spinner-policy').remove();
+    }
+
+    return {
+        addSpinner: addSpinner,
+        removeSpinner: removeSpinner,
+    }
+})();
 
 $(document).ready(function () {
     initPage();

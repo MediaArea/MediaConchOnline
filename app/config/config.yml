@@ -177,6 +177,7 @@ fos_js_routing:
         - app_xslpolicy_xslpolicytreecreate
         - app_xslpolicy_xslpolicytreeimport
         - app_xslpolicy_xslpolicytreeexport
+        - app_xslpolicy_xslpolicytreecreatefromfile
         - app_xslpolicy_xslpolicytreeedit
         - app_xslpolicy_xslpolicytreeduplicate
         - app_xslpolicy_xslpolicytreemove

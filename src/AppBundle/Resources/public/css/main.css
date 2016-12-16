@@ -264,7 +264,7 @@ p.registration {
     margin-left: 15px;
 }
 
-.spinner-cell, .spinner-status {
+.spinner-cell, .spinner-status, .spinner-policy {
     background: transparent url("../img/ajax-spinner-small.gif");
     width: 16px;
     height: 14px;
@@ -272,8 +272,12 @@ p.registration {
     margin: 0 auto;
 }
 
-.spinner-status {
+.spinner-status, .spinner-policy {
     display: inline-block;
+}
+
+.spinner-policy {
+    margin-left: 10px;
 }
 
 .spinner-modal {
