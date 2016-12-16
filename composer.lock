@@ -255,16 +255,16 @@
         },
         {
             "name": "doctrine/common",
-            "version": "v2.7.0",
+            "version": "v2.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/common.git",
-                "reference": "223a2925acb40578fdc338deddbd461b091501ac"
+                "reference": "5954c297e9d93ff84554906c2fbbc2a133c43941"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/common/zipball/223a2925acb40578fdc338deddbd461b091501ac",
-                "reference": "223a2925acb40578fdc338deddbd461b091501ac",
+                "url": "https://api.github.com/repos/doctrine/common/zipball/5954c297e9d93ff84554906c2fbbc2a133c43941",
+                "reference": "5954c297e9d93ff84554906c2fbbc2a133c43941",
                 "shasum": ""
             },
             "require": {
@@ -324,7 +324,7 @@
                 "persistence",
                 "spl"
             ],
-            "time": "2016-11-30 16:40:55"
+            "time": "2016-12-03 08:15:01"
         },
         {
             "name": "doctrine/dbal",
@@ -1013,16 +1013,16 @@
         },
         {
             "name": "javiereguiluz/easyadmin-bundle",
-            "version": "v1.16.2",
+            "version": "v1.16.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/javiereguiluz/EasyAdminBundle.git",
-                "reference": "539743820a0c3e5613e3ccf3b7181f920b6d96b0"
+                "reference": "2bf7a787902b5f20bcececd0a40602c1ca6e67b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/javiereguiluz/EasyAdminBundle/zipball/539743820a0c3e5613e3ccf3b7181f920b6d96b0",
-                "reference": "539743820a0c3e5613e3ccf3b7181f920b6d96b0",
+                "url": "https://api.github.com/repos/javiereguiluz/EasyAdminBundle/zipball/2bf7a787902b5f20bcececd0a40602c1ca6e67b0",
+                "reference": "2bf7a787902b5f20bcececd0a40602c1ca6e67b0",
                 "shasum": ""
             },
             "require": {
@@ -1092,7 +1092,7 @@
                 "backend",
                 "generator"
             ],
-            "time": "2016-11-23 18:55:02"
+            "time": "2016-12-11 19:45:42"
         },
         {
             "name": "jdorn/sql-formatter",
@@ -1146,23 +1146,24 @@
         },
         {
             "name": "jms/metadata",
-            "version": "1.5.1",
+            "version": "1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/schmittjoh/metadata.git",
-                "reference": "22b72455559a25777cfd28c4ffda81ff7639f353"
+                "reference": "6a06970a10e0a532fb52d3959547123b84a3b3ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/schmittjoh/metadata/zipball/22b72455559a25777cfd28c4ffda81ff7639f353",
-                "reference": "22b72455559a25777cfd28c4ffda81ff7639f353",
+                "url": "https://api.github.com/repos/schmittjoh/metadata/zipball/6a06970a10e0a532fb52d3959547123b84a3b3ab",
+                "reference": "6a06970a10e0a532fb52d3959547123b84a3b3ab",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
             },
             "require-dev": {
-                "doctrine/cache": "~1.0"
+                "doctrine/cache": "~1.0",
+                "symfony/cache": "~3.1"
             },
             "type": "library",
             "extra": {
@@ -1177,14 +1178,12 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "Apache"
+                "Apache-2.0"
             ],
             "authors": [
                 {
-                    "name": "Johannes Schmitt",
-                    "email": "schmittjoh@gmail.com",
-                    "homepage": "https://github.com/schmittjoh",
-                    "role": "Developer of wrapped JMSSerializerBundle"
+                    "name": "Johannes M. Schmitt",
+                    "email": "schmittjoh@gmail.com"
                 }
             ],
             "description": "Class/method/property metadata management in PHP",
@@ -1194,7 +1193,7 @@
                 "xml",
                 "yaml"
             ],
-            "time": "2014-07-12 07:13:19"
+            "time": "2016-12-05 10:18:33"
         },
         {
             "name": "kriswallsmith/assetic",
@@ -1576,16 +1575,16 @@
         },
         {
             "name": "pagerfanta/pagerfanta",
-            "version": "v1.0.3",
+            "version": "v1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/whiteoctober/Pagerfanta.git",
-                "reference": "a874d3612d954dcbbb49e5ffe178890918fb76fb"
+                "reference": "f846c5e06bb66df659a688ea4734aab49de589d6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/whiteoctober/Pagerfanta/zipball/a874d3612d954dcbbb49e5ffe178890918fb76fb",
-                "reference": "a874d3612d954dcbbb49e5ffe178890918fb76fb",
+                "url": "https://api.github.com/repos/whiteoctober/Pagerfanta/zipball/f846c5e06bb66df659a688ea4734aab49de589d6",
+                "reference": "f846c5e06bb66df659a688ea4734aab49de589d6",
                 "shasum": ""
             },
             "require": {
@@ -1598,7 +1597,7 @@
                 "jmikola/geojson": "~1.0",
                 "mandango/mandango": "~1.0@dev",
                 "mandango/mondator": "~1.0@dev",
-                "phpunit/phpunit": "~4",
+                "phpunit/phpunit": "~4 | ~5",
                 "propel/propel1": "~1.6",
                 "ruflin/elastica": "~1.3",
                 "solarium/solarium": "~3.1"
@@ -1639,7 +1638,7 @@
                 "paginator",
                 "paging"
             ],
-            "time": "2014-10-06 10:57:25"
+            "time": "2016-11-28 09:17:04"
         },
         {
             "name": "paragonie/random_compat",
@@ -1738,16 +1737,16 @@
         },
         {
             "name": "piwik/device-detector",
-            "version": "3.7.4",
+            "version": "3.7.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/piwik/device-detector.git",
-                "reference": "a2dd4f85bed2f324f3492337200166a238dad8eb"
+                "reference": "119bbad5d04dd1512333d2b4a0658cf9b824ef52"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/piwik/device-detector/zipball/a2dd4f85bed2f324f3492337200166a238dad8eb",
-                "reference": "a2dd4f85bed2f324f3492337200166a238dad8eb",
+                "url": "https://api.github.com/repos/piwik/device-detector/zipball/119bbad5d04dd1512333d2b4a0658cf9b824ef52",
+                "reference": "119bbad5d04dd1512333d2b4a0658cf9b824ef52",
                 "shasum": ""
             },
             "require": {
@@ -1785,7 +1784,7 @@
                 "parser",
                 "useragent"
             ],
-            "time": "2016-11-08 09:47:06"
+            "time": "2016-12-06 20:57:53"
         },
         {
             "name": "psr/log",
@@ -1944,16 +1943,16 @@
         },
         {
             "name": "sensio/framework-extra-bundle",
-            "version": "v3.0.16",
+            "version": "v3.0.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sensiolabs/SensioFrameworkExtraBundle.git",
-                "reference": "507a15f56fa7699f6cc8c2c7de4080b19ce22546"
+                "reference": "c38bc608e12e81089d5d9dfbf72775ed553c61af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sensiolabs/SensioFrameworkExtraBundle/zipball/507a15f56fa7699f6cc8c2c7de4080b19ce22546",
-                "reference": "507a15f56fa7699f6cc8c2c7de4080b19ce22546",
+                "url": "https://api.github.com/repos/sensiolabs/SensioFrameworkExtraBundle/zipball/c38bc608e12e81089d5d9dfbf72775ed553c61af",
+                "reference": "c38bc608e12e81089d5d9dfbf72775ed553c61af",
                 "shasum": ""
             },
             "require": {
@@ -1962,14 +1961,20 @@
                 "symfony/framework-bundle": "~2.3|~3.0"
             },
             "require-dev": {
+                "symfony/asset": "~2.7|~3.0",
                 "symfony/browser-kit": "~2.3|~3.0",
                 "symfony/dom-crawler": "~2.3|~3.0",
                 "symfony/expression-language": "~2.4|~3.0",
                 "symfony/finder": "~2.3|~3.0",
-                "symfony/phpunit-bridge": "~2.7|~3.0",
+                "symfony/phpunit-bridge": "~3.2",
+                "symfony/psr-http-message-bridge": "^0.3",
                 "symfony/security-bundle": "~2.4|~3.0",
+                "symfony/templating": "~2.3|~3.0",
+                "symfony/translation": "~2.3|~3.0",
                 "symfony/twig-bundle": "~2.3|~3.0",
-                "twig/twig": "~1.11|~2.0"
+                "symfony/yaml": "~2.3|~3.0",
+                "twig/twig": "~1.11|~2.0",
+                "zendframework/zend-diactoros": "^1.3"
             },
             "suggest": {
                 "symfony/expression-language": "",
@@ -2002,7 +2007,7 @@
                 "annotations",
                 "controllers"
             ],
-            "time": "2016-03-25 17:08:27"
+            "time": "2016-12-14 08:30:06"
         },
         {
             "name": "sensiolabs/security-checker",
@@ -2404,16 +2409,16 @@
         },
         {
             "name": "symfony/symfony",
-            "version": "v2.7.21",
+            "version": "v2.7.22",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/symfony.git",
-                "reference": "cdc25e2d47d2c2f1d968feda5a7895031915043c"
+                "reference": "4b0fd9881d3ab98578cd92739fa1d3a1a74ebe8d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/symfony/zipball/cdc25e2d47d2c2f1d968feda5a7895031915043c",
-                "reference": "cdc25e2d47d2c2f1d968feda5a7895031915043c",
+                "url": "https://api.github.com/repos/symfony/symfony/zipball/4b0fd9881d3ab98578cd92739fa1d3a1a74ebe8d",
+                "reference": "4b0fd9881d3ab98578cd92739fa1d3a1a74ebe8d",
                 "shasum": ""
             },
             "require": {
@@ -2528,7 +2533,7 @@
             "keywords": [
                 "framework"
             ],
-            "time": "2016-11-21 01:13:05"
+            "time": "2016-12-13 10:53:44"
         },
         {
             "name": "twbs/bootstrap",
@@ -2635,16 +2640,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.28.2",
+            "version": "v1.29.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "b22ce0eb070e41f7cba65d78fe216de29726459c"
+                "reference": "74f723e542368ca2080b252740be5f1113ebb898"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/b22ce0eb070e41f7cba65d78fe216de29726459c",
-                "reference": "b22ce0eb070e41f7cba65d78fe216de29726459c",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/74f723e542368ca2080b252740be5f1113ebb898",
+                "reference": "74f723e542368ca2080b252740be5f1113ebb898",
                 "shasum": ""
             },
             "require": {
@@ -2657,7 +2662,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.28-dev"
+                    "dev-master": "1.29-dev"
                 }
             },
             "autoload": {
@@ -2692,7 +2697,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2016-11-23 18:41:40"
+            "time": "2016-12-13 17:28:18"
         },
         {
             "name": "vakata/jstree",
