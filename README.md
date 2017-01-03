@@ -49,7 +49,7 @@ All open source digital assets for the software developed by MediaArea during th
     * Optional packages for RedHat-like distributions : php-pecl-apc or php-opcache
     * date.timezone parameter should be set in your php.ini (both cli and apache module)
 * MySQL >= 5.1
-* [MediaConch-Server](https://mediaarea.net/MediaConch/download.html) >= 16.11 (depends on [libmediainfo >= 0.7.91](https://mediaarea.net/en/MediaInfo/Download) and [libzen >= 0.4.34](https://mediaarea.net/en/MediaInfo/Download))
+* [MediaConch-Server](https://mediaarea.net/MediaConch/download.html) >= 16.12 (depends on [libmediainfo >= 0.7.91](https://mediaarea.net/en/MediaInfo/Download) and [libzen >= 0.4.34](https://mediaarea.net/en/MediaInfo/Download))
 * [Composer](https://getcomposer.org/download/)
 
 ## Get MediaConchOnline sourcecode
@@ -65,8 +65,8 @@ git clone https://github.com/MediaArea/MediaConchOnline.git
 
 Download and extract tarball
 ```
-wget "https://mediaarea.net/download/source/mediaconch/16.11/MediaConchOnline_16.11.tar.xz"
-tar -Jxf MediaConchOnline_16.11.tar.xz
+wget "https://mediaarea.net/download/source/mediaconch/16.12/MediaConchOnline_16.12.tar.xz"
+tar -Jxf MediaConchOnline_16.12.tar.xz
 ```
 
 ## Configure MediaConchOnline
@@ -169,5 +169,5 @@ app:
     mediaconch:
         address: 127.0.0.1
         port: 4242
-        api_version: 1.12
+        api_version: 1.13
 ```
