@@ -1015,6 +1015,13 @@ $(document).ready(function() {
         });
     }
 
+    // Scroll to the top of the results when page is changed
+    $('#result-table').on('page.dt', function() {
+        $('html, body').animate({
+            scrollTop: $('#checkerResults').offset().top
+        }, 200);
+    });
+
     function resetSelectList(listId) {
         $('#' + listId + ' option').prop('selected', false);
     }
