@@ -46,6 +46,8 @@ $(document).ready(function() {
         .done(function (data) {
             if (data.success) {
                 updateFileOrAddFile(data.filename, data.transactionId, formValues);
+                result.draw(false);
+                jumpToPageContainingResultId(data.transactionId);
                 startWaitingLoop();
                 successMessage('File added successfuly');
             }
@@ -72,6 +74,8 @@ $(document).ready(function() {
         .done(function (data) {
             if (data.success) {
                 updateFileOrAddFile(data.filename, data.transactionId, formValues);
+                result.draw(false);
+                jumpToPageContainingResultId(data.transactionId);
                 startWaitingLoop();
                 successMessage('File added successfuly');
             }
@@ -105,6 +109,8 @@ $(document).ready(function() {
             });
 
             if (success > 0) {
+                result.draw(false);
+                jumpToPageContainingResultId(data[0].transactionId);
                 startWaitingLoop();
                 successMessage('Files added successfuly');
             }
@@ -125,6 +131,19 @@ $(document).ready(function() {
         };
 
         return formValues;
+    }
+
+    // Based on https://stackoverflow.com/a/41629420
+    function jumpToPageContainingResultId(id) {
+        var node = result.row('#result-' + id).node();
+        var page = Math.floor(
+            result.rows({
+                page: 'all',
+                order: 'current',
+                search: 'applied'
+            }).nodes().indexOf( node ) / result.page.info().length
+        );
+        result.page(page).draw(false);
     }
 
     function updateFileOrAddFile(fileName, fileId, formValues) {
@@ -199,7 +218,6 @@ $(document).ready(function() {
     };
 
     function startWaitingLoop() {
-        result.draw();
         stopWaitingLoop();
         waitingLoop(100, 1000);
     }
@@ -996,6 +1014,13 @@ $(document).ready(function() {
             }
         });
     }
+
+    // Scroll to the top of the results when page is changed
+    $('#result-table').on('page.dt', function() {
+        $('html, body').animate({
+            scrollTop: $('#checkerResults').offset().top
+        }, 200);
+    });
 
     function resetSelectList(listId) {
         $('#' + listId + ' option').prop('selected', false);
