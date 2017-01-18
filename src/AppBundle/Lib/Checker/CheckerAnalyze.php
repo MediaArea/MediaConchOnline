@@ -9,10 +9,10 @@ class CheckerAnalyze extends CheckerBase
     protected $source;
     protected $fullPath = false;
 
-    public function analyse($file)
+    public function analyse($file, $force = false)
     {
         $this->source = $file;
-        $this->response = $this->mc->analyse($this->user->getId(), $file);
+        $this->response = $this->mc->analyse($this->user->getId(), $file, $force);
     }
 
     public function getResponseAsArray()
