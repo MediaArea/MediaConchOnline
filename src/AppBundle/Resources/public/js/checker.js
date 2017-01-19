@@ -183,7 +183,11 @@ $(document).ready(function() {
     }
 
     function addFile(fileName, fileId, formValues) {
-        node = result.row.add( [ '<span title="' + fileName + '">' + truncateString(fileName.split('/').pop(), 28) + '</span>', '', '', '', '', '<span class="status-text">In queue</span><button type="button" class="btn btn-link result-close" title="Close result"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button><button type="button" class="btn btn-link hidden" title="Reload result"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>' ] ).node();
+        node = result.row.add( [ '<span title="' + fileName + '">' + truncateString(fileName.split('/').pop(), 28) + '</span>',
+            '', '', '', '',
+            '<span class="status-text">In queue</span><button type="button" class="btn btn-link result-close" title="Close result"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button> \
+            <button type="button" class="btn btn-link result-reload hidden" title="Reload result (force analyze)"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>'
+        ] ).node();
 
         // Add id
         resultId = 'result-' + fileId;
@@ -211,10 +215,41 @@ $(document).ready(function() {
             };
         });
 
+        // Reload button
+        $(node).find('.result-reload').click(node, function (e) {
+            var id = $(result.row(e.data).node()).data('fileId');
+            resetRow(id);
+            forceAnalyzeRequest(id);
+        });
+
         if ($('#checkerResultTitle .close').hasClass('hidden')) {
             $('#checkerResultTitle .close').removeClass('hidden');
             $('#checkerApplyAll').removeClass('hidden');
         }
+    };
+
+    function resetRow(id) {
+        resetStatusCell(id);
+        resetImplementationCell(id);
+        resetPolicyCell(id);
+        resetMediaInfoCell(id);
+        resetMediaTraceCell(id);
+
+        removeImplemModalIfExists(id);
+        removePolicyModalIfExists(id);
+        removeMediaInfoModalIfExists(id);
+        removeMediaTraceModalIfExists(id);
+    };
+
+    function forceAnalyzeRequest(id) {
+        $.get(Routing.generate('app_checker_checkerforceanalyze', { id: id }), function(data) {
+            startWaitingLoop();
+            successMessage('File reloaded successfuly');
+
+        })
+        .fail(function () {
+            errorMessage();
+        });
     };
 
     function startWaitingLoop() {
@@ -403,12 +438,21 @@ $(document).ready(function() {
     function statusCellSuccess(nodeStatus) {
         nodeStatus.removeClass('info danger checkInProgress').addClass('success');
         nodeStatus.find('.status-text').html('<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> Analyzed');
+        nodeStatus.find('.result-reload').removeClass('hidden');
     };
 
     function statusCellError(nodeStatus) {
         nodeStatus.removeClass('info danger checkInProgress').addClass('danger');
         nodeStatus.find('.status-text').html('<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Error');
+        nodeStatus.find('.result-reload').removeClass('hidden');
     };
+
+    function resetStatusCell(id) {
+        var nodeStatus = $(result.cell('#result-' + id, 5).node());
+        nodeStatus.removeClass().addClass('statusCell info');
+        nodeStatus.find('.status-text').html('In queue');
+        nodeStatus.find('.result-reload').addClass('hidden');
+    }
 
     function implementationCell(data, resultId, fileId) {
         nodeCell = result.$('#' + resultId);
@@ -695,6 +739,18 @@ $(document).ready(function() {
         }
     }
 
+    function removeMediaInfoModalIfExists(fileId) {
+        if ($('#modalInforesult-' + fileId).length) {
+            $('#modalInforesult-' + fileId).remove();
+        }
+    }
+
+    function removeMediaTraceModalIfExists(fileId) {
+        if ($('#modalTraceresult-' + fileId).length) {
+            $('#modalTraceresult-' + fileId).remove();
+        }
+    }
+
     function updatePolicyCell(fileId, policyId) {
         removePolicyModalIfExists(fileId);
 
@@ -719,6 +775,19 @@ $(document).ready(function() {
     function resetPolicyCell(fileId) {
         $(result.cell('#result-' + fileId, 2).node()).removeClass();
         $(result.cell('#result-' + fileId, 2).node()).empty();
+    }
+
+    function resetImplementationCell(fileId) {
+        $(result.cell('#result-' + fileId, 1).node()).removeClass();
+        $(result.cell('#result-' + fileId, 1).node()).empty();
+    }
+
+    function resetMediaInfoCell(fileId) {
+        $(result.cell('#result-' + fileId, 3).node()).empty();
+    }
+
+    function resetMediaTraceCell(fileId) {
+        $(result.cell('#result-' + fileId, 4).node()).empty();
     }
 
     function mediaInfoCell(resultId, fileId) {

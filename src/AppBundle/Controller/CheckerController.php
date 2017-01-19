@@ -394,4 +394,30 @@ class CheckerController extends BaseController
 
         return new JsonResponse(array('message' => 'No form selected'), 400);
     }
+
+    /**
+     * @Route("/checkerForceAnalyze/{id}", requirements={"id": "\d+"})
+     */
+    public function checkerForceAnalyzeAction($id, Request $request)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
+
+        try {
+            // Get the filename
+            $file = $this->get('mco.checker.filename');
+            $file->fileFromId($id);
+
+            // Force analyze
+            $checks = $this->get('mco.checker.analyze');
+            $checks->analyse($file->getFilename(true), true);
+            $response = $checks->getResponseAsArray();
+
+            return new JsonResponse($response);
+        }
+        catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
+    }
 }

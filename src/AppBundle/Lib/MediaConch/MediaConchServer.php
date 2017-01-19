@@ -25,9 +25,14 @@ class MediaConchServer
         $this->userSettings = $userSettings;
     }
 
-    public function analyse($user, $file)
+    public function analyse($user, $file, $force)
     {
-        $request = array('CHECKER_ANALYZE' => array('args' => array(array('user' => (int) $user, 'id' => 0, 'file' => $file))));
+        $request = array('CHECKER_ANALYZE' => array('args' => array(array(
+            'user' => (int) $user,
+            'id' => 0,
+            'file' => $file,
+            'force' => (bool) $force,
+        ))));
 
         return $this->callApiHandler('checker_analyze', 'POST', json_encode($request), 'CHECKER_ANALYZE_RESULT', 'AnalyzeResponse');
     }
