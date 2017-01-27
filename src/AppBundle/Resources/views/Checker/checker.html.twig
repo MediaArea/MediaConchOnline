@@ -103,11 +103,20 @@ MediaConch checker
     <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
     <script src="{{ path('fos_js_routing_js', {'callback': 'fos.Router.setData'}) }}"></script>
     {% javascripts filter='?jsqueeze' output='js/checker.js'
-        '@AppBundle/Resources/public/js/checker.js'
+        '@AppBundle/Resources/public/js/checker/base.js'
+        '@AppBundle/Resources/public/js/checker/table.js'
+        '@AppBundle/Resources/public/js/checker/cellStatus.js'
+        '@AppBundle/Resources/public/js/checker/cellImplementation.js'
+        '@AppBundle/Resources/public/js/checker/cellPolicy.js'
+        '@AppBundle/Resources/public/js/checker/cellMediaInfo.js'
+        '@AppBundle/Resources/public/js/checker/cellMediaTrace.js'
+        '@AppBundle/Resources/public/js/checker/ajax.js'
         'js/jstree.min.js'
         '@AppBundle/Resources/public/js/jstreegrid.js'
         '@AppBundle/Resources/public/js/datatables.min.js'
         '@AppBundle/Resources/public/js/utils/size.js'
+        '@AppBundle/Resources/public/js/utils/text.js'
+        '@AppBundle/Resources/public/js/message.js'
     %}
         <script type="text/javascript" src="{{ asset_url }}"></script>
     {% endjavascripts %}
