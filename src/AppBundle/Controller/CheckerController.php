@@ -125,30 +125,42 @@ class CheckerController extends BaseController
     }
 
     /**
-     * @Route("/checkerReportAndPolicyStatus/{id}/{reportType}/{policyId}", requirements={"id": "\d+", "reportType", "policyId": "\d+"})
+     * @Route("/checkerReportStatusMulti/")
      */
-    public function checkerReportAndPolicyStatusAction($id, $reportType, $policyId, Request $request)
+    public function statusReportsMultiAction(Request $request)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
-        try {
-            // Implementation report
-            $validate = $this->get('mco.checker.validate');
-            $validate->validate($id, $reportType);
-            $implemReport = $validate->getResponseAsArray();
+        // Reports list
+        $reports = $request->request->get('reports');
+        if (is_array($reports) && count($reports) > 0) {
+            try {
+                $response = array();
+                foreach ($reports as $report) {
+                    $validate = $this->get('mco.checker.validate');
 
-            $validate->validate($id, 1, $policyId);
-            $statusReport = $validate->getResponseAsArray();
+                    // Implementation report
+                    $validate->validate($report['id'], $report['tool']);
+                    $response[$report['id']] = array('implemReport' => $validate->getResponseAsArray());
 
-            return new JsonResponse(array('implemReport' => $implemReport, 'statusReport' => $statusReport));
+                    // Policy report
+                    if (isset($report['policyId'])) {
+                        $validate->validate($report['id'], 1, $report['policyId']);
+                        $response[$report['id']]['policyReport'] = $validate->getResponseAsArray();
+                    }
+                }
+
+                return new JsonResponse($response);
+            }
+            catch (MediaConchServerException $e) {
+                return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+            }
         }
-        catch (MediaConchServerException $e) {
-            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
-        }
+
+        return new JsonResponse(array('message' => 'Error'), 400);
     }
-
 
     /**
      * @Route("/checkerReport/{id}/{reportType}/{displayName}", requirements={"id": "\d+", "reportType", "displayName"})

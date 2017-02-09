@@ -229,6 +229,7 @@ var checkerTable = (function() {
     };
 
     var processCheckerStatusRequest = function(statusMulti) {
+        var reports = [];
         $.each(statusMulti, function(statusFileId, status) {
             if (status.finish) {
                 var node = result.$('#result-' + statusFileId);
@@ -243,13 +244,13 @@ var checkerTable = (function() {
                     implementationCell.addSpinnerToCell(statusFileId);
                     policyCell.addSpinnerToCell(statusFileId);
 
-                    checkerAjax.implementationAndPolicyStatus(statusFileId, status.tool, node.data('policy'));
+                    reports.push({id: statusFileId, tool: status.tool, policyId: node.data('policy')});
                 }
                 else {
                     // Implementation only
                     implementationCell.addSpinnerToCell(statusFileId);
 
-                    checkerAjax.implementationStatus(statusFileId, status.tool);
+                    reports.push({id: statusFileId, tool: status.tool});
 
                     policyCell.emptyWithModal(statusFileId);
                 }
@@ -266,7 +267,11 @@ var checkerTable = (function() {
             else if (status.error) {
                 statusCell.error(statusFileId);
             }
-        })
+        });
+
+        if (reports.length > 0) {
+            checkerAjax.statusReportsMulti(reports);
+        }
     };
 
     // Apply policy to all results

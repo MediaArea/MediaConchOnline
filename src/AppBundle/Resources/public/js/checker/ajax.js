@@ -58,23 +58,32 @@ var checkerAjax = (function() {
         });
     };
 
-    var implementationAndPolicyStatus = function(fileId, tool, policy) {
+    var statusReportsMulti = function(reports) {
         /**
-        * Get the implementation status and policy status for a file
-        * @param int id The file ID
-        * @param int reportType The report type ID
-        * @param int policyId The policy ID
-        *
-        * @return json
-        * {"implemReport":{"valid":true,"fileId":"fileId","error":null},"statusReport":{"valid":false,"fileId":"fileId","error":null}}
-        */
-        $.get(Routing.generate('app_checker_checkerreportandpolicystatus', { id: fileId, reportType: tool, policyId: policy }), function(data) {
-            implementationCell.success(data.implemReport, data.implemReport.fileId);
-            policyCell.success(data.statusReport, data.statusReport.fileId);
+         * Get the implementation status and policy status for multiple files
+         * @param array reports List of files ID and report type
+         *
+         * @return json
+         * {"fileId":{"implemReport":{"valid":true,"fileId":"1","error":null},"policyReport":{"valid":false,"fileId":"1","error":null}}, ...}
+         */
+        $.post(Routing.generate('app_checker_statusreportsmulti'), { reports: reports })
+        .done(function(data) {
+            $.each(data, function( index, result ) {
+                implementationCell.success(result.implemReport, result.implemReport.fileId);
+
+                if (result.policyReport !== undefined) {
+                    policyCell.success(result.policyReport, result.policyReport.fileId);
+                }
+            });
         })
         .fail(function() {
-            implementationCell.error(fileId);
-            policyCell.error(fileId);
+            $.each(reports, function( index, report ) {
+                implementationCell.error(report.id);
+
+                if (report.policyId !== undefined) {
+                    policyCell.error(report.id);
+                }
+            });
         });
     };
 
@@ -189,7 +198,7 @@ var checkerAjax = (function() {
     return {
         formRequest: formRequest,
         checkerStatus: checkerStatus,
-        implementationAndPolicyStatus: implementationAndPolicyStatus,
+        statusReportsMulti: statusReportsMulti,
         policyStatus: policyStatus,
         policyReport: policyReport,
         implementationStatus: implementationStatus,
