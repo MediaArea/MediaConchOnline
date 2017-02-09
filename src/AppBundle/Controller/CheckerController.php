@@ -308,12 +308,11 @@ class CheckerController extends BaseController
 
                         try {
                             $checks = $this->get('mco.checker.analyze');
-                            $checks->analyse($file->getRealPath());
-                            $response = $checks->getResponseAsArray();
+                            $checks->analyse(array($file->getRealPath()));
 
                             $this->get('mediaconch_user.quotas')->hitUploads();
 
-                            return new JsonResponse($response, 200);
+                            return new JsonResponse($checks->getResponseAsArray(), 200);
                         }
                         catch (MediaConchServerException $e) {
                             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
@@ -344,12 +343,11 @@ class CheckerController extends BaseController
                     try {
                         $checks = $this->get('mco.checker.analyze');
                         $checks->setFullPath(true);
-                        $checks->analyse(str_replace(' ', '%20', $data['file']));
-                        $response = $checks->getResponseAsArray();
+                        $checks->analyse(array(str_replace(' ', '%20', $data['file'])));
 
                         $this->get('mediaconch_user.quotas')->hitUrls();
 
-                        return new JsonResponse($response, 200);
+                        return new JsonResponse($checks->getResponseAsArray(), 200);
                     }
                     catch (MediaConchServerException $e) {
                         return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
@@ -371,7 +369,6 @@ class CheckerController extends BaseController
                 if ($this->get('mediaconch_user.quotas')->hasPolicyChecksRights()) {
                     if ($formRepository->isValid()) {
                         $data = $formRepository->getData();
-                        $response = array();
 
                         $settings = $this->get('mco.settings');
                         $settings->setLastUsedPolicy($data['policy']);
@@ -381,15 +378,17 @@ class CheckerController extends BaseController
                         try {
                             $finder = new Finder();
                             $finder->files()->in($this->container->getParameter('mco_check_folder'));
-                            foreach($finder as $file) {
-                                $checks = $this->get('mco.checker.analyze');
-                                $checks->analyse($file->getPathname());
-                                $response[] = $checks->getResponseAsArray();
+                            $checks = $this->get('mco.checker.analyze');
+                            $files = array();
+                            foreach ($finder as $file) {
+                                $files[] = $file->getPathname();
                             }
+
+                            $checks->analyse($files);
 
                             $this->get('mediaconch_user.quotas')->hitPolicyChecks(count($finder));
 
-                            return new JsonResponse($response, 200);
+                            return new JsonResponse($checks->getResponseAsArray(), 200);
                         }
                         catch (MediaConchServerException $e) {
                             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
@@ -423,7 +422,7 @@ class CheckerController extends BaseController
 
             // Force analyze
             $checks = $this->get('mco.checker.analyze');
-            $checks->analyse($file->getFilename(true), true);
+            $checks->analyse(array($file->getFilename(true)), true);
             $response = $checks->getResponseAsArray();
 
             return new JsonResponse($response);
