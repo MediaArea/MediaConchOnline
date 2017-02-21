@@ -7,7 +7,7 @@ var mediaTraceCell = (function() {
     var success = function(fileId) {
         nodeMT = $(result.cell('#result-' + fileId, 4).node());
         nodeMT.addClass('text-center');
-        result.cell('#result-' + fileId, 4).data('<a href="#" class="mt-view" data-toggle="modal" data-target="#modalTrace-' + fileId + '" title="View MediaTrace report"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a><a href="#" class="mt-dld" data-target="#traceXml-' + fileId + '" title="Download MediaTrace report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a>');
+        result.cell('#result-' + fileId, 4).data('<a href="#" class="mt-view" data-toggle="modal" data-target="#modalTrace-' + fileId + '" title="View MediaTrace report"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a><a href="#" class="mt-dld" title="Download MediaTrace report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a>');
 
         nodeMT.find('.mt-view').on('click', function(e) {
             e.preventDefault();

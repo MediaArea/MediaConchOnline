@@ -10,14 +10,14 @@ var implementationCell = (function() {
 
         if (data.valid) {
             nodeImplem.addClass('success');
-            implemResultText = '<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> Valid'
+            var implemResultText = '<span class="implemResult"><span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> Valid</span>'
         }
         else {
             nodeImplem.addClass('danger');
-            implemResultText = '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Not valid';
+            var implemResultText = '<span class="implemResult"><span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span> Not valid</span>';
         }
 
-        result.cell(nodeCell, 1).data(implemResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalConformance-' + fileId + '" title="View implementation report"><span class="glyphicon glyphicon-eye-open implem-view" aria-hidden="true"></span></a><a href="#" class="implem-dld" data-target="#modalConformance-' + fileId + '" title="Download implementation report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
+        result.cell(nodeCell, 1).data('<div>' + implemResultText + '<p class="implemButton hidden"><a href="#" data-toggle="modal" data-target="#modalConformance-' + fileId + '" title="View implementation report"><span class="glyphicon glyphicon-eye-open implem-view" aria-hidden="true"></span></a><a href="#" class="implem-dld" title="Download implementation report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p></div>');
 
         nodeImplem.find('.implem-view').on('click', function(e) {
             e.preventDefault();

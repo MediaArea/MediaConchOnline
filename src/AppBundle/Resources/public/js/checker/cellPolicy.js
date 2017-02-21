@@ -17,10 +17,10 @@ var policyCell = (function() {
             policyResultText += '<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span><span class="hidden">F</span> ';
         }
 
-        policyResultText += '<span title="' + nodeCell.data('policyName') + '">' + textUtils.truncate(nodeCell.data('policyName'), 20) + '</span>';
+        policyResultText += '<span title="' + nodeCell.data('policyName') + '">' + textUtils.truncate(nodeCell.data('policyName'), 28) + '</span>';
         policyResultText += '</span>';
 
-        result.cell(nodeCell, 2).data(policyResultText + '<p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy-' + fileId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" data-target="#modalPolicy-' + fileId + '" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p>');
+        result.cell(nodeCell, 2).data('<div>' + policyResultText + '<p class="policyButton hidden"><a href="#" data-toggle="modal" data-target="#modalPolicy-' + fileId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a><a href="#" class="policy-dld" title="Download policy report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a></p></div>');
 
         policyModal(fileId);
     };
@@ -52,7 +52,7 @@ var policyCell = (function() {
     var emptyWithModal = function(fileId) {
         var nodePolicy = $(result.cell('#result-' + fileId, 2).node());
         nodePolicy.removeClass().addClass('info');
-        result.cell('#result-' + fileId, 2).data('<span class="policyResult">N/A</span><p class="pull-right"><a href="#" data-toggle="modal" data-target="#modalPolicy-' + fileId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a></p>');
+        result.cell('#result-' + fileId, 2).data('<div><span class="policyResult">N/A</span><p class="policyButton hidden"><a href="#" data-toggle="modal" data-target="#modalPolicy-' + fileId + '" title="View policy report"><span class="glyphicon glyphicon-eye-open policy-view" aria-hidden="true"></span></a></p></div>');
 
         policyModal(fileId);
     };

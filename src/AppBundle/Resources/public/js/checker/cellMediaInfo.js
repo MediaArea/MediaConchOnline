@@ -7,7 +7,7 @@ var mediaInfoCell = (function() {
     var success = function(fileId) {
         var nodeMI = $(result.cell('#result-' + fileId, 3).node());
         nodeMI.addClass('text-center');
-        result.cell('#result-' + fileId, 3).data('<a href="#" class="mi-view" data-toggle="modal" data-target="#modalInfo-' + fileId + '" title="View MediaInfo report"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a><a href="#" class="mi-dld" data-target="#infoXml-' + fileId + '" title="Download MediaInfo report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a>');
+        result.cell('#result-' + fileId, 3).data('<a href="#" class="mi-view" data-toggle="modal" data-target="#modalInfo-' + fileId + '" title="View MediaInfo report"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a><a href="#" class="mi-dld" title="Download MediaInfo report"><span class="glyphicon glyphicon-download" aria-hidden="true"></span></a>');
 
         nodeMI.find('.mi-view').on('click', function(e) {
             e.preventDefault();

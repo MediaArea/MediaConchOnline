@@ -18,7 +18,7 @@ var checkerTable = (function() {
                 { orderable: true, targets: 0 },
                 { orderable: true, searchable: false, targets: [1, 2, 5] },
                 { orderable: false, searchable: false, width: '10%', targets: [3, 4] },
-                { width: '15%', targets: [1, 5] },
+                { width: '10%', targets: [1, 5] },
                 { width: '25%', targets: [0, 2] },
             ]
         });
@@ -28,6 +28,7 @@ var checkerTable = (function() {
         policyCell.init(result);
         mediaInfoCell.init(result);
         mediaTraceCell.init(result);
+        resultRowHoverBinding();
     };
 
     // Redraw the table
@@ -92,8 +93,9 @@ var checkerTable = (function() {
     var addFile = function(fileName, fileId, formValues) {
         var node = result.row.add( [ '<span title="' + fileName + '">' + textUtils.truncate(fileName.split('/').pop(), 28) + '</span>',
             '', '', '', '',
-            '<span class="status-text">In queue</span><button type="button" class="btn btn-link result-close" title="Close result"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button> \
-            <button type="button" class="btn btn-link result-reload hidden" title="Reload result (force analyze)"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>'
+            '<span class="statusResult">In queue</span><div class="statusButton hidden"> \
+            <button type="button" class="btn btn-link result-reload hidden" title="Reload result (force analyze)"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button> \
+            <button type="button" class="btn btn-link result-close" title="Close result"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></div>'
         ] ).node();
         var nodej = $(node);
 
@@ -291,6 +293,31 @@ var checkerTable = (function() {
 
     var setCheckerStatusInProgress = function(status) {
         checkerStatusInProgress = status;
+    };
+
+    var resultRowHoverBinding = function() {
+        result.on('draw.dt', function() {
+            result.$('tr').off('mouseenter');
+            result.$('tr').off('mouseleave');
+
+            // Display buttons on checker result
+            result.$('tr').on('mouseenter', function() {
+                $(this).find('.statusResult').addClass('hidden');
+                $(this).find('.statusButton').removeClass('hidden').parent().addClass('text-center');
+                $(this).find('.policyResult').addClass('hidden');
+                $(this).find('.policyButton').removeClass('hidden').parent().addClass('text-center');
+                $(this).find('.implemResult').addClass('hidden');
+                $(this).find('.implemButton').removeClass('hidden').parent().addClass('text-center');
+            });
+            result.$('tr').on('mouseleave', function() {
+                $(this).find('.statusButton').addClass('hidden').parent().removeClass('text-center');
+                $(this).find('.statusResult').removeClass('hidden');
+                $(this).find('.policyButton').addClass('hidden').parent().removeClass('text-center');
+                $(this).find('.policyResult').removeClass('hidden');
+                $(this).find('.implemButton').addClass('hidden').parent().removeClass('text-center');
+                $(this).find('.implemResult').removeClass('hidden');
+            });
+        });
     };
 
     return {
