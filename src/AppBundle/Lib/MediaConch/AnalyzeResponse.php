@@ -4,26 +4,25 @@ namespace AppBundle\Lib\MediaConch;
 
 class AnalyzeResponse extends MediaConchServerAbstractResponse
 {
-    protected $transactionId;
-    protected $created;
+    protected $analyze = array();
 
-    public function getTransactionId()
+    public function getAnalyze()
     {
-        return $this->transactionId;
+        return $this->analyze;
     }
 
     protected function parse($response)
     {
-        if (is_array($response->ok) && isset($response->ok[0])) {
-            $this->status = true;
-            $this->transactionId = $response->ok[0]->outId;
-            $this->created = $response->ok[0]->create;
+        if (is_array($response->ok) && 0 < count($response->ok)) {
+            foreach ($response->ok as $analyze) {
+                $this->analyze[$analyze->inId] = array('status' => true, 'transactionId' => $analyze->outId);
+            }
         }
-        else if (is_array($response->nok) && isset($response->nok[0])) {
-            throw new MediaConchServerException($response->nok[0]->error);
-        }
-        else {
-            throw new MediaConchServerException('Unknown response');
+
+        if (is_array($response->nok) && 0 < count($response->nok)) {
+            foreach ($response->nok as $analyze) {
+                $this->analyze[$analyze->inId] = array('status' => false, 'transactionId' => $analyze->outId);
+            }
         }
     }
 }

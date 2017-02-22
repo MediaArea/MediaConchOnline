@@ -125,30 +125,42 @@ class CheckerController extends BaseController
     }
 
     /**
-     * @Route("/checkerReportAndPolicyStatus/{id}/{reportType}/{policyId}", requirements={"id": "\d+", "reportType", "policyId": "\d+"})
+     * @Route("/checkerReportStatusMulti/")
      */
-    public function checkerReportAndPolicyStatusAction($id, $reportType, $policyId, Request $request)
+    public function statusReportsMultiAction(Request $request)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
-        try {
-            // Implementation report
-            $validate = $this->get('mco.checker.validate');
-            $validate->validate($id, $reportType);
-            $implemReport = $validate->getResponseAsArray();
+        // Reports list
+        $reports = $request->request->get('reports');
+        if (is_array($reports) && count($reports) > 0) {
+            try {
+                $response = array();
+                foreach ($reports as $report) {
+                    $validate = $this->get('mco.checker.validate');
 
-            $validate->validate($id, 1, $policyId);
-            $statusReport = $validate->getResponseAsArray();
+                    // Implementation report
+                    $validate->validate($report['id'], $report['tool']);
+                    $response[$report['id']] = array('implemReport' => $validate->getResponseAsArray());
 
-            return new JsonResponse(array('implemReport' => $implemReport, 'statusReport' => $statusReport));
+                    // Policy report
+                    if (isset($report['policyId'])) {
+                        $validate->validate($report['id'], 1, $report['policyId']);
+                        $response[$report['id']]['policyReport'] = $validate->getResponseAsArray();
+                    }
+                }
+
+                return new JsonResponse($response);
+            }
+            catch (MediaConchServerException $e) {
+                return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+            }
         }
-        catch (MediaConchServerException $e) {
-            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
-        }
+
+        return new JsonResponse(array('message' => 'Error'), 400);
     }
-
 
     /**
      * @Route("/checkerReport/{id}/{reportType}/{displayName}", requirements={"id": "\d+", "reportType", "displayName"})
@@ -296,12 +308,11 @@ class CheckerController extends BaseController
 
                         try {
                             $checks = $this->get('mco.checker.analyze');
-                            $checks->analyse($file->getRealPath());
-                            $response = $checks->getResponseAsArray();
+                            $checks->analyse(array($file->getRealPath()));
 
                             $this->get('mediaconch_user.quotas')->hitUploads();
 
-                            return new JsonResponse($response, 200);
+                            return new JsonResponse($checks->getResponseAsArray(), 200);
                         }
                         catch (MediaConchServerException $e) {
                             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
@@ -332,12 +343,11 @@ class CheckerController extends BaseController
                     try {
                         $checks = $this->get('mco.checker.analyze');
                         $checks->setFullPath(true);
-                        $checks->analyse(str_replace(' ', '%20', $data['file']));
-                        $response = $checks->getResponseAsArray();
+                        $checks->analyse(array(str_replace(' ', '%20', $data['file'])));
 
                         $this->get('mediaconch_user.quotas')->hitUrls();
 
-                        return new JsonResponse($response, 200);
+                        return new JsonResponse($checks->getResponseAsArray(), 200);
                     }
                     catch (MediaConchServerException $e) {
                         return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
@@ -359,7 +369,6 @@ class CheckerController extends BaseController
                 if ($this->get('mediaconch_user.quotas')->hasPolicyChecksRights()) {
                     if ($formRepository->isValid()) {
                         $data = $formRepository->getData();
-                        $response = array();
 
                         $settings = $this->get('mco.settings');
                         $settings->setLastUsedPolicy($data['policy']);
@@ -369,15 +378,17 @@ class CheckerController extends BaseController
                         try {
                             $finder = new Finder();
                             $finder->files()->in($this->container->getParameter('mco_check_folder'));
-                            foreach($finder as $file) {
-                                $checks = $this->get('mco.checker.analyze');
-                                $checks->analyse($file->getPathname());
-                                $response[] = $checks->getResponseAsArray();
+                            $checks = $this->get('mco.checker.analyze');
+                            $files = array();
+                            foreach ($finder as $file) {
+                                $files[] = $file->getPathname();
                             }
+
+                            $checks->analyse($files);
 
                             $this->get('mediaconch_user.quotas')->hitPolicyChecks(count($finder));
 
-                            return new JsonResponse($response, 200);
+                            return new JsonResponse($checks->getResponseAsArray(), 200);
                         }
                         catch (MediaConchServerException $e) {
                             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
@@ -411,7 +422,7 @@ class CheckerController extends BaseController
 
             // Force analyze
             $checks = $this->get('mco.checker.analyze');
-            $checks->analyse($file->getFilename(true), true);
+            $checks->analyse(array($file->getFilename(true)), true);
             $response = $checks->getResponseAsArray();
 
             return new JsonResponse($response);

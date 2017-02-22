@@ -6,31 +6,27 @@ use AppBundle\Lib\MediaConch\MediaConchServer;
 
 class CheckerAnalyze extends CheckerBase
 {
-    protected $source;
+    protected $files;
     protected $fullPath = false;
 
-    public function analyse($file, $force = false)
+    public function analyse(array $files, $force = false)
     {
-        $this->source = $file;
-        $this->response = $this->mc->analyse($this->user->getId(), $file, $force);
+        $this->files = $files;
+        $this->response = $this->mc->analyse($this->user->getId(), $files, $force);
     }
 
     public function getResponseAsArray()
     {
-        if ($this->response->getStatus()) {
-            return array('success' => true,
-                'transactionId' => $this->response->getTransactionId(),
-                'error' => null,
-                'filename' => $this->getFilename(),
+        $response = array();
+        $analyzedFiles = $this->response->getAnalyze();
+        foreach ($analyzedFiles as $key => $file) {
+            $response[] = array('success' => $file['status'],
+                'transactionId' => $file['transactionId'],
+                'filename' => $this->getFilename($this->files[$key]),
                 );
         }
-        else {
-            return array('success' => false,
-                'transactionId' => null,
-                'error' => $this->response->getError(),
-                'filename' => $this->getFilename(),
-                );
-        }
+
+        return $response;
     }
 
     public function setFullPath($fullPath)
@@ -38,13 +34,12 @@ class CheckerAnalyze extends CheckerBase
         $this->fullPath = $fullPath;
     }
 
-    protected function getFilename()
+    protected function getFilename($file)
     {
         if ($this->fullPath) {
-            return $this->source;
+            return $file;
         }
-        else {
-            return pathinfo($this->source, PATHINFO_BASENAME);
-        }
+
+        return pathinfo($file, PATHINFO_BASENAME);
     }
 }
