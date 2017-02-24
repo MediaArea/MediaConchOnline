@@ -222,7 +222,7 @@ class ProtectedApiController extends Controller
     * @Route("/userpolicies/policy/{id}", requirements={"id": "\d+"})
     * @Method({"GET"})
     */
-    public function userPoliciesPolicyExportAction(Request $request, $id)
+    public function userPoliciesPolicyExportAction($id)
     {
         try {
             // Get policy XML

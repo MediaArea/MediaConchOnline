@@ -33,8 +33,7 @@ class XslPolicyFormValues extends XslPolicyBase
 
             return $values;
         }
-        else {
-            return $this->response->getValues();
-        }
+
+        return $this->response->getValues();
     }
 }

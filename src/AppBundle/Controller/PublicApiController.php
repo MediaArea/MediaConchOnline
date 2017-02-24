@@ -110,7 +110,7 @@ class PublicApiController extends Controller
      * {"policy":POLICY_JSTREE_JSON}
      * @Route("/publicpolicies/policy/{id}/{userId}", requirements={"id": "\d+", "userId": "\d+"})
      */
-    public function publicPoliciesPolicyAction(Request $request, $id, $userId)
+    public function publicPoliciesPolicyAction($id, $userId)
     {
         try {
             // Get policy
@@ -132,7 +132,7 @@ class PublicApiController extends Controller
      * @return XML
      * @Route("/publicpolicies/policy/export/{id}/{userId}", requirements={"id": "\d+", "userId": "\d+"})
      */
-    public function publicPoliciesPolicyExportAction(Request $request, $id, $userId)
+    public function publicPoliciesPolicyExportAction($id, $userId)
     {
         try {
             // Get policy XML
@@ -173,8 +173,7 @@ class PublicApiController extends Controller
         if ($apiKey) {
             return new JsonResponse(array('key' => $apiKey->getToken()));
         }
-        else {
-            return new JsonResponse(array('error' => 'Invalid user or password'), 401);
-        }
+
+        return new JsonResponse(array('error' => 'Invalid user or password'), 401);
     }
 }

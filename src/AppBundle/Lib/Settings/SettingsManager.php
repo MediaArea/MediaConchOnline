@@ -43,13 +43,11 @@ class SettingsManager
             if ($lastUsed) {
                 return $this->getLastUsedPolicy();
             }
-            else {
-                return -2;
-            }
+
+            return -2;
         }
-        else {
-            return $defaultPolicy;
-        }
+
+        return $defaultPolicy;
     }
 
     public function setDefaultDisplay($display)
@@ -75,9 +73,8 @@ class SettingsManager
             if ($lastUsed) {
                 return $this->getLastUsedDisplay();
             }
-            else {
-                return -2;
-            }
+
+            return -2;
         }
         elseif (null !== $defaultDisplay) {
             return $this->em->getRepository('AppBundle:DisplayFile')->findOneByUserOrSystem($defaultDisplay, $this->user);
@@ -98,13 +95,11 @@ class SettingsManager
             if ($lastUsed) {
                 return $this->getLastUsedVerbosity();
             }
-            else {
-                return -2;
-            }
+
+            return -2;
         }
-        else {
-            return $defaultVerbosity;
-        }
+
+        return $defaultVerbosity;
     }
 
     public function setLastUsedPolicy($policy) {
@@ -205,9 +200,8 @@ class SettingsManager
         if (array_key_exists($name, $this->userSettings)) {
             return $this->userSettings[$name]['value'];
         }
-        else {
-            return $default;
-        }
+
+        return $default;
     }
 
     protected function removeSetting($name) {

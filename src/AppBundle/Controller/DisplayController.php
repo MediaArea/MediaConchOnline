@@ -99,10 +99,9 @@ class DisplayController extends BaseController
 
             return $this->redirect($this->generateUrl('app_display_display'));
         }
-        else {
-            $handler = $this->container->get('vich_uploader.download_handler');
-            return $handler->downloadObject($policy, 'displayFile');
-        }
+
+        $handler = $this->container->get('vich_uploader.download_handler');
+        return $handler->downloadObject($policy, 'displayFile');
     }
 
     /**
@@ -120,9 +119,8 @@ class DisplayController extends BaseController
 
             return $this->redirect($this->generateUrl('app_display_display'));
         }
-        else {
-            $handler = $this->container->get('vich_uploader.download_handler');
-            return $handler->downloadObject($policy, 'displayFile');
-        }
+
+        $handler = $this->container->get('vich_uploader.download_handler');
+        return $handler->downloadObject($policy, 'displayFile');
     }
 }

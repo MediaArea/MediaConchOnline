@@ -67,7 +67,7 @@ class UserQuotas
     /**
      * Get policies
      *
-     * @return integer 
+     * @return integer
      */
     public function getPolicies()
     {
@@ -90,7 +90,7 @@ class UserQuotas
     /**
      * Get uploads
      *
-     * @return integer 
+     * @return integer
      */
     public function getUploads()
     {
@@ -126,7 +126,7 @@ class UserQuotas
     /**
      * Get urls
      *
-     * @return integer 
+     * @return integer
      */
     public function getUrls()
     {

@@ -36,7 +36,7 @@ class XslPolicyController extends BaseController
      * @Route("/policyEditor")
      * @Template()
      */
-    public function xslPolicyTreeAction(Request $request)
+    public function xslPolicyTreeAction()
     {
         // Forms
         $policyRuleForm = $this->createForm('xslPolicyRule');

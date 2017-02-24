@@ -24,7 +24,7 @@ class PublicPoliciesController extends BaseController
      * @Route("")
      * @Template()
      */
-    public function listAction(Request $request)
+    public function listAction()
     {
         // Remove MediaConch-Server-ID setting
         $settings = $this->get('mco.settings');
