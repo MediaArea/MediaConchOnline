@@ -113,9 +113,8 @@ class Quotas
         if ($userQuotas->getUploadsTimestamp() < $this->datePeriod) {
             return true;
         }
-        else {
-            return 0 < $userQuotas->getUploads();
-        }
+
+        return 0 < $userQuotas->getUploads();
     }
 
     public function hitUploads($uploads = 1)
@@ -138,9 +137,8 @@ class Quotas
         if ($userQuotas->getUrlsTimestamp() < $this->datePeriod) {
             return true;
         }
-        else {
-            return 0 < $userQuotas->getUrls();
-        }
+
+        return 0 < $userQuotas->getUrls();
     }
 
     public function hitUrls($urls = 1)
@@ -163,9 +161,8 @@ class Quotas
         if ($userQuotas->getPolicyChecksTimestamp() < $this->datePeriod) {
             return true;
         }
-        else {
-            return 0 < $userQuotas->getPolicyChecks();
-        }
+
+        return 0 < $userQuotas->getPolicyChecks();
     }
 
     public function hitPolicyChecks($policyChecks = 1)
@@ -216,9 +213,8 @@ class Quotas
         if ($token !== null && $token->getUser() instanceof User) {
             return $token->getUser();
         }
-        else {
-            throw new \Exception('Invalid User');
-        }
+
+        throw new \Exception('Invalid User');
     }
 
     private function getQuotasByUser()

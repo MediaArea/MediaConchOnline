@@ -26,7 +26,7 @@ class CheckerController extends BaseController
      * @Route("/checker")
      * @Template()
      */
-    public function checkerAction(Request $request)
+    public function checkerAction()
     {
         // Remove MediaConch-Server-ID setting
         $settings = $this->get('mco.settings');
@@ -41,19 +41,15 @@ class CheckerController extends BaseController
         }
 
         if (null != $this->container->getParameter('mco_check_folder') && file_exists($this->container->getParameter('mco_check_folder'))) {
-            $repositoryEnable = true;
             if ($this->get('mediaconch_user.quotas')->hasPolicyChecksRights()) {
                 $formRepository = $this->createForm('checkerRepository');
             }
-        }
-        else {
-            $repositoryEnable = false;
         }
 
         return array('formUpload' => isset($formUpload) ? $formUpload->createView() : false,
             'formOnline' => isset($formOnline) ? $formOnline->createView() : false,
             'formRepository' => isset($formRepository) ? $formRepository->createView() : false,
-            'repositoryEnable' => $repositoryEnable);
+            'repositoryEnable' => isset($formRepository));
     }
 
     /**
@@ -79,9 +75,8 @@ class CheckerController extends BaseController
                 return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
             }
         }
-        else {
-            return new JsonResponse(array('message' => 'Error'), 400);
-        }
+
+        return new JsonResponse(array('message' => 'Error'), 400);
     }
 
     /**
@@ -194,9 +189,8 @@ class CheckerController extends BaseController
             if (($reportType == 'mi' || $reportType == 'mt') && $displayName == 'jstree') {
                 return new Response($report->getReport());
             }
-            else {
-                return new JsonResponse($report->getResponseAsArray());
-            }
+
+            return new JsonResponse($report->getResponseAsArray());
         }
         catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());

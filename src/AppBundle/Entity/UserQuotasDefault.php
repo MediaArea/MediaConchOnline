@@ -59,7 +59,7 @@ class UserQuotasDefault
     /**
      * Get policies
      *
-     * @return integer 
+     * @return integer
      */
     public function getPolicies()
     {
@@ -82,7 +82,7 @@ class UserQuotasDefault
     /**
      * Get uploads
      *
-     * @return integer 
+     * @return integer
      */
     public function getUploads()
     {
@@ -105,7 +105,7 @@ class UserQuotasDefault
     /**
      * Get urls
      *
-     * @return integer 
+     * @return integer
      */
     public function getUrls()
     {
@@ -128,7 +128,7 @@ class UserQuotasDefault
     /**
      * Get policyChecks
      *
-     * @return integer 
+     * @return integer
      */
     public function getPolicyChecks()
     {
@@ -151,7 +151,7 @@ class UserQuotasDefault
     /**
      * Get user
      *
-     * @return \AppBundle\Entity\User 
+     * @return \AppBundle\Entity\User
      */
     public function getUser()
     {
@@ -161,7 +161,7 @@ class UserQuotasDefault
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {

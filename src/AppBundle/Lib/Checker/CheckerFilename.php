@@ -21,8 +21,7 @@ class CheckerFilename extends CheckerBase
         if ($full) {
             return $this->response->getFile();
         }
-        else {
-            return pathinfo($this->response->getFile(), PATHINFO_BASENAME);
-        }
+
+        return pathinfo($this->response->getFile(), PATHINFO_BASENAME);
     }
 }

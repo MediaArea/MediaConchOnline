@@ -297,9 +297,8 @@ class MediaConchServer
 
                 return new $responseClass($response);
             }
-            else {
-                throw new MediaConchServerException('Invalid response');
-            }
+
+            throw new MediaConchServerException('Invalid response');
         }
         catch (HttpException $e) {
             $this->logger->error($e->getMessage());
@@ -329,7 +328,7 @@ class MediaConchServer
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_PORT, $this->port);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HEADERFUNCTION, array(&$this, 'HandleHeaderLine'));
+        curl_setopt($curl, CURLOPT_HEADERFUNCTION, array(&$this, 'handleHeaderLine'));
 
         // Add POST fields
         if ('POST' == $method) {
@@ -355,20 +354,19 @@ class MediaConchServer
         if (isset($headers['http_code']) && $headers['http_code'] == 200) {
             return json_decode($response);
         }
-        else {
-            if (!isset($headers['http_code']) || 0 == $headers['http_code']) {
-                $headers['http_code'] = 503;
-            }
 
-            throw new HttpException($headers['http_code'], 'MediaConch-Server error - Return code: ' . $headers['http_code'] . ' - Response: ' . $response, null, $headers);
+        if (!isset($headers['http_code']) || 0 == $headers['http_code']) {
+            $headers['http_code'] = 503;
         }
+
+        throw new HttpException($headers['http_code'], 'MediaConch-Server error - Return code: ' . $headers['http_code'] . ' - Response: ' . $response, null, $headers);
     }
 
     /**
      * Get custom header sent by MediaConchServer and store MediaConch-Instance-ID
      *
      */
-    public function HandleHeaderLine($curl, $headerLine) {
+    public function handleHeaderLine($curl, $headerLine) {
         if (preg_match('/X-App-MediaConch-Instance-ID: ([0-9]+)/', $headerLine, $matches)) {
             $this->userSettings->setMediaConchInstanceID($matches[1]);
         }

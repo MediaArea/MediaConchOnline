@@ -40,8 +40,7 @@ class XslPolicyGetPoliciesNamesList extends XslPolicyBase
         if (isset($list[$incrementName])) {
             return $this->incrementPolicyName($name, $list, ++$increment);
         }
-        else {
-            return $incrementName;
-        }
+
+        return $incrementName;
     }
 }

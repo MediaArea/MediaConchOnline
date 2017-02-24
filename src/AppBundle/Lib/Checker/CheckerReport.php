@@ -40,9 +40,8 @@ class CheckerReport extends CheckerBase
         if ($this->fullPath) {
             return $this->response->getReport();
         }
-        else {
-            return str_replace($this->filename, pathinfo($this->filename, PATHINFO_BASENAME), $this->response->getReport());
-        }
+
+        return str_replace($this->filename, pathinfo($this->filename, PATHINFO_BASENAME), $this->response->getReport());
     }
 
     public function setFullPath($fullPath, $filename = null)
@@ -136,10 +135,8 @@ class CheckerReport extends CheckerBase
         else if ($this->isXmlReport()) {
             return 'xml';
         }
-        else {
-            return null;
-        }
 
+        return null;
     }
 
     protected function getReportType()
