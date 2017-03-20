@@ -173,10 +173,6 @@ var checkerAjax = (function() {
             if (jqXHR.responseJSON.hasOwnProperty('quota')) {
                 $('#' + formType).html(jqXHR.responseJSON.quota);
             }
-            else if ('file' == formType) {
-                var uploadFiles = $('#file form :file');
-                mcoMessage.error('The file is too big (max ' + uploadFiles.data('file-max-size')  + ')');
-            }
             else if (jqXHR.responseJSON.hasOwnProperty('message')) {
                 mcoMessage.error(jqXHR.responseJSON.message);
             }
@@ -185,9 +181,9 @@ var checkerAjax = (function() {
             }
         }
         else {
-            if ('file' == formType && 400 == jqXHR.status) {
+            if ('file' == formType) {
                 var uploadFiles = $('#file form :file');
-                mcoMessage.error('The file is too big (max ' + uploadFiles.data('file-max-size')  + ')');
+                mcoMessage.error('The file is too large. Allowed maximum size is ' + uploadFiles.data('file-max-size'));
             }
             else {
                 mcoMessage.error();
