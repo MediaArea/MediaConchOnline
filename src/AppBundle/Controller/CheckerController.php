@@ -279,67 +279,56 @@ class CheckerController extends BaseController
         $formUpload = $this->createForm('checkerUpload');
         $formUpload->handleRequest($request);
         if ($formUpload->isSubmitted()) {
-            if ($this->get('mediaconch_user.quotas')->hasUploadsRights()) {
-                if ($formUpload->isValid()) {
-                    $data = $formUpload->getData();
-
-                    $settings = $this->get('mco.settings');
-                    $settings->setLastUsedPolicy($data['policy']);
-                    $settings->setLastUsedDisplay($data['display']);
-                    $settings->setLastUsedVerbosity($data['verbosity']);
-
-                    if ($data['file']->isValid()) {
-                        $path = $this->container->getParameter('kernel.root_dir').'/../files/upload/' . $this->getUser()->getId();
-                        $filename =  $data['file']->getClientOriginalName();
-                        $fileMd5 = md5(file_get_contents($data['file']->getRealPath()));
-
-                        if (file_exists($path . '/' . $fileMd5 . '/' . $filename)) {
-                            $file = new File($path . '/' . $fileMd5 . '/' . $filename);
-                        }
-                        else {
-                            $file = $data['file']->move($path . '/' . $fileMd5, $filename);
-                        }
-
-                        try {
-                            $checks = $this->get('mco.checker.analyze');
-                            $checks->analyse(array($file->getRealPath()));
-
-                            $this->get('mediaconch_user.quotas')->hitUploads();
-
-                            return new JsonResponse($checks->getResponseAsArray(), 200);
-                        }
-                        catch (MediaConchServerException $e) {
-                            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
-                        }
-                    }
-                }
-            }
-            else {
-                return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
-            }
-
-            return new JsonResponse(array('message' => 'Error'), 400);
+            return $this->checkerAjaxFormUpload($formUpload);
         }
 
         $formOnline = $this->createForm('checkerOnline');
         $formOnline->handleRequest($request);
 
         if ($formOnline->isSubmitted()) {
-            if ($this->get('mediaconch_user.quotas')->hasUrlsRights()) {
-                if ($formOnline->isValid()) {
-                    $data = $formOnline->getData();
+            return $this->checkerAjaxFormOnline($formOnline);
+        }
 
-                    $settings = $this->get('mco.settings');
-                    $settings->setLastUsedPolicy($data['policy']);
-                    $settings->setLastUsedDisplay($data['display']);
-                    $settings->setLastUsedVerbosity($data['verbosity']);
+        if (null != $this->container->getParameter('mco_check_folder') && file_exists($this->container->getParameter('mco_check_folder'))) {
+            $formRepository = $this->createForm('checkerRepository');
+            $formRepository->handleRequest($request);
+
+            if ($formRepository->isSubmitted()) {
+                return $this->checkerAjaxFormRepository($formRepository);
+            }
+        }
+
+        return new JsonResponse(array('message' => 'No form selected'), 400);
+    }
+
+    protected function checkerAjaxFormUpload($formUpload)
+    {
+        if ($this->get('mediaconch_user.quotas')->hasUploadsRights()) {
+            if ($formUpload->isValid()) {
+                $data = $formUpload->getData();
+
+                $settings = $this->get('mco.settings');
+                $settings->setLastUsedPolicy($data['policy']);
+                $settings->setLastUsedDisplay($data['display']);
+                $settings->setLastUsedVerbosity($data['verbosity']);
+
+                if ($data['file']->isValid()) {
+                    $path = $this->container->getParameter('kernel.root_dir').'/../files/upload/' . $this->getUser()->getId();
+                    $filename =  $data['file']->getClientOriginalName();
+                    $fileMd5 = md5(file_get_contents($data['file']->getRealPath()));
+
+                    if (file_exists($path . '/' . $fileMd5 . '/' . $filename)) {
+                        $file = new File($path . '/' . $fileMd5 . '/' . $filename);
+                    }
+                    else {
+                        $file = $data['file']->move($path . '/' . $fileMd5, $filename);
+                    }
 
                     try {
                         $checks = $this->get('mco.checker.analyze');
-                        $checks->setFullPath(true);
-                        $checks->analyse(array(str_replace(' ', '%20', $data['file'])));
+                        $checks->analyse(array($file->getRealPath()));
 
-                        $this->get('mediaconch_user.quotas')->hitUrls();
+                        $this->get('mediaconch_user.quotas')->hitUploads();
 
                         return new JsonResponse($checks->getResponseAsArray(), 200);
                     }
@@ -349,55 +338,85 @@ class CheckerController extends BaseController
                 }
             }
             else {
-                return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
+                return new JsonResponse(array('message' => $formUpload->getErrors(true)->current()->getMessage()), 400);
             }
-
-            return new JsonResponse(array('message' => 'Error'), 400);
+        }
+        else {
+            return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
-        if (null != $this->container->getParameter('mco_check_folder') && file_exists($this->container->getParameter('mco_check_folder'))) {
-            $formRepository = $this->createForm('checkerRepository');
-            $formRepository->handleRequest($request);
+        return new JsonResponse(array('message' => 'Error'), 400);
+    }
 
-            if ($formRepository->isSubmitted()) {
-                if ($this->get('mediaconch_user.quotas')->hasPolicyChecksRights()) {
-                    if ($formRepository->isValid()) {
-                        $data = $formRepository->getData();
+    protected function checkerAjaxFormOnline($formOnline)
+    {
+        if ($this->get('mediaconch_user.quotas')->hasUrlsRights()) {
+            if ($formOnline->isValid()) {
+                $data = $formOnline->getData();
 
-                        $settings = $this->get('mco.settings');
-                        $settings->setLastUsedPolicy($data['policy']);
-                        $settings->setLastUsedDisplay($data['display']);
-                        $settings->setLastUsedVerbosity($data['verbosity']);
+                $settings = $this->get('mco.settings');
+                $settings->setLastUsedPolicy($data['policy']);
+                $settings->setLastUsedDisplay($data['display']);
+                $settings->setLastUsedVerbosity($data['verbosity']);
 
-                        try {
-                            $finder = new Finder();
-                            $finder->files()->in($this->container->getParameter('mco_check_folder'));
-                            $checks = $this->get('mco.checker.analyze');
-                            $files = array();
-                            foreach ($finder as $file) {
-                                $files[] = $file->getPathname();
-                            }
+                try {
+                    $checks = $this->get('mco.checker.analyze');
+                    $checks->setFullPath(true);
+                    $checks->analyse(array(str_replace(' ', '%20', $data['file'])));
 
-                            $checks->analyse($files);
+                    $this->get('mediaconch_user.quotas')->hitUrls();
 
-                            $this->get('mediaconch_user.quotas')->hitPolicyChecks(count($finder));
+                    return new JsonResponse($checks->getResponseAsArray(), 200);
+                }
+                catch (MediaConchServerException $e) {
+                    return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+                }
+            }
+        }
+        else {
+            return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
+        }
 
-                            return new JsonResponse($checks->getResponseAsArray(), 200);
-                        }
-                        catch (MediaConchServerException $e) {
-                            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
-                        }
+        return new JsonResponse(array('message' => 'Error'), 400);
+
+    }
+
+    protected function checkerAjaxFormRepository($formRepository)
+    {
+        if ($this->get('mediaconch_user.quotas')->hasPolicyChecksRights()) {
+            if ($formRepository->isValid()) {
+                $data = $formRepository->getData();
+
+                $settings = $this->get('mco.settings');
+                $settings->setLastUsedPolicy($data['policy']);
+                $settings->setLastUsedDisplay($data['display']);
+                $settings->setLastUsedVerbosity($data['verbosity']);
+
+                try {
+                    $finder = new Finder();
+                    $finder->files()->in($this->container->getParameter('mco_check_folder'));
+                    $checks = $this->get('mco.checker.analyze');
+                    $files = array();
+                    foreach ($finder as $file) {
+                        $files[] = $file->getPathname();
                     }
-                }
-                else {
-                    return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
-                }
 
-                return new JsonResponse(array('message' => 'Error'), 400);
+                    $checks->analyse($files);
+
+                    $this->get('mediaconch_user.quotas')->hitPolicyChecks(count($finder));
+
+                    return new JsonResponse($checks->getResponseAsArray(), 200);
+                }
+                catch (MediaConchServerException $e) {
+                    return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+                }
             }
         }
+        else {
+            return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
+        }
 
-        return new JsonResponse(array('message' => 'No form selected'), 400);
+        return new JsonResponse(array('message' => 'Error'), 400);
     }
 
     /**
