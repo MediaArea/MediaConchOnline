@@ -69,7 +69,7 @@ class CheckerController extends BaseController
                 $status = $this->get('mco.checker.status');
                 $status->getStatus($ids);
 
-                return new JsonResponse(array('status' => $status->getResponse()->getResponse()));
+                return new JsonResponse(array('status' => $status->getResponse()));
             }
             catch (MediaConchServerException $e) {
                 return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());

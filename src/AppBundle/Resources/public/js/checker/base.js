@@ -38,18 +38,18 @@ var checker = (function() {
             e.preventDefault();
             checkerAjax.formRequest($(this), getDataFromForm($(this)), 'repository');
         });
+    };
 
-        // Get form data
-        var getDataFromForm = function(form) {
-            var formValues = {policy:form.find('.policyList').val(),
-                policyText:form.find('.policyList option:selected').text(),
-                display:form.find('.displayList').val(),
-                verbosity:form.find('.verbosityList').val()
-            };
-
-            return formValues;
+    // Get form data
+    var getDataFromForm = function(form) {
+        var formValues = {policy:form.find('.policyList').val(),
+            policyText:form.find('.policyList option:selected').text(),
+            display:form.find('.displayList').val(),
+            verbosity:form.find('.verbosityList').val()
         };
-    }
+
+        return formValues;
+    };
 
     var applyPolicyToAll = function() {
         // Apply policy to all
@@ -113,6 +113,7 @@ var checker = (function() {
 
     return {
         initPage: initPage,
+        getDataFromForm: getDataFromForm,
     };
 })();
 
