@@ -169,6 +169,10 @@ footer .navbar {
     }
 }
 
+.statusButton {
+    display: inline-block;
+}
+
 .tab-pane {
     background-color: #F5F5F5;
     padding-top: 10px;
@@ -298,10 +302,6 @@ p.registration {
     margin: 0 auto;
 }
 
-.statusButton {
-    display: inline-block;
-}
-
 .alert-modal-create-policy {
     display: inline-block;
     margin-top: 0;
@@ -313,6 +313,10 @@ p.registration {
 
 .alert-modal-create-policy a {
     text-decoration: underline;
+}
+
+.publicPoliciesHelp {
+    margin-bottom: 20px;
 }
 
 .policiesList .col-xs-12 .policyBox {
