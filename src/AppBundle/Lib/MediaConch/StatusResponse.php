@@ -23,6 +23,10 @@ class StatusResponse extends MediaConchServerAbstractResponse
                     else {
                         $this->response[$ok->id]['tool'] = 2;
                     }
+
+                    if (isset($ok->generated_id) && is_array($ok->generated_id) && 0 < count($ok->generated_id)) {
+                        $this->response[$ok->id]['associatedFiles'] = $ok->generated_id;
+                    }
                 }
                 else {
                     $this->response[$ok->id]['percent'] = $ok->done;
