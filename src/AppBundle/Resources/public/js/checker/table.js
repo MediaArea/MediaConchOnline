@@ -127,6 +127,14 @@ var checkerTable = (function() {
         // Reload button
         nodej.find('.result-reload').click(node, function(e) {
             var id = $(result.row(e.data).node()).data('fileId');
+
+            // Remove associatedFiles if any
+            result.$('tr').filter(function() {
+                if ($(this).data('parentId') == id) {
+                    result.row($(this)).remove();
+                }
+            });
+
             resetRow(id);
             checkerAjax.forceAnalyze(id);
         });
@@ -135,6 +143,8 @@ var checkerTable = (function() {
             $('#checkerResultTitle .close').removeClass('hidden');
             $('#checkerApplyAll').removeClass('hidden');
         }
+
+        return node;
     };
 
     var resetRow = function(id) {
@@ -266,7 +276,8 @@ var checkerTable = (function() {
                 // Handle associated files (attachments)
                 if (undefined !== status.associatedFiles) {
                     $.each(status.associatedFiles, function(associatedFileId, associatedFileName) {
-                        addFile(associatedFileName, associatedFileId, checker.getDataFromForm($('.tab-content .active form')));
+                        var nodeFile = addFile(associatedFileName, associatedFileId, checker.getDataFromForm($('.tab-content .active form')));
+                        $(nodeFile).data('parent-id', statusFileId);
                     });
                     draw();
                 }
