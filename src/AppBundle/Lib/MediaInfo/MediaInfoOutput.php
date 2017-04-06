@@ -24,7 +24,6 @@ class MediaInfoOutput
 
     private function validateXml()
     {
-
     }
 
     private function setTrack($track)
@@ -54,7 +53,7 @@ class MediaInfoOutput
     public function getTracksList()
     {
         $list = array();
-        foreach($this->tracks as $type => $track) {
+        foreach ($this->tracks as $type => $track) {
             $list[] = $type;
         }
 
@@ -66,8 +65,7 @@ class MediaInfoOutput
         if (isset($this->tracks[$type])) {
             if (null !== $id && isset($this->tracks[$type][$id])) {
                 return $this->tracks[$type][$id];
-            }
-            elseif (null === $id) {
+            } elseif (null === $id) {
                 return $this->tracks[$type];
             }
         }
@@ -84,8 +82,7 @@ class MediaInfoOutput
     {
         if (null === $id) {
             return isset($this->tracks[$type]);
-        }
-        else {
+        } else {
             return isset($this->tracks[$type][$id]);
         }
     }

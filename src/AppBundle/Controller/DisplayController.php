@@ -72,8 +72,7 @@ class DisplayController extends BaseController
 
         if (!$policy) {
             $this->addFlashBag('danger', 'Policy display not found');
-        }
-        else {
+        } else {
             $em = $this->getDoctrine()->getManager();
             $em->remove($policy);
             $em->flush();

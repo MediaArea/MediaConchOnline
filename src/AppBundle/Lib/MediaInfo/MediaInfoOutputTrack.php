@@ -15,7 +15,7 @@ abstract class MediaInfoOutputTrack
 
     private function hydrate()
     {
-        foreach($this->xml as $node => $value) {
+        foreach ($this->xml as $node => $value) {
             $this->set($node, $value->__tostring());
         }
     }
@@ -26,8 +26,7 @@ abstract class MediaInfoOutputTrack
         $method = 'set' . ucfirst($field);
         if (method_exists($this, $method)) {
             $this->$method($field, $value);
-        }
-        else {
+        } else {
             $this->datas[$field] = $value;
         }
     }

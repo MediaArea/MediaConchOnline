@@ -17,13 +17,13 @@ class MediaConchTrace extends MediaConch
             ->add('--parseSpeed=0');
 
         switch ($format) {
-            case 'jstree' :
+            case 'jstree':
                 $builder->add('-fj');
                 break;
-            case 'xml' :
+            case 'xml':
                 $builder->add('-fx');
                 break;
-            default :
+            default:
                 $builder->add('-fx');
                 break;
         }

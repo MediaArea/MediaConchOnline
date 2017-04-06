@@ -18,8 +18,7 @@ class XslPolicyFromFile
         $token = $tokenStorage->getToken();
         if ($token !== null && $token->getUser() instanceof \AppBundle\Entity\User) {
             $this->user = $token->getUser();
-        }
-        else {
+        } else {
             throw new \Exception('Invalid User');
         }
     }

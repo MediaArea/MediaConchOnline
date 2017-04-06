@@ -93,8 +93,7 @@ class PublicApiController extends Controller
                         );
                 }
             }
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             // Empty list
         }
 
@@ -118,8 +117,7 @@ class PublicApiController extends Controller
             $policy->getPublicPolicy($id, $userId, 'JSTREE');
 
             return new JsonResponse($policy->getResponse()->getPolicy());
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -140,8 +138,7 @@ class PublicApiController extends Controller
             $policyExport->publicExport($id, $userId);
 
             $response = new Response($policyExport->getPolicyXml());
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             $response = new Response('<?xml version="1.0"?><error />', $e->getStatusCode());
         }
 

@@ -12,8 +12,7 @@ class UserDirectoryNamer implements DirectoryNamerInterface
      */
     public function directoryName($object, PropertyMapping $mapping)
     {
-        if ($object->getUser())
-        {
+        if ($object->getUser()) {
             return $object->getUser()->getId();
         }
 

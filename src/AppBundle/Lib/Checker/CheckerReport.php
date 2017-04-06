@@ -18,8 +18,7 @@ class CheckerReport extends CheckerBase
         $this->report = $report;
         if ($display && file_exists($display) && is_readable($display)) {
             $this->displayName = null;
-        }
-        else {
+        } else {
             $this->displayName = $displayName;
             $display = null;
         }
@@ -49,8 +48,7 @@ class CheckerReport extends CheckerBase
         if (!$fullPath && $filename !== null) {
             $this->fullPath = false;
             $this->filename = $filename;
-        }
-        else {
+        } else {
             $this->fullPath = true;
         }
     }
@@ -131,8 +129,7 @@ class CheckerReport extends CheckerBase
 
         if ($this->isHtmlReport()) {
             return 'html';
-        }
-        else if ($this->isXmlReport()) {
+        } elseif ($this->isXmlReport()) {
             return 'xml';
         }
 

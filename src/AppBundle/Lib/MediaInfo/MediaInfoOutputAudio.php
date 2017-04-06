@@ -14,10 +14,9 @@ class MediaInfoOutputAudio extends MediaInfoOutputTrack
     protected function setBitRate_String($key, $value)
     {
         $bitrateString = preg_match('/([0-9\.]+) [a-zA-Z]+/', $value, $matches);
-        if(is_array($matches) && isset($matches[1])) {
+        if (is_array($matches) && isset($matches[1])) {
             $bitrate = $matches[1];
-        }
-        else {
+        } else {
             $bitrate = null;
         }
         $this->datas[$key] = $bitrate;

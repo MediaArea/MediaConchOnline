@@ -80,8 +80,7 @@ class XslPolicyController extends BaseController
             $policies->getPolicies(array(), 'JSTREE');
 
             return new JsonResponse(array('policiesTree' => $policies->getResponse()->getPolicies()), 200);
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -121,8 +120,7 @@ class XslPolicyController extends BaseController
             $policy->getPolicy($policyCreate->getCreatedId(), 'JSTREE');
 
             return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -166,8 +164,7 @@ class XslPolicyController extends BaseController
                     $policy->getPolicy($policyImport->getCreatedId(), 'JSTREE');
 
                     return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
-                }
-                catch (MediaConchServerException $e) {
+                } catch (MediaConchServerException $e) {
                     return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
                 }
             }
@@ -221,11 +218,9 @@ class XslPolicyController extends BaseController
                         // Stop the loop when analyze is finish
                         if (isset($response[$transactionId]['finish']) && true === $response[$transactionId]['finish']) {
                             $loop = 0;
-                        }
-                        else if (0 == $loop) {
+                        } elseif (0 == $loop) {
                             throw new MediaConchServerException('Analyze is not finish', 400);
-                        }
-                        else {
+                        } else {
                             usleep(500000);
                         }
                     }
@@ -246,8 +241,7 @@ class XslPolicyController extends BaseController
                     $policy->getPolicy($policyFromFile->getCreatedId(), 'JSTREE');
 
                     return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
-                }
-                catch (MediaConchServerException $e) {
+                } catch (MediaConchServerException $e) {
                     // Remove tmp file
                     unlink($file);
 
@@ -289,8 +283,7 @@ class XslPolicyController extends BaseController
             $response->headers->set('Content-length', strlen($policyExport->getPolicyXml()));
 
             return $response;
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             throw new ServiceUnavailableHttpException();
         }
     }
@@ -341,8 +334,7 @@ class XslPolicyController extends BaseController
                 $policy->getPolicy($id, 'JSTREE');
 
                 return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
-            }
-            catch (MediaConchServerException $e) {
+            } catch (MediaConchServerException $e) {
                 return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
             }
         }
@@ -386,8 +378,7 @@ class XslPolicyController extends BaseController
             $policy->getPolicy($policyDuplicate->getCreatedId(), 'JSTREE');
 
             return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -423,8 +414,7 @@ class XslPolicyController extends BaseController
             $policy->getPolicy($policyMove->getCreatedId(), 'JSTREE');
 
             return new JsonResponse(array('policy' => $policy->getResponse()->getPolicy()), 200);
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -451,8 +441,7 @@ class XslPolicyController extends BaseController
             $policyDelete->delete($id);
 
             return new JsonResponse(array('policyId' => $id), 200);
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -487,8 +476,7 @@ class XslPolicyController extends BaseController
             $rule->getRule($ruleCreate->getCreatedId(), $policyId);
 
             return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -513,8 +501,7 @@ class XslPolicyController extends BaseController
         // Get the requested form
         if ($request->request->has('xslPolicyRuleMt')) {
             $policyRuleForm = $this->createForm('xslPolicyRuleMt');
-        }
-        else {
+        } else {
             $policyRuleForm = $this->createForm('xslPolicyRule');
         }
 
@@ -536,8 +523,7 @@ class XslPolicyController extends BaseController
                 $rule->getRule($id, $policyId);
 
                 return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
-            }
-            catch (MediaConchServerException $e) {
+            } catch (MediaConchServerException $e) {
                 return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
             }
         }
@@ -572,8 +558,7 @@ class XslPolicyController extends BaseController
             $policySave->save($policyId);
 
             return new JsonResponse(array('id' => $id), 200);
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -610,9 +595,7 @@ class XslPolicyController extends BaseController
             $rule->getRule($ruleDuplicate->getCreatedId(), $dstPolicyId);
 
             return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
-
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -650,8 +633,7 @@ class XslPolicyController extends BaseController
             $rule->getRule($ruleMove->getCreatedId(), $dstPolicyId);
 
             return new JsonResponse(array('rule' => $rule->getResponse()->getRule()), 200);
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -664,7 +646,8 @@ class XslPolicyController extends BaseController
      * @Route("/xslPolicy/fieldsListRule")
      * @Method({"POST"})
      */
-    public function xslPolicyRuleFieldsListAction(Request $request) {
+    public function xslPolicyRuleFieldsListAction(Request $request)
+    {
         if (! $request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
@@ -686,7 +669,8 @@ class XslPolicyController extends BaseController
      * @Route("/xslPolicyTree/ajax/valueListRule")
      * @Method({"POST"})
      */
-    public function xslPolicyRuleValuesListAction(Request $request) {
+    public function xslPolicyRuleValuesListAction(Request $request)
+    {
         if (! $request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
@@ -705,8 +689,7 @@ class XslPolicyController extends BaseController
             $valuesList->getValues($type, $field, $value);
 
             return new JsonResponse($valuesList->getResponseAsArray());
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }

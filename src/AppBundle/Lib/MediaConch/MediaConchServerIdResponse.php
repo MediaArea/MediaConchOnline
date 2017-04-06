@@ -16,11 +16,9 @@ class MediaConchServerIdResponse extends MediaConchServerAbstractResponse
         if (isset($response->id)) {
             $this->id = $response->id;
             $this->status = true;
-        }
-        else if (isset($response->nok)) {
+        } elseif (isset($response->nok)) {
             throw new MediaConchServerException($response->nok->error);
-        }
-        else {
+        } else {
             throw new MediaConchServerException('Unknown response');
         }
     }

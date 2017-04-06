@@ -7,7 +7,8 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 abstract class BaseController extends Controller implements MCOControllerInterface
 {
-    protected function addFlashBag($type, $message) {
+    protected function addFlashBag($type, $message)
+    {
         $this->addFlash(
             $type,
             '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' . $message
@@ -24,7 +25,8 @@ abstract class BaseController extends Controller implements MCOControllerInterfa
      *
      * @return string
      */
-    protected function downloadFileDisposition($response, $filename) {
+    protected function downloadFileDisposition($response, $filename)
+    {
         // Store current locale and set locale temporary to en_US
         $locale = setlocale(LC_ALL, 0);
         setlocale(LC_ALL, 'en_US.UTF8');
@@ -35,8 +37,7 @@ abstract class BaseController extends Controller implements MCOControllerInterfa
         // $filenameFallback should be ASCII only and can not contain '%', '/' and '\\' (already stripped in $filename)
         if (function_exists('iconv')) {
             $filenameFallback = iconv('UTF-8', 'ASCII//TRANSLIT', $filename);
-        }
-        else {
+        } else {
             $filenameFallback = preg_replace('/[^\x20-\x7E]/', '-', $filename);
         }
         $filenameFallback = str_replace('%', '-', $filenameFallback);

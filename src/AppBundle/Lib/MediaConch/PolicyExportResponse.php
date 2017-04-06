@@ -16,11 +16,9 @@ class PolicyExportResponse extends MediaConchServerAbstractResponse
         if (isset($response->xml)) {
             $this->xml = $response->xml;
             $this->status = true;
-        }
-        else if (isset($response->nok)) {
+        } elseif (isset($response->nok)) {
             throw new MediaConchServerException($response->nok->error);
-        }
-        else {
+        } else {
             throw new MediaConchServerException('Unknown response');
         }
     }

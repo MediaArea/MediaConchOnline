@@ -3,5 +3,4 @@ namespace AppBundle\Controller;
 
 interface MCOControllerInterface
 {
-
 }

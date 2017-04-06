@@ -16,8 +16,7 @@ class FileFromIdResponse extends MediaConchServerAbstractResponse
         if (isset($response->file)) {
             $this->file = $response->file;
             $this->status = true;
-        }
-        else {
+        } else {
             throw new MediaConchServerException('Unknown response');
         }
     }

@@ -12,7 +12,6 @@ class DisplayImportFormType extends AbstractType
         $builder->add('displayName', 'text', array('label' => 'Display name'))
             ->add('displayFile', 'file', array('attr' => array('accept' => '.xsl,.xml'), 'label' => 'Display file'))
             ->add('ImportDisplay', 'submit', array('attr' => array('class' => 'btn-warning')));
-
     }
 
     public function configureOptions(OptionsResolver $resolver)

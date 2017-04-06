@@ -16,11 +16,9 @@ class ValidateResponse extends MediaConchServerAbstractResponse
         if (isset($response->ok) && is_array($response->ok) && isset($response->ok[0])) {
             $this->valid = $response->ok[0]->valid;
             $this->status = true;
-        }
-        else if (isset($response->nok) && is_array($response->nok) && isset($response->nok[0])) {
+        } elseif (isset($response->nok) && is_array($response->nok) && isset($response->nok[0])) {
             throw new MediaConchServerException($response->nok[0]->error);
-        }
-        else {
+        } else {
             throw new MediaConchServerException('Unknown response');
         }
     }

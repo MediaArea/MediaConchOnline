@@ -64,8 +64,7 @@ class PublicPoliciesController extends BaseController
             $response->headers->set('Content-length', strlen($policyExport->getPolicyXml()));
 
             return $response;
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             throw new ServiceUnavailableHttpException();
         }
     }
@@ -106,8 +105,7 @@ class PublicPoliciesController extends BaseController
             $policySave->save($policyDuplicate->getCreatedId());
 
             return new JsonResponse(array('policyId' => $policyDuplicate->getCreatedId()));
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             throw new ServiceUnavailableHttpException();
         }
     }
