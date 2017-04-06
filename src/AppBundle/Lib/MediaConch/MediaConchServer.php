@@ -57,8 +57,7 @@ class MediaConchServer
             'options' => array('verbosity' => $verbosity)));
         if ($display && file_exists($display) && is_readable($display)) {
             $request['CHECKER_REPORT']['display_content'] = file_get_contents($display);
-        }
-        else {
+        } else {
             $request['CHECKER_REPORT']['display_name'] = $displayName;
         }
 
@@ -142,7 +141,8 @@ class MediaConchServer
         return $this->callApiHandler('policy_get_policies_names_list', 'GET', $request, 'POLICY_GET_POLICIES_NAMES_LIST_RESULT', 'PolicyGetPoliciesNamesListResponse');
     }
 
-    public function policyGetPublicPolicies() {
+    public function policyGetPublicPolicies()
+    {
         $request = array();
 
         return $this->callApiHandler('policy_get_public_policies', 'GET', $request, 'POLICY_GET_PUBLIC_POLICIES_RESULT', 'PolicyGetPublicPoliciesResponse');
@@ -287,7 +287,8 @@ class MediaConchServer
         return $this->callApiHandler('xslt_policy_rule_get', 'GET', $request, 'XSLT_POLICY_RULE_GET_RESULT', 'PolicyGetRuleResponse');
     }
 
-    protected function callApiHandler($uri, $method, $params, $responseString, $responseClass) {
+    protected function callApiHandler($uri, $method, $params, $responseString, $responseClass)
+    {
         try {
             $response = $this->callApi($uri, $method, $params);
 
@@ -299,13 +300,11 @@ class MediaConchServer
             }
 
             throw new MediaConchServerException('Invalid response');
-        }
-        catch (HttpException $e) {
+        } catch (HttpException $e) {
             $this->logger->error($e->getMessage());
 
             throw new MediaConchServerException($e->getMessage(), $e->getStatusCode());
         }
-
     }
 
     protected function callApi($uri, $method, $params)
@@ -318,8 +317,7 @@ class MediaConchServer
             if (count($params) > 0) {
                 $url .= '&' . http_build_query($params);
             }
-        }
-        else if ('GET' == $method && is_array($params)) {
+        } elseif ('GET' == $method && is_array($params)) {
             $url .= '?' . http_build_query($params);
         }
 
@@ -366,7 +364,8 @@ class MediaConchServer
      * Get custom header sent by MediaConchServer and store MediaConch-Instance-ID
      *
      */
-    public function handleHeaderLine($curl, $headerLine) {
+    public function handleHeaderLine($curl, $headerLine)
+    {
         if (preg_match('/X-App-MediaConch-Instance-ID: ([0-9]+)/', $headerLine, $matches)) {
             $this->userSettings->setMediaConchInstanceID($matches[1]);
         }

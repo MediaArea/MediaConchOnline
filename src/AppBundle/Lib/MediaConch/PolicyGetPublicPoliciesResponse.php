@@ -15,11 +15,9 @@ class PolicyGetPublicPoliciesResponse extends MediaConchServerAbstractResponse
     {
         if (isset($response->policies)) {
             $this->policies = $response->policies;
-        }
-        else if (isset($response->nok)) {
+        } elseif (isset($response->nok)) {
             $this->error = $response->nok->error;
-        }
-        else {
+        } else {
             throw new MediaConchServerException('Unknown response');
         }
     }

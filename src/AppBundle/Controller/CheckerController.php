@@ -70,8 +70,7 @@ class CheckerController extends BaseController
                 $status->getStatus($ids);
 
                 return new JsonResponse(array('status' => $status->getResponse()));
-            }
-            catch (MediaConchServerException $e) {
+            } catch (MediaConchServerException $e) {
                 return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
             }
         }
@@ -93,8 +92,7 @@ class CheckerController extends BaseController
             $validate->validate($id, $reportType);
 
             return new JsonResponse($validate->getResponseAsArray());
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -113,8 +111,7 @@ class CheckerController extends BaseController
             $validate->validate($id, 1, $request->query->get('policy'));
 
             return new JsonResponse($validate->getResponseAsArray());
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -148,8 +145,7 @@ class CheckerController extends BaseController
                 }
 
                 return new JsonResponse($response);
-            }
-            catch (MediaConchServerException $e) {
+            } catch (MediaConchServerException $e) {
                 return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
             }
         }
@@ -191,8 +187,7 @@ class CheckerController extends BaseController
             }
 
             return new JsonResponse($report->getResponseAsArray());
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -218,8 +213,7 @@ class CheckerController extends BaseController
             $policy = $policy->getResponse()->getPolicy();
 
             return new JsonResponse(array('result' => true, 'policyId' => $policy->id, 'policyName' => $policy->name));
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -229,8 +223,7 @@ class CheckerController extends BaseController
      */
     public function checkerDownloadReportAction($id, $reportType, $displayName, Request $request)
     {
-        if ($this->container->has('profiler'))
-        {
+        if ($this->container->has('profiler')) {
             $this->container->get('profiler')->disable();
         }
 
@@ -261,8 +254,7 @@ class CheckerController extends BaseController
             $response->headers->set('Content-length', strlen($report->getReport()));
 
             return $response;
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             throw new ServiceUnavailableHttpException();
         }
     }
@@ -319,8 +311,7 @@ class CheckerController extends BaseController
 
                     if (file_exists($path . '/' . $fileMd5 . '/' . $filename)) {
                         $file = new File($path . '/' . $fileMd5 . '/' . $filename);
-                    }
-                    else {
+                    } else {
                         $file = $data['file']->move($path . '/' . $fileMd5, $filename);
                     }
 
@@ -331,17 +322,14 @@ class CheckerController extends BaseController
                         $this->get('mediaconch_user.quotas')->hitUploads();
 
                         return new JsonResponse($checks->getResponseAsArray(), 200);
-                    }
-                    catch (MediaConchServerException $e) {
+                    } catch (MediaConchServerException $e) {
                         return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
                     }
                 }
-            }
-            else {
+            } else {
                 return new JsonResponse(array('message' => $formUpload->getErrors(true)->current()->getMessage()), 400);
             }
-        }
-        else {
+        } else {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
@@ -367,18 +355,15 @@ class CheckerController extends BaseController
                     $this->get('mediaconch_user.quotas')->hitUrls();
 
                     return new JsonResponse($checks->getResponseAsArray(), 200);
-                }
-                catch (MediaConchServerException $e) {
+                } catch (MediaConchServerException $e) {
                     return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
                 }
             }
-        }
-        else {
+        } else {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
         return new JsonResponse(array('message' => 'Error'), 400);
-
     }
 
     protected function checkerAjaxFormRepository($formRepository)
@@ -406,13 +391,11 @@ class CheckerController extends BaseController
                     $this->get('mediaconch_user.quotas')->hitPolicyChecks(count($finder));
 
                     return new JsonResponse($checks->getResponseAsArray(), 200);
-                }
-                catch (MediaConchServerException $e) {
+                } catch (MediaConchServerException $e) {
                     return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
                 }
             }
-        }
-        else {
+        } else {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
@@ -439,8 +422,7 @@ class CheckerController extends BaseController
             $response = $checks->getResponseAsArray();
 
             return new JsonResponse($response);
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }

@@ -19,26 +19,22 @@ class StatusResponse extends MediaConchServerAbstractResponse
                 if ($this->response[$ok->id]['finish']) {
                     if (isset($ok->tool)) {
                         $this->response[$ok->id]['tool'] = $ok->tool;
-                    }
-                    else {
+                    } else {
                         $this->response[$ok->id]['tool'] = 2;
                     }
 
                     if (isset($ok->generated_id) && is_array($ok->generated_id) && 0 < count($ok->generated_id)) {
                         $this->response[$ok->id]['associatedFiles'] = $ok->generated_id;
                     }
-                }
-                else {
+                } else {
                     $this->response[$ok->id]['percent'] = $ok->done;
                 }
             }
-        }
-        else if (is_array($response->nok)) {
+        } elseif (is_array($response->nok)) {
             foreach ($response->nok as $nok) {
                 $this->response[$nok->id] = array('error' => $nok->error);
             }
-        }
-        else {
+        } else {
             throw new MediaConchServerException('Unknown response');
         }
     }

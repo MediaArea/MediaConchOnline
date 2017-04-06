@@ -20,8 +20,7 @@ class SettingsManager
         $token = $tokenStorage->getToken();
         if ($token !== null && $token->getUser() instanceof \AppBundle\Entity\User) {
             $this->user = $token->getUser();
-        }
-        else {
+        } else {
             throw new \Exception('Invalid User');
         }
 
@@ -56,10 +55,9 @@ class SettingsManager
             $this->setSetting('defaultDisplay', $display->getId());
         }
         // If last used display
-        else if (is_int($display)) {
+        elseif (is_int($display)) {
             $this->setSetting('defaultDisplay', $display);
-        }
-        else {
+        } else {
             $this->setSetting('defaultDisplay', null);
         }
 
@@ -75,8 +73,7 @@ class SettingsManager
             }
 
             return -2;
-        }
-        elseif (null !== $defaultDisplay) {
+        } elseif (null !== $defaultDisplay) {
             return $this->em->getRepository('AppBundle:DisplayFile')->findOneByUserOrSystem($defaultDisplay, $this->user);
         }
     }
@@ -102,51 +99,54 @@ class SettingsManager
         return $defaultVerbosity;
     }
 
-    public function setLastUsedPolicy($policy) {
+    public function setLastUsedPolicy($policy)
+    {
         if (is_int($policy) && -2 === $this->getDefaultPolicy(false)) {
             $this->setSetting('lastUsedPolicy', $policy);
-        }
-        else {
+        } else {
             $this->removeSetting('lastUsedPolicy');
         }
 
         return $this;
     }
 
-    public function getLastUsedPolicy() {
+    public function getLastUsedPolicy()
+    {
         return $this->getSetting('lastUsedPolicy');
     }
 
-    public function setLastUsedDisplay($display) {
+    public function setLastUsedDisplay($display)
+    {
         if ($display instanceof \AppBundle\Entity\DisplayFile && -2 === $this->getDefaultDisplay(false)) {
             $this->setSetting('lastUsedDisplay', $display->getId());
-        }
-        else {
+        } else {
             $this->removeSetting('lastUsedDisplay');
         }
 
         return $this;
     }
 
-    public function getLastUsedDisplay() {
+    public function getLastUsedDisplay()
+    {
         $lastUsedDisplay = $this->getSetting('lastUsedDisplay');
         if (null !== $lastUsedDisplay) {
             return $this->em->getRepository('AppBundle:DisplayFile')->findOneByUserOrSystem($lastUsedDisplay, $this->user);
         }
     }
 
-    public function setLastUsedVerbosity($verbosity) {
+    public function setLastUsedVerbosity($verbosity)
+    {
         if (-2 === $this->getDefaultVerbosity(false)) {
             $this->setSetting('lastUsedVerbosity', $verbosity);
-        }
-        else {
+        } else {
             $this->removeSetting('lastUsedVerbosity');
         }
 
         return $this;
     }
 
-    public function getLastUsedVerbosity() {
+    public function getLastUsedVerbosity()
+    {
         return $this->getSetting('lastUsedVerbosity');
     }
 
@@ -179,8 +179,7 @@ class SettingsManager
             $setting->setName($name);
 
             $this->em->persist($setting);
-        }
-        else {
+        } else {
             $setting = $this->repository->findOneById($this->userSettings[$name]['id']);
         }
 
@@ -204,7 +203,8 @@ class SettingsManager
         return $default;
     }
 
-    protected function removeSetting($name) {
+    protected function removeSetting($name)
+    {
         $this->loadSettings();
 
         if (array_key_exists($name, $this->userSettings)) {
@@ -216,7 +216,8 @@ class SettingsManager
         }
     }
 
-    protected function loadSettings() {
+    protected function loadSettings()
+    {
         if (null === $this->userSettings) {
             $this->userSettings = array();
 
@@ -229,7 +230,8 @@ class SettingsManager
         return $this;
     }
 
-    protected function storeSettingInCache(Settings $setting) {
+    protected function storeSettingInCache(Settings $setting)
+    {
         $this->userSettings[$setting->getName()] = array('id' => $setting->getId(),
             'value' => unserialize($setting->getValue())
             );

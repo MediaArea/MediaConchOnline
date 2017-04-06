@@ -33,7 +33,6 @@ class RememberMeCookieUpdateListener
             if (null !== $user->getGuestToken()) {
                 $event->getRequest()->attributes->set('guest_cookie', $user->getUsername() . ':' . $user->getGuestToken()->getToken());
             }
-
         }
     }
 

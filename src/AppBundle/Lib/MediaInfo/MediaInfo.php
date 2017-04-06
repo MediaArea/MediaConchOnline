@@ -33,7 +33,7 @@ class MediaInfo
         if (0 == $result) {
             $this->success = true;
             $this->xml = '';
-            foreach($xmlAsArray as $out) {
+            foreach ($xmlAsArray as $out) {
                 $this->xml .= $out . "\n";
             }
         }
@@ -48,7 +48,7 @@ class MediaInfo
         exec($this->MediaInfo . ' ' . $opt . ' ' . escapeshellarg($this->source), $traceAsArray, $result);
         if (0 == $result) {
             $this->trace = '';
-            foreach($traceAsArray as $out) {
+            foreach ($traceAsArray as $out) {
                 $this->trace .= $out . "\n";
             }
         }
@@ -73,7 +73,7 @@ class MediaInfo
 
     public function getParsedOutput()
     {
-        if(!$this->parsedOutput instanceof MediaInfoOutput) {
+        if (!$this->parsedOutput instanceof MediaInfoOutput) {
             $this->parsedOutput = new MediaInfoOutput($this->xml);
         }
 

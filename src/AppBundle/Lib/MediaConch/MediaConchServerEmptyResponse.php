@@ -8,11 +8,9 @@ class MediaConchServerEmptyResponse extends MediaConchServerAbstractResponse
     {
         if (isset($response->nok)) {
             throw new MediaConchServerException($response->nok->error);
-        }
-        else if (isset($response) && is_object($response)) {
+        } elseif (isset($response) && is_object($response)) {
             $this->status = true;
-        }
-        else {
+        } else {
             throw new MediaConchServerException('Unknown response');
         }
     }

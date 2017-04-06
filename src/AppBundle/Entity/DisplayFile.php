@@ -188,7 +188,8 @@ class DisplayFile
         return $this->user;
     }
 
-    function __toString() {
+    public function __toString()
+    {
         return $this->getDisplayName();
     }
 }

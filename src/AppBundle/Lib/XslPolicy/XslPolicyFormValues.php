@@ -19,15 +19,15 @@ class XslPolicyFormValues extends XslPolicyBase
             );
     }
 
-    protected function getDefaultValues() {
+    protected function getDefaultValues()
+    {
         if (null !== $this->value) {
             $values = $this->response->getValues();
             if (is_array($values) && 1 <= count($values)) {
                 if (!in_array($this->value, $values)) {
                     $values[] = $this->value;
                 }
-            }
-            else {
+            } else {
                 $values = array($this->value);
             }
 

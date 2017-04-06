@@ -24,8 +24,7 @@ class XslPolicyGetPoliciesNamesList extends XslPolicyBase
                 if (isset($policyList[$name])) {
                     $policyName = $this->incrementPolicyName($name, $policyList);
                     $policyList[$policyName] = $policy->id;
-                }
-                else {
+                } else {
                     $policyList[$name] = $policy->id;
                 }
             }

@@ -15,7 +15,7 @@ use Doctrine\ORM\NoResultException;
 use AppBundle\Controller\MCOControllerInterface;
 use AppBundle\Controller\PublicApiController;
 use AppBundle\Entity\GuestToken;
-use DeviceDetector\Parser\Bot AS BotParser;
+use DeviceDetector\Parser\Bot as BotParser;
 
 class GuestListener
 {
@@ -65,8 +65,7 @@ class GuestListener
             $ctrl->get('fos_user.security.login_manager')->loginUser(
                 $this->firewallName,
                 $user);
-        }
-        else if (!$ctrl instanceof MCOControllerInterface) {
+        } elseif (!$ctrl instanceof MCOControllerInterface) {
             return;
         }
 
@@ -95,8 +94,7 @@ class GuestListener
                     $user->addRole('ROLE_BOT');
                     $userManager->updateUser($user);
                 }
-            }
-            else if ($event->getRequest()->cookies->has('guest')) {
+            } elseif ($event->getRequest()->cookies->has('guest')) {
                 // Read guest cookie
                 if (false !== strpos($event->getRequest()->cookies->get('guest'), ':')) {
                     list($username, $token) = explode(':', $event->getRequest()->cookies->get('guest'));
@@ -120,8 +118,7 @@ class GuestListener
                                 // Set remember_me attribute to add cookie in response
                                 $event->getRequest()->attributes->set('remember_me_guest_cookie', true);
                             }
-                        }
-                        catch (NoResultException $e) {
+                        } catch (NoResultException $e) {
                             // Do nothing guest user will be created after
                         }
                     }
@@ -176,8 +173,7 @@ class GuestListener
         // Generate unique username
         do {
             $username = $this->generateRandomGuestUsername();
-        }
-        while (null !== $userManager->findUserByUsername($username));
+        } while (null !== $userManager->findUserByUsername($username));
 
         // Create user
         $user = $ctrl->get('fos_user.util.user_manipulator')->create(

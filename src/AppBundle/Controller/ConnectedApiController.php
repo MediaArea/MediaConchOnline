@@ -94,8 +94,7 @@ class ConnectedApiController extends BaseController
                         );
                 }
             }
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             // Empty list
         }
 
@@ -121,8 +120,7 @@ class ConnectedApiController extends BaseController
             $policySave->save($id);
 
             return new JsonResponse(array('policyId' => $id));
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }

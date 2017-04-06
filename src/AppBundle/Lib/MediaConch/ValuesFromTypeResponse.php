@@ -16,11 +16,9 @@ class ValuesFromTypeResponse extends MediaConchServerAbstractResponse
         if (isset($response->values)) {
             $this->values = $response->values;
             $this->status = true;
-        }
-        else if (isset($response->nok)) {
+        } elseif (isset($response->nok)) {
             throw new MediaConchServerException($response->nok);
-        }
-        else {
+        } else {
             throw new MediaConchServerException('Unknown response');
         }
     }

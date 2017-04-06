@@ -16,11 +16,9 @@ class PolicyGetRuleResponse extends MediaConchServerAbstractResponse
         if (isset($response->rule)) {
             $this->rule = $response->rule;
             $this->status = true;
-        }
-        else if (isset($response->nok)) {
+        } elseif (isset($response->nok)) {
             throw new MediaConchServerException($response->nok->error);
-        }
-        else {
+        } else {
             throw new MediaConchServerException('Unknown response');
         }
     }

@@ -24,8 +24,7 @@ class SettingsFormType extends AbstractType
         $token = $tokenStorage->getToken();
         if ($token !== null && $token->getUser() instanceof \AppBundle\Entity\User) {
             $this->user = $token->getUser();
-        }
-        else {
+        } else {
             throw new \Exception('Invalid User');
         }
 
@@ -36,8 +35,7 @@ class SettingsFormType extends AbstractType
             $this->policyList = $policyList;
             $this->policyList->getPoliciesNamesList();
             $this->policyList = $this->policyList->getListForChoiceForm();
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             $this->policyList = array();
         }
     }

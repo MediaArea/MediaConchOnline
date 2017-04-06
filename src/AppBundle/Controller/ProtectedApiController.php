@@ -47,8 +47,7 @@ class ProtectedApiController extends Controller
             if ('public' == $visibility) {
                 // Make policy public
                 $policyEditVisibility->editVisibility($policyImport->getCreatedId(), true);
-            }
-            else {
+            } else {
                 // Make policy private
                 $policyEditVisibility->editVisibility($policyImport->getCreatedId(), false);
             }
@@ -56,8 +55,7 @@ class ProtectedApiController extends Controller
             // Save policy
             $policySave = $this->get('mco.policy.save');
             $policySave->save($policyImport->getCreatedId());
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
 
@@ -139,8 +137,7 @@ class ProtectedApiController extends Controller
                         );
                 }
             }
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             // Empty list
         }
 
@@ -166,8 +163,7 @@ class ProtectedApiController extends Controller
             $policySave->save($id);
 
             return new JsonResponse(array('policyId' => $id));
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -208,8 +204,7 @@ class ProtectedApiController extends Controller
             }
 
             return new JsonResponse(array('list' => $list));
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
     }
@@ -230,8 +225,7 @@ class ProtectedApiController extends Controller
             $policyExport->export($id);
 
             $response = new Response($policyExport->getPolicyXml());
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             $response = new Response('<?xml version="1.0"?><error />', $e->getStatusCode());
         }
 

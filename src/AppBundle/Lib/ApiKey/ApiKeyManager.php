@@ -50,11 +50,11 @@ class ApiKeyManager implements ApiKeyManagerInterface
     {
         $user = $this->em->getRepository('AppBundle:User')->findOneByUsername($username);
 
-        if(!$user) {
+        if (!$user) {
             return null;
         }
 
-        if(!$this->checkPassword($user, $password)) {
+        if (!$this->checkPassword($user, $password)) {
             return null;
         }
 

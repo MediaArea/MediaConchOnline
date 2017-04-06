@@ -76,8 +76,7 @@ class Quotas
                 ->setPolicyChecksTimestamp($this->datePeriod)
                 ->setUser($this->user);
             $this->em->flush();
-        }
-        else {
+        } else {
             $userQuotas = $this->setQuotasForNewUser();
         }
 
@@ -122,8 +121,7 @@ class Quotas
         $userQuotas = $this->getQuotasByUser();
         if ($userQuotas->getUploadsTimestamp() < $this->datePeriod) {
             $userQuotas->setUploads($this->defaultQuotas['uploads'] - $uploads)->setUploadsTimestamp($this->date);
-        }
-        else {
+        } else {
             $userQuotas->decreaseUploads($uploads);
         }
 
@@ -146,8 +144,7 @@ class Quotas
         $userQuotas = $this->getQuotasByUser();
         if ($userQuotas->getUrlsTimestamp() < $this->datePeriod) {
             $userQuotas->setUrls($this->defaultQuotas['urls'] - $urls)->setUrlsTimestamp($this->date);
-        }
-        else {
+        } else {
             $userQuotas->decreaseUrls($urls);
         }
 
@@ -170,8 +167,7 @@ class Quotas
         $userQuotas = $this->getQuotasByUser();
         if ($userQuotas->getPolicyChecksTimestamp() < $this->datePeriod) {
             $userQuotas->setPolicyChecks($this->defaultQuotas['policyChecks'] - $policyChecks)->setPolicyChecksTimestamp($this->date);
-        }
-        else {
+        } else {
             $userQuotas->decreasePolicyChecks($policyChecks);
         }
 
@@ -189,8 +185,7 @@ class Quotas
         try {
             $this->policiesCount->getPoliciesCount();
             $xslPolicy = $this->policiesCount->getResponse()->getCount();
-        }
-        catch (MediaConchServerException $e) {
+        } catch (MediaConchServerException $e) {
             $xslPolicy = 0;
         }
 
@@ -269,8 +264,7 @@ class Quotas
                 'urls' => $defaultUserQuotas->getUrls(),
                 'policyChecks' => $defaultUserQuotas->getPolicyChecks(),
             );
-        }
-        else {
+        } else {
             $defaultQuotas = false;
         }
 

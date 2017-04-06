@@ -22,13 +22,12 @@ class ReportResponse extends MediaConchServerAbstractResponse
         if (isset($response->ok->report)) {
             $this->report = $response->ok->report;
             $this->status = true;
-            if (isset($response->ok->valid))
+            if (isset($response->ok->valid)) {
                 $this->valid = $response->ok->valid;
-        }
-        else if (is_array($response->nok) && isset($response->nok[0])) {
+            }
+        } elseif (is_array($response->nok) && isset($response->nok[0])) {
             throw new MediaConchServerException($response->nok[0]->error);
-        }
-        else {
+        } else {
             throw new MediaConchServerException('Unknown response');
         }
     }

@@ -25,8 +25,7 @@ class ResettingController extends BaseController
 
         if (null === $user) {
             return $this->container->get('templating')->renderResponse('FOSUserBundle:Resetting:request.html.'.$this->getEngine(), array('invalid_username' => $username));
-        }
-        else if ($user->hasRole('ROLE_GUEST')) {
+        } elseif ($user->hasRole('ROLE_GUEST')) {
             return $this->container->get('templating')->renderResponse('FOSUserBundle:Resetting:request.html.'.$this->getEngine(), array('invalid_guest' => $username));
         }
 
