@@ -17,8 +17,10 @@ var mediaInfoCell = (function() {
                     <div class="modal-dialog modal-lg"> \
                         <div class="modal-content"> \
                         <div class="modal-header"> \
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> \
-                            <h4 class="modal-title">MediaInfo report</h4> \
+                            <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button> \
+                            <button type="button" class="btn btn-primary mi-dld pull-right">Download MediaInfo report</button> \
+                            <button type="button" class="btn btn-warning mi-create-report pull-right">Create policy from MediaInfo report</button> \
+                            <h4 class="modal-title pull-left">MediaInfo report</h4> \
                         </div> \
                         <div class="modal-body"> \
                             <div class="row"> \

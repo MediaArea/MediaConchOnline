@@ -196,6 +196,14 @@ footer .navbar {
     margin-left: 10px;
 }
 
+.modal-header .mi-dld {
+    margin-right: 10px;
+}
+
+.modal-header .alert-modal-create-policy {
+    float: right !important;
+}
+
 .modal-body p {
     font-family: monospace;
 }
