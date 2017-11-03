@@ -171,6 +171,7 @@ fos_js_routing:
         - app_checker_checkerpolicystatus
         - app_checker_checkercreatepolicy
         - app_checker_checkerforceanalyze
+        - app_checker_checkermediainfooutputlist
         - app_xslpolicy_xslpolicyrulefieldslist
         - app_xslpolicy_xslpolicyrulevalueslist
         - app_xslpolicy_xslpolicytree
@@ -225,7 +226,7 @@ app:
     mediaconch:
         address: 127.0.0.1
         port: 4242
-        api_version: 1.13
+        api_version: 1.15
         absolute_url_for_mail:
             host: ~
             scheme: ~

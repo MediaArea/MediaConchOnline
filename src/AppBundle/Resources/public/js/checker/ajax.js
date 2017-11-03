@@ -159,12 +159,23 @@ var checkerAjax = (function() {
         return Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: 'policy',  displayName: 'html', policy: policy, display: display });
     };
 
-    var downloadReportUrl = function(fileId, reportType) {
-        return Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: reportType,  displayName: 'xml' });
+    var downloadReportUrl = function(fileId, reportType, miFormat) {
+        if ('mi' === reportType) {
+            return Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: reportType,  displayName: 'xml', miFormat: miFormat ? miFormat : ''});
+        } else {
+            return Routing.generate('app_checker_checkerdownloadreport', { id: fileId, reportType: reportType,  displayName: 'xml' });
+        }
     };
 
     var reportTreeUrl = function(fileId, reportType) {
         return Routing.generate('app_checker_checkerreport', { id: fileId, reportType: reportType,  displayName: 'jstree'});
+    };
+
+    var getMediaInfoOutputList = function(fileId) {
+        $.get(Routing.generate('app_checker_checkermediainfooutputlist'))
+        .done(function(data) {
+            mediaInfoCell.updateOutputList(data.list, fileId);
+        })
     };
 
     // Handle fail ajax response
@@ -205,5 +216,6 @@ var checkerAjax = (function() {
         downloadPolicyReportUrl: downloadPolicyReportUrl,
         downloadReportUrl: downloadReportUrl,
         reportTreeUrl: reportTreeUrl,
+        getMediaInfoOutputList:getMediaInfoOutputList,
     };
 })();

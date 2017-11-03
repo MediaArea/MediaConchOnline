@@ -258,6 +258,11 @@
             <argument type="service" id="security.token_storage" />
         </service>
 
+        <service id="mco.mediainfo.output.list" class="AppBundle\Lib\Checker\CheckerMediaInfoOutputList">
+            <argument type="service" id="mco.mediaconch.server"/>
+            <argument type="service" id="security.token_storage" />
+        </service>
+
         <service id="mco.settings" class="AppBundle\Lib\Settings\SettingsManager">
             <argument type="service" id="security.token_storage" />
             <argument type="service" id="doctrine.orm.entity_manager" />

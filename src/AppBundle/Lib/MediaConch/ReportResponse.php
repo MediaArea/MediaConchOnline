@@ -20,7 +20,7 @@ class ReportResponse extends MediaConchServerAbstractResponse
     protected function parse($response)
     {
         if (isset($response->ok->report)) {
-            $this->report = $response->ok->report;
+            $this->report = trim($response->ok->report);
             $this->status = true;
             if (isset($response->ok->valid)) {
                 $this->valid = $response->ok->valid;

@@ -139,6 +139,11 @@ footer .navbar {
     font-size: 16px;
 }
 
+.dropdown-menu {
+    width: auto;
+    height: auto;
+}
+
 #checkerResults {
     padding-right: 0;
     padding-left: 0;
@@ -197,11 +202,12 @@ footer .navbar {
 }
 
 .modal-header .mi-dld {
-    margin-right: 10px;
+    margin-right: 0;
 }
 
-.modal-header .alert-modal-create-policy {
-    float: right !important;
+.modal-header .mi-dld-group, .modal-footer .mi-dld-group {
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .modal-body p {
@@ -232,10 +238,6 @@ p.registration {
     border-radius: 4px;
     border: 1px solid silver;
     font-size: 1.1em;
-}
-
-.jstree-grid-wrapper {
-    margin-top: 10px;
 }
 
 #xslPolicyRule_editor {
