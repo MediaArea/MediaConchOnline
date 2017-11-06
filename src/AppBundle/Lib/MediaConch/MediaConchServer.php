@@ -4,8 +4,6 @@ namespace AppBundle\Lib\MediaConch;
 
 use Monolog\Logger;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-
-use AppBundle\Lib\MediaConch\PolicyGetPoliciesResponse;
 use AppBundle\Lib\Settings\SettingsManager;
 
 class MediaConchServer
@@ -49,12 +47,13 @@ class MediaConchServer
         return $this->callApiHandler('checker_status', 'GET', $request, 'CHECKER_STATUS_RESULT', 'StatusResponse');
     }
 
-    public function report($user, $id, $report, $displayName, $display = null, $policy = null, $verbosity = -1)
+    public function report($user, $id, $report, $displayName, $display = null, $policy = null, $verbosity = -1, $miFormat = '')
     {
         $request = array('CHECKER_REPORT' => array('user' => (int) $user,
             'ids' => array((int) $id),
             'reports' => array($report),
-            'options' => array('verbosity' => $verbosity)));
+            'options' => array('verbosity' => $verbosity),
+        ));
         if ($display && file_exists($display) && is_readable($display)) {
             $request['CHECKER_REPORT']['display_content'] = file_get_contents($display);
         } else {
@@ -63,6 +62,10 @@ class MediaConchServer
 
         if (null !== $policy) {
             $request['CHECKER_REPORT']['policies_ids'] = array((int) $policy);
+        }
+
+        if ($miFormat) {
+            $request['CHECKER_REPORT']['mi_inform'] = $miFormat;
         }
 
         return $this->callApiHandler('checker_report', 'POST', json_encode($request), 'CHECKER_REPORT_RESULT', 'ReportResponse');
@@ -189,7 +192,8 @@ class MediaConchServer
             'id' => (int) $policyId,
             'name' => null == $name ? '' : $name,
             'description' => null == $description ? '' : $description,
-            'license' => $license));
+            'license' => $license,
+        ));
 
         return $this->callApiHandler('policy_change_info', 'POST', json_encode($request), 'POLICY_CHANGE_INFO_RESULT', 'PolicyEditResponse');
     }
@@ -248,7 +252,8 @@ class MediaConchServer
     {
         $request = array('XSLT_POLICY_RULE_EDIT' => array('user' => (int) $user,
             'policy_id' => (int) $policyId,
-            'rule' => $ruleData));
+            'rule' => $ruleData,
+        ));
 
         return $this->callApiHandler('xslt_policy_rule_edit', 'POST', json_encode($request), 'XSLT_POLICY_RULE_EDIT_RESULT', 'PolicyRuleEditResponse');
     }
@@ -265,7 +270,8 @@ class MediaConchServer
         $request = array('user' => (int) $user,
             'policy_id' => (int) $policyId,
             'id' => (int) $ruleId,
-            'dst_policy_id' => (int) $dstPolicyId);
+            'dst_policy_id' => (int) $dstPolicyId,
+        );
 
         return $this->callApiHandler('xslt_policy_rule_duplicate', 'GET', $request, 'XSLT_POLICY_RULE_DUPLICATE_RESULT', 'PolicyRuleDuplicateResponse');
     }
@@ -275,7 +281,8 @@ class MediaConchServer
         $request = array('user' => (int) $user,
             'policy_id' => (int) $policyId,
             'id' => (int) $ruleId,
-            'dst_policy_id' => (int) $dstPolicyId);
+            'dst_policy_id' => (int) $dstPolicyId,
+        );
 
         return $this->callApiHandler('xslt_policy_rule_move', 'GET', $request, 'XSLT_POLICY_RULE_MOVE_RESULT', 'PolicyRuleMoveResponse');
     }
@@ -287,6 +294,13 @@ class MediaConchServer
         return $this->callApiHandler('xslt_policy_rule_get', 'GET', $request, 'XSLT_POLICY_RULE_GET_RESULT', 'PolicyGetRuleResponse');
     }
 
+    public function mediaInfoOutputList()
+    {
+        $request = array();
+
+        return $this->callApiHandler('checker_list_mediainfo_outputs', 'GET', $request, 'CHECKER_LIST_MEDIAINFO_OUTPUTS_RESULT', 'MediaInfoOutputListResponse');
+    }
+
     protected function callApiHandler($uri, $method, $params, $responseString, $responseClass)
     {
         try {
@@ -294,7 +308,7 @@ class MediaConchServer
 
             if (isset($response->$responseString)) {
                 $response = $response->$responseString;
-                $responseClass = 'AppBundle\Lib\MediaConch\\' . $responseClass;
+                $responseClass = 'AppBundle\Lib\MediaConch\\'.$responseClass;
 
                 return new $responseClass($response);
             }
@@ -309,16 +323,16 @@ class MediaConchServer
 
     protected function callApi($uri, $method, $params)
     {
-        $url = 'http://' . $this->address . '/' . $this->apiVersion . '/' . $uri;
+        $url = 'http://'.$this->address.'/'.$this->apiVersion.'/'.$uri;
 
         if ('GET' == $method && in_array($uri, array('checker_status', 'policy_get_policies')) && isset($params['id']) && is_array($params['id'])) {
-            $url .= '?id=' . implode('&id=', $params['id']);
+            $url .= '?id='.implode('&id=', $params['id']);
             unset($params['id']);
             if (count($params) > 0) {
-                $url .= '&' . http_build_query($params);
+                $url .= '&'.http_build_query($params);
             }
         } elseif ('GET' == $method && is_array($params)) {
-            $url .= '?' . http_build_query($params);
+            $url .= '?'.http_build_query($params);
         }
 
         $header = array();
@@ -337,7 +351,7 @@ class MediaConchServer
 
         // Add MediaConch-Instance-ID
         if (null !== $this->userSettings->getMediaConchInstanceID()) {
-            $header[] = 'X-App-MediaConch-Instance-ID: ' . $this->userSettings->getMediaConchInstanceID();
+            $header[] = 'X-App-MediaConch-Instance-ID: '.$this->userSettings->getMediaConchInstanceID();
         }
 
         // Add HTTP header
@@ -349,7 +363,7 @@ class MediaConchServer
         $headers = curl_getinfo($curl);
         curl_close($curl);
 
-        if (isset($headers['http_code']) && $headers['http_code'] == 200) {
+        if (isset($headers['http_code']) && 200 == $headers['http_code']) {
             return json_decode($response);
         }
 
@@ -357,12 +371,11 @@ class MediaConchServer
             $headers['http_code'] = 503;
         }
 
-        throw new HttpException($headers['http_code'], 'MediaConch-Server error - Return code: ' . $headers['http_code'] . ' - Response: ' . $response, null, $headers);
+        throw new HttpException($headers['http_code'], 'MediaConch-Server error - Return code: '.$headers['http_code'].' - Response: '.$response, null, $headers);
     }
 
     /**
-     * Get custom header sent by MediaConchServer and store MediaConch-Instance-ID
-     *
+     * Get custom header sent by MediaConchServer and store MediaConch-Instance-ID.
      */
     public function handleHeaderLine($curl, $headerLine)
     {

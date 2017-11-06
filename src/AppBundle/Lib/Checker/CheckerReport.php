@@ -2,18 +2,15 @@
 
 namespace AppBundle\Lib\Checker;
 
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-
-use AppBundle\Lib\MediaConch\MediaConchServer;
-
 class CheckerReport extends CheckerBase
 {
     protected $report;
     protected $displayName;
     protected $fullPath = false;
     protected $filename;
+    protected $miFormat;
 
-    public function report($id, $report, $displayName, $display = null, $policy = null, $verbosity = -1)
+    public function report($id, $report, $displayName, $display = null, $policy = null, $verbosity = -1, $miFormat = '')
     {
         $this->report = $report;
         if ($display && file_exists($display) && is_readable($display)) {
@@ -22,8 +19,9 @@ class CheckerReport extends CheckerBase
             $this->displayName = $displayName;
             $display = null;
         }
+        $this->miFormat = $miFormat;
 
-        $this->response = $this->mc->report($this->user->getId(), $id, $this->getReportType(), $this->getDisplayName(), $display, $policy, $verbosity);
+        $this->response = $this->mc->report($this->user->getId(), $id, $this->getReportType(), $this->getDisplayName(), $display, $policy, $verbosity, $miFormat);
     }
 
     public function getResponseAsArray()
@@ -45,7 +43,7 @@ class CheckerReport extends CheckerBase
 
     public function setFullPath($fullPath, $filename = null)
     {
-        if (!$fullPath && $filename !== null) {
+        if (!$fullPath && null !== $filename) {
             $this->fullPath = false;
             $this->filename = $filename;
         } else {
@@ -63,7 +61,12 @@ class CheckerReport extends CheckerBase
                 return 'MediaConchReport';
                 break;
             case 'mi':
-                return 'MediaInfoReport';
+                $name = 'MediaInfo';
+                if ($this->miFormat && !in_array($this->miFormat, ['XML', 'MIXML', 'Text', 'HTML'])) {
+                    $name .= '.'.$this->miFormat;
+                }
+
+                return $name;
                 break;
             case 'mt':
                 return 'MediaTraceReport';
@@ -80,6 +83,7 @@ class CheckerReport extends CheckerBase
             case 'ma':
                 return 'xml';
                 break;
+            case 'json':
             case 'jstree':
                 return 'json';
                 break;
@@ -99,6 +103,7 @@ class CheckerReport extends CheckerBase
             case 'ma':
                 return 'text/xml';
                 break;
+            case 'json':
             case 'jstree':
                 return 'application/json';
                 break;
@@ -113,12 +118,17 @@ class CheckerReport extends CheckerBase
 
     protected function isHtmlReport()
     {
-        return preg_match('/<!doctype/i', $this->response->getReport());
+        return preg_match('/^<!doctype|^<html>.*<\/html>$/is', $this->response->getReport());
     }
 
     protected function isXmlReport()
     {
-        return preg_match('/<?xml/i', $this->response->getReport());
+        return preg_match('/<\?xml/i', $this->response->getReport());
+    }
+
+    protected function isJsonReport()
+    {
+        return preg_match('/^{.*}$/is', $this->response->getReport());
     }
 
     protected function guessReportFormatType()
@@ -131,6 +141,8 @@ class CheckerReport extends CheckerBase
             return 'html';
         } elseif ($this->isXmlReport()) {
             return 'xml';
+        } elseif ($this->isJsonReport()) {
+            return 'json';
         }
 
         return null;

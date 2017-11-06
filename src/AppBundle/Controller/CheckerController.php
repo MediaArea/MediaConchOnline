@@ -4,17 +4,13 @@ namespace AppBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 use Symfony\Component\Finder\Finder;
-
-use AppBundle\Controller\BaseController;
 use AppBundle\Lib\MediaConch\MediaConchServerException;
 
 /**
@@ -49,7 +45,8 @@ class CheckerController extends BaseController
         return array('formUpload' => isset($formUpload) ? $formUpload->createView() : false,
             'formOnline' => isset($formOnline) ? $formOnline->createView() : false,
             'formRepository' => isset($formRepository) ? $formRepository->createView() : false,
-            'repositoryEnable' => isset($formRepository));
+            'repositoryEnable' => isset($formRepository),
+        );
     }
 
     /**
@@ -182,7 +179,7 @@ class CheckerController extends BaseController
 
             $report->setFullPath(false, $file->getFilename(true));
 
-            if (($reportType == 'mi' || $reportType == 'mt') && $displayName == 'jstree') {
+            if (('mi' == $reportType || 'mt' == $reportType) && 'jstree' == $displayName) {
                 return new Response($report->getReport());
             }
 
@@ -242,12 +239,16 @@ class CheckerController extends BaseController
             $file = $this->get('mco.checker.filename');
             $file->fileFromId($id);
 
+            if ($request->query->get('miFormat')) {
+                $displayName = null;
+            }
+
             $report = $this->get('mco.checker.report');
-            $report->report($id, $reportType, $displayName, $displayFile, $request->query->get('policy'), $request->query->get('verbosity'));
+            $report->report($id, $reportType, $displayName, $displayFile, $request->query->get('policy'), $request->query->get('verbosity'), $request->query->get('miFormat'));
 
             $report->setFullPath(false, $file->getFilename(true));
             $response = new Response($report->getReport());
-            $disposition = $this->downloadFileDisposition($response, $file->getFilename() . '_' . $report->getDownloadReportName() . '.' . $report->getDownloadReportExtension());
+            $disposition = $this->downloadFileDisposition($response, $file->getFilename().'_'.$report->getDownloadReportName().'.'.$report->getDownloadReportExtension());
 
             $response->headers->set('Content-Type', $report->getDownloadReportMimeType());
             $response->headers->set('Content-Disposition', $disposition);
@@ -305,14 +306,14 @@ class CheckerController extends BaseController
                 $settings->setLastUsedVerbosity($data['verbosity']);
 
                 if ($data['file']->isValid()) {
-                    $path = $this->container->getParameter('kernel.root_dir').'/../files/upload/' . $this->getUser()->getId();
-                    $filename =  $data['file']->getClientOriginalName();
+                    $path = $this->container->getParameter('kernel.root_dir').'/../files/upload/'.$this->getUser()->getId();
+                    $filename = $data['file']->getClientOriginalName();
                     $fileMd5 = md5(file_get_contents($data['file']->getRealPath()));
 
-                    if (file_exists($path . '/' . $fileMd5 . '/' . $filename)) {
-                        $file = new File($path . '/' . $fileMd5 . '/' . $filename);
+                    if (file_exists($path.'/'.$fileMd5.'/'.$filename)) {
+                        $file = new File($path.'/'.$fileMd5.'/'.$filename);
                     } else {
-                        $file = $data['file']->move($path . '/' . $fileMd5, $filename);
+                        $file = $data['file']->move($path.'/'.$fileMd5, $filename);
                     }
 
                     try {
@@ -422,6 +423,26 @@ class CheckerController extends BaseController
             $response = $checks->getResponseAsArray();
 
             return new JsonResponse($response);
+        } catch (MediaConchServerException $e) {
+            return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
+        }
+    }
+
+    /**
+     * @Route("/checkerMediaInfoOutputList")
+     */
+    public function checkerMediaInfoOutputListAction(Request $request)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
+
+        try {
+            // Get the list
+            $list = $this->get('mco.mediainfo.output.list');
+            $list->getList();
+
+            return new JsonResponse($list->getResponseAsArray());
         } catch (MediaConchServerException $e) {
             return new JsonResponse(array('message' => 'Error'), $e->getStatusCode());
         }
