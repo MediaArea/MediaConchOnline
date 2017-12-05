@@ -1,5 +1,7 @@
 <?php
+
 // ...
+
 namespace AppBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -11,7 +13,6 @@ abstract class AbstractAuthControllerTest extends WebTestCase
      * @var Client
      */
     protected $client = null;
-
 
     public function setUp()
     {
@@ -37,8 +38,10 @@ abstract class AbstractAuthControllerTest extends WebTestCase
         $loginManager->loginUser($firewallName, $user);
 
         // save the login token into the session and put it in a cookie
-        $container->get('session')->set('_security_' . $firewallName,
-            serialize($container->get('security.context')->getToken()));
+        $container->get('session')->set(
+            '_security_'.$firewallName,
+            serialize($container->get('security.token_storage')->getToken())
+        );
         $container->get('session')->save();
         $client->getCookieJar()->set(new Cookie($session->getName(), $session->getId()));
 

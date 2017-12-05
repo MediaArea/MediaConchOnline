@@ -1,6 +1,8 @@
 <?php
+
 namespace AppBundle\Form\Type;
 
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -10,7 +12,7 @@ class CheckerRepositoryFormType extends CheckerBaseFormType
     {
         parent::buildForm($builder, $options);
         $builder
-            ->add('check', 'submit', array('attr' => array('class' => 'btn-warning'), 'label' => 'Check files'));
+            ->add('check', SubmitType::class, array('attr' => array('class' => 'btn-warning'), 'label' => 'Check files'));
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -22,7 +24,7 @@ class CheckerRepositoryFormType extends CheckerBaseFormType
         */
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'checkerRepository';
     }

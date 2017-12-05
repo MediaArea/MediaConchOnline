@@ -4,29 +4,26 @@ namespace AppBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Symfony\Component\Form\Forms;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\AccountStatusException;
 use FOS\UserBundle\Model\UserInterface;
-
-use AppBundle\Controller\BaseController;
+use AppBundle\Form\Type\SettingsFormType;
 
 /**
  * @Route("/")
  */
 class UserController extends BaseController
 {
-
     /**
      * @Route("/settings")
      * @Template()
      */
     public function settingsAction(Request $request)
     {
-        $form = $this->createForm('settings');
+        $form = $this->createForm(SettingsFormType::class);
 
         $form->handleRequest($request);
         if ($form->isValid()) {
@@ -50,7 +47,7 @@ class UserController extends BaseController
      */
     public function guestRegisterAction()
     {
-        $user = $this->container->get('security.context')->getToken()->getUser();
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
         if (!is_object($user) || !$user instanceof UserInterface) {
             throw new AccessDeniedException('This user does not have access to this section.');
         }
@@ -108,7 +105,7 @@ class UserController extends BaseController
     }
 
     /**
-     * Authenticate a user with Symfony Security
+     * Authenticate a user with Symfony Security.
      *
      * @param \FOS\UserBundle\Model\UserInterface        $user
      * @param \Symfony\Component\HttpFoundation\Response $response

@@ -9,6 +9,7 @@ services:
 
 before_install:
   - phpenv config-rm xdebug.ini || true
+  - export SYMFONY_DEPRECATIONS_HELPER=weak
 
 install:
   - composer --no-interaction --quiet install -o
@@ -20,4 +21,5 @@ install:
   - php app/console doctrine:schema:create --env=test
   - app/console fos:user:create testUser info@mediaarea.net --env=test testPassword
 
-script: phpunit -c app
+script:
+  - phpunit -c app

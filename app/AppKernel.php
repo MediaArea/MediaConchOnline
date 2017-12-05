@@ -19,7 +19,7 @@ class AppKernel extends Kernel
             new AppBundle\AppBundle(),
             new FOS\UserBundle\FOSUserBundle(),
             new MediaConchOnline\Bundle\UserBundle\MediaConchOnlineUserBundle(),
-            new JavierEguiluz\Bundle\EasyAdminBundle\EasyAdminBundle(),
+            new EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle(),
             new Vich\UploaderBundle\VichUploaderBundle(),
             new FOS\JsRoutingBundle\FOSJsRoutingBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),

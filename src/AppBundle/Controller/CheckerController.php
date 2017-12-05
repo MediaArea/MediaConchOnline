@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 use Symfony\Component\Finder\Finder;
+use AppBundle\Form\Type\CheckerOnlineFormType;
+use AppBundle\Form\Type\CheckerRepositoryFormType;
+use AppBundle\Form\Type\CheckerUploadFormType;
 use AppBundle\Lib\MediaConch\MediaConchServerException;
 
 /**
@@ -29,16 +32,16 @@ class CheckerController extends BaseController
         $settings->removeMediaConchInstanceID();
 
         if ($this->get('mediaconch_user.quotas')->hasUploadsRights()) {
-            $formUpload = $this->createForm('checkerUpload');
+            $formUpload = $this->createForm(CheckerUploadFormType::class);
         }
 
         if ($this->get('mediaconch_user.quotas')->hasUrlsRights()) {
-            $formOnline = $this->createForm('checkerOnline');
+            $formOnline = $this->createForm(CheckerOnlineFormType::class);
         }
 
         if (null != $this->container->getParameter('mco_check_folder') && file_exists($this->container->getParameter('mco_check_folder'))) {
             if ($this->get('mediaconch_user.quotas')->hasPolicyChecksRights()) {
-                $formRepository = $this->createForm('checkerRepository');
+                $formRepository = $this->createForm(CheckerRepositoryFormType::class);
             }
         }
 
@@ -269,13 +272,13 @@ class CheckerController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $formUpload = $this->createForm('checkerUpload');
+        $formUpload = $this->createForm(CheckerUploadFormType::class);
         $formUpload->handleRequest($request);
         if ($formUpload->isSubmitted()) {
             return $this->checkerAjaxFormUpload($formUpload);
         }
 
-        $formOnline = $this->createForm('checkerOnline');
+        $formOnline = $this->createForm(CheckerOnlineFormType::class);
         $formOnline->handleRequest($request);
 
         if ($formOnline->isSubmitted()) {
@@ -283,7 +286,7 @@ class CheckerController extends BaseController
         }
 
         if (null != $this->container->getParameter('mco_check_folder') && file_exists($this->container->getParameter('mco_check_folder'))) {
-            $formRepository = $this->createForm('checkerRepository');
+            $formRepository = $this->createForm(CheckerRepositoryFormType::class);
             $formRepository->handleRequest($request);
 
             if ($formRepository->isSubmitted()) {

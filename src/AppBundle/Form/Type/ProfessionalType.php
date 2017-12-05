@@ -1,4 +1,5 @@
 <?php
+
 namespace AppBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
@@ -14,7 +15,7 @@ class ProfessionalType extends AbstractType
                 'y' => 'Yes',
                 'n' => 'No',
             ),
-            'empty_value' => false,
+            'placeholder' => false,
         ));
     }
 
@@ -23,7 +24,7 @@ class ProfessionalType extends AbstractType
         return 'choice';
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'professional';
     }

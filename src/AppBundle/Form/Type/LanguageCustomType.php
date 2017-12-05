@@ -1,4 +1,5 @@
 <?php
+
 namespace AppBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
@@ -20,7 +21,7 @@ class LanguageCustomType extends AbstractType
         return 'language';
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'language_custom';
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace AppBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
@@ -20,7 +21,7 @@ class CountryCustomType extends AbstractType
         return 'country';
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'country_custom';
     }

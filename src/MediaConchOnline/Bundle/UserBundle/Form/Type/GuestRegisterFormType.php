@@ -12,8 +12,14 @@
 namespace MediaConchOnline\Bundle\UserBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use AppBundle\Form\Type\CountryCustomType;
+use AppBundle\Form\Type\LanguageCustomType;
+use AppBundle\Form\Type\ProfessionalType;
 
 class GuestRegisterFormType extends AbstractType
 {
@@ -36,7 +42,7 @@ class GuestRegisterFormType extends AbstractType
     {
         $resolver->setDefaults(array(
             'data_class' => $this->class,
-            'intention'  => 'guestRegister',
+            'csrf_token_id' => 'guestRegister',
         ));
     }
 
@@ -55,9 +61,9 @@ class GuestRegisterFormType extends AbstractType
     {
         $builder
             ->add('username', null, array('label' => 'form.username', 'translation_domain' => 'FOSUserBundle', 'data' => null))
-            ->add('email', 'email', array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle', 'data' => null))
-            ->add('plainPassword', 'repeated', array(
-                'type' => 'password',
+            ->add('email', EmailType::class, array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle', 'data' => null))
+            ->add('plainPassword', RepeatedType::class, array(
+                'type' => PasswordType::class,
                 'options' => array('translation_domain' => 'FOSUserBundle'),
                 'first_options' => array('label' => 'form.password'),
                 'second_options' => array('label' => 'form.password_confirmation'),
@@ -65,9 +71,9 @@ class GuestRegisterFormType extends AbstractType
             ))
             ->add('firstname')
             ->add('lastname')
-            ->add('country', 'country_custom')
-            ->add('language', 'language_custom')
-            ->add('professional', 'professional', array('required' => false))
+            ->add('country', CountryCustomType::class)
+            ->add('language', LanguageCustomType::class)
+            ->add('professional', ProfessionalType::class, array('required' => false))
             ->add('companyName')
             ->add('newsletter');
     }

@@ -6,11 +6,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-
-use AppBundle\Controller\BaseController;
 use AppBundle\Entity\DisplayFile;
+use AppBundle\Form\Type\DisplayImportFormType;
 
 /**
  * @Route("/")
@@ -33,7 +30,7 @@ class DisplayController extends BaseController
 
         if ($this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
             $display = new DisplayFile();
-            $importDisplayForm = $this->createForm('displayImport', $display);
+            $importDisplayForm = $this->createForm(DisplayImportFormType::class, $display);
             $importDisplayForm->handleRequest($request);
             if ($importDisplayForm->isValid()) {
                 $em = $this->getDoctrine()->getManager();
@@ -57,8 +54,6 @@ class DisplayController extends BaseController
                      'displaySystemList' => $displaySystemList,
                      );
     }
-
-
 
     /**
      * @Route("/display/delete/{id}", requirements={"id": "\d+"})
@@ -100,6 +95,7 @@ class DisplayController extends BaseController
         }
 
         $handler = $this->container->get('vich_uploader.download_handler');
+
         return $handler->downloadObject($policy, 'displayFile');
     }
 
@@ -120,6 +116,7 @@ class DisplayController extends BaseController
         }
 
         $handler = $this->container->get('vich_uploader.download_handler');
+
         return $handler->downloadObject($policy, 'displayFile');
     }
 }
