@@ -10,13 +10,12 @@ services:
 before_install:
   - phpenv config-rm xdebug.ini || true
   - export SYMFONY_DEPRECATIONS_HELPER=weak
+  - echo 'memory_limit = 2048M' >> travis.php.ini;
+  - phpenv config-add travis.php.ini
+  - phpenv rehash
 
 install:
-  - composer --no-interaction --quiet install -o
-  - |
-    if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
-      composer update
-    fi
+  - travis_retry composer update --prefer-dist --no-suggest --ansi -o
   - php app/console doctrine:database:create --env=test
   - php app/console doctrine:schema:create --env=test
   - app/console fos:user:create testUser info@mediaarea.net --env=test testPassword
