@@ -47,7 +47,7 @@ class UserController extends BaseController
      */
     public function guestRegisterAction()
     {
-        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+        $user = $this->getUser();
         if (!is_object($user) || !$user instanceof UserInterface) {
             throw new AccessDeniedException('This user does not have access to this section.');
         }
@@ -99,7 +99,7 @@ class UserController extends BaseController
         }
 
         return $this->container->get('templating')->renderResponse(
-            'FOSUserBundle:Registration:guest_register.html.'.$this->container->getParameter('fos_user.template.engine'),
+            'FOSUserBundle:Registration:guest_register.html.twig',
             array('form' => $form->createView())
         );
     }
@@ -116,7 +116,8 @@ class UserController extends BaseController
             $this->container->get('fos_user.security.login_manager')->loginUser(
                 $this->container->getParameter('fos_user.firewall_name'),
                 $user,
-                $response);
+                $response
+            );
         } catch (AccountStatusException $ex) {
             // We simply do not authenticate users which do not pass the user
             // checker (not enabled, expired, etc.).

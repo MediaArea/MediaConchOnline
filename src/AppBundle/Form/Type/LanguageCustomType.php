@@ -3,6 +3,7 @@
 namespace AppBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\LanguageType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class LanguageCustomType extends AbstractType
@@ -18,7 +19,7 @@ class LanguageCustomType extends AbstractType
 
     public function getParent()
     {
-        return 'language';
+        return LanguageType::class;
     }
 
     public function getBlockPrefix()

@@ -16,7 +16,7 @@ use FOS\UserBundle\Model\UserInterface;
 use FOS\UserBundle\Mailer\MailerInterface;
 use FOS\UserBundle\Util\TokenGeneratorInterface;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class GuestRegisterFormHandler
 {
@@ -26,17 +26,17 @@ class GuestRegisterFormHandler
     protected $mailer;
     protected $tokenGenerator;
 
-    public function __construct(FormInterface $form, Request $request, UserManagerInterface $userManager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator)
+    public function __construct(FormInterface $form, RequestStack $requestStack, UserManagerInterface $userManager, MailerInterface $mailer, TokenGeneratorInterface $tokenGenerator)
     {
         $this->form = $form;
-        $this->request = $request;
+        $this->request = $requestStack->getCurrentRequest();
         $this->userManager = $userManager;
         $this->mailer = $mailer;
         $this->tokenGenerator = $tokenGenerator;
     }
 
     /**
-     * @param boolean $confirmation
+     * @param bool $confirmation
      */
     public function process($user, $confirmation = false)
     {
@@ -56,7 +56,7 @@ class GuestRegisterFormHandler
     }
 
     /**
-     * @param boolean $confirmation
+     * @param bool $confirmation
      */
     protected function onSuccess(UserInterface $user, $confirmation)
     {

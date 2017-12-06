@@ -283,7 +283,8 @@
             </argument>
         </service>
 
-        <service id="mco.guest.register.form" factory-method="createNamed" factory-service="form.factory" class="Symfony\Component\Form\Form">
+        <service id="mco.guest.register.form" class="Symfony\Component\Form\Form">
+            <factory method="createNamed" service="form.factory" />
             <argument>%fos_user.profile.form.name%</argument>
             <argument>mco_guest_register</argument>
             <argument>null</argument>
@@ -297,9 +298,9 @@
             <tag name="form.type" alias="mco_guest_register" />
         </service>
 
-        <service id="mco.guest.register.form.handler.default" class="MediaConchOnline\Bundle\UserBundle\Form\Handler\GuestRegisterFormHandler" scope="request" public="false">
+        <service id="mco.guest.register.form.handler.default" class="MediaConchOnline\Bundle\UserBundle\Form\Handler\GuestRegisterFormHandler" public="false">
             <argument type="service" id="mco.guest.register.form" />
-            <argument type="service" id="request" />
+            <argument type="service" id="request_stack" />
             <argument type="service" id="fos_user.user_manager" />
             <argument type="service" id="fos_user.mailer" />
             <argument type="service" id="fos_user.util.token_generator" />

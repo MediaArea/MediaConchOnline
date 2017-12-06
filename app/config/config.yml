@@ -134,10 +134,10 @@ fos_user:
     user_class: AppBundle\Entity\User
     profile:
         form:
-            type: mediaconch_user_profile
+            type: AppBundle\Form\Type\ProfileFormType
     registration:
         form:
-            type: mediaconch_user_registration
+            type: AppBundle\Form\Type\RegistrationFormType
         confirmation:
             enabled:    true
     from_email:

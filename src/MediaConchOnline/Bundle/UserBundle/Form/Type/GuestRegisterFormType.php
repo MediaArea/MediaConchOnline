@@ -16,7 +16,7 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Form\Type\CountryCustomType;
 use AppBundle\Form\Type\LanguageCustomType;
 use AppBundle\Form\Type\ProfessionalType;
@@ -38,7 +38,7 @@ class GuestRegisterFormType extends AbstractType
         $this->buildUserForm($builder, $options);
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
             'data_class' => $this->class,
@@ -46,7 +46,17 @@ class GuestRegisterFormType extends AbstractType
         ));
     }
 
+    // BC for SF < 3.0
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
+    {
+        return $this->getBlockPrefix();
+    }
+
+    public function getBlockPrefix()
     {
         return 'mco_guest_register';
     }

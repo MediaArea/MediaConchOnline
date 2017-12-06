@@ -2,7 +2,7 @@
 
 namespace AppBundle\Entity;
 
-use FOS\UserBundle\Entity\User as BaseUser;
+use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -96,25 +96,21 @@ class User extends BaseUser
 
     /**
      * @ORM\Column(type="boolean", nullable=true, options={"unsigned":true, "default":1})
-     *
      */
     protected $newsletter = true;
 
     /**
      * @ORM\Column(type="string", length=1, nullable=true)
-     *
      */
     protected $professional;
 
     /**
      * @ORM\Column(type="string", length=2, nullable=true)
-     *
      */
     protected $country;
 
     /**
      * @ORM\Column(type="string", length=10, nullable=true)
-     *
      */
     protected $language;
 
@@ -213,9 +209,9 @@ class User extends BaseUser
     }
 
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -223,9 +219,10 @@ class User extends BaseUser
     }
 
     /**
-     * Set quotasDefault
+     * Set quotasDefault.
      *
      * @param \AppBundle\Entity\UserQuotasDefault $quotasDefault
+     *
      * @return User
      */
     public function setQuotasDefault(\AppBundle\Entity\UserQuotasDefault $quotasDefault = null)
@@ -236,7 +233,7 @@ class User extends BaseUser
     }
 
     /**
-     * Get quotasDefault
+     * Get quotasDefault.
      *
      * @return \AppBundle\Entity\UserQuotasDefault
      */
@@ -246,9 +243,10 @@ class User extends BaseUser
     }
 
     /**
-     * Set quotas
+     * Set quotas.
      *
      * @param \AppBundle\Entity\UserQuotas $quotas
+     *
      * @return User
      */
     public function setQuotas(\AppBundle\Entity\UserQuotas $quotas = null)
@@ -259,7 +257,7 @@ class User extends BaseUser
     }
 
     /**
-     * Get quotas
+     * Get quotas.
      *
      * @return \AppBundle\Entity\UserQuotas
      */
@@ -269,9 +267,10 @@ class User extends BaseUser
     }
 
     /**
-     * Add display
+     * Add display.
      *
      * @param \AppBundle\Entity\DisplayFile $display
+     *
      * @return User
      */
     public function addDisplay(\AppBundle\Entity\DisplayFile $display)
@@ -282,7 +281,7 @@ class User extends BaseUser
     }
 
     /**
-     * Remove display
+     * Remove display.
      *
      * @param \AppBundle\Entity\DisplayFile $display
      */
@@ -292,7 +291,7 @@ class User extends BaseUser
     }
 
     /**
-     * Get display
+     * Get display.
      *
      * @return \Doctrine\Common\Collections\Collection
      */
@@ -302,9 +301,10 @@ class User extends BaseUser
     }
 
     /**
-     * Add settings
+     * Add settings.
      *
      * @param \AppBundle\Entity\Settings $settings
+     *
      * @return User
      */
     public function addSetting(\AppBundle\Entity\Settings $settings)
@@ -315,7 +315,7 @@ class User extends BaseUser
     }
 
     /**
-     * Remove settings
+     * Remove settings.
      *
      * @param \AppBundle\Entity\Settings $settings
      */
@@ -325,7 +325,7 @@ class User extends BaseUser
     }
 
     /**
-     * Get settings
+     * Get settings.
      *
      * @return \Doctrine\Common\Collections\Collection
      */
@@ -335,9 +335,10 @@ class User extends BaseUser
     }
 
     /**
-     * Set guestToken
+     * Set guestToken.
      *
      * @param \AppBundle\Entity\GuestToken $guestToken
+     *
      * @return User
      */
     public function setGuestToken(\AppBundle\Entity\GuestToken $guestToken = null)
@@ -348,7 +349,7 @@ class User extends BaseUser
     }
 
     /**
-     * Get guestToken
+     * Get guestToken.
      *
      * @return \AppBundle\Entity\GuestToken
      */
@@ -358,9 +359,10 @@ class User extends BaseUser
     }
 
     /**
-     * Add apiKey
+     * Add apiKey.
      *
      * @param \AppBundle\Entity\ApiKey $apiKey
+     *
      * @return User
      */
     public function addApiKey(\AppBundle\Entity\ApiKey $apiKey)
@@ -371,7 +373,7 @@ class User extends BaseUser
     }
 
     /**
-     * Remove apiKey
+     * Remove apiKey.
      *
      * @param \AppBundle\Entity\ApiKey $apiKey
      */
@@ -381,7 +383,7 @@ class User extends BaseUser
     }
 
     /**
-     * Get apiKey
+     * Get apiKey.
      *
      * @return \Doctrine\Common\Collections\Collection
      */

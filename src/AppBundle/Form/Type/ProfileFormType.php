@@ -7,7 +7,7 @@ use FOS\UserBundle\Form\Type\ProfileFormType as BaseType;
 
 class ProfileFormType extends BaseType
 {
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'mediaconch_user_profile';
     }
