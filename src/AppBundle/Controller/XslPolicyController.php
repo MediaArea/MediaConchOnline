@@ -17,6 +17,8 @@ use AppBundle\Form\Type\XslPolicyRuleFormType;
 use AppBundle\Form\Type\XslPolicyRuleMtFormType;
 use AppBundle\Lib\XslPolicy\XslPolicyFormFields;
 use AppBundle\Lib\MediaConch\MediaConchServerException;
+use AppBundle\Lib\Quotas\Quotas;
+use AppBundle\Lib\XslPolicy\XslPolicyGetPolicies;
 
 /**
  * @Route("/")
@@ -39,14 +41,14 @@ class XslPolicyController extends BaseController
      * @Route("/policyEditor")
      * @Template()
      */
-    public function xslPolicyTreeAction()
+    public function xslPolicyTreeAction(Quotas $quotas)
     {
         // Forms
         $policyRuleForm = $this->createForm(XslPolicyRuleFormType::class);
         $policyRuleMtForm = $this->createForm(XslPolicyRuleMtFormType::class);
         $policyInfoForm = $this->createForm(XslPolicyInfoFormType::class);
 
-        if ($this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+        if ($quotas->hasPolicyCreationRights()) {
             $importPolicyForm = $this->createForm(XslPolicyImportFormType::class);
             $policyCreateFromFileForm = $this->createForm(XslPolicyCreateFromFileFormType::class);
         }
@@ -68,7 +70,7 @@ class XslPolicyController extends BaseController
      *
      * @Route("/xslPolicyTree/ajax/data")
      */
-    public function xslPolicyTreeDataAction(Request $request)
+    public function xslPolicyTreeDataAction(Request $request, XslPolicyGetPolicies $policies)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
@@ -79,7 +81,6 @@ class XslPolicyController extends BaseController
         $settings->removeMediaConchInstanceID();
 
         try {
-            $policies = $this->get('mco.policy.getPolicies');
             $policies->getPolicies(array(), 'JSTREE');
 
             return new JsonResponse(array('policiesTree' => $policies->getResponse()->getPolicies()), 200);
@@ -99,14 +100,14 @@ class XslPolicyController extends BaseController
      * @Route("/xslPolicyTree/ajax/create/{parentId}", requirements={"parentId": "(-)?\d+"})
      * @Method("GET")
      */
-    public function xslPolicyTreeCreateAction($parentId, Request $request)
+    public function xslPolicyTreeCreateAction($parentId, Request $request, Quotas $quotas)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
         // Check quota only if policy is created on the top level
-        if (-1 == $parentId && !$this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+        if (-1 == $parentId && !$quotas->hasPolicyCreationRights()) {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
@@ -138,20 +139,20 @@ class XslPolicyController extends BaseController
      * @Route("/xslPolicyTree/ajax/import")
      * @Method("POST")
      */
-    public function xslPolicyTreeImportAction(Request $request)
+    public function xslPolicyTreeImportAction(Request $request, Quotas $quotas)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
         // Check quota
-        if (!$this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+        if (!$quotas->hasPolicyCreationRights()) {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
         $importPolicyForm = $this->createForm(XslPolicyImportFormType::class);
         $importPolicyForm->handleRequest($request);
-        if ($importPolicyForm->isValid()) {
+        if ($importPolicyForm->isSubmitted() && $importPolicyForm->isValid()) {
             $data = $importPolicyForm->getData();
             if ($data['policyFile']->isValid()) {
                 try {
@@ -186,20 +187,20 @@ class XslPolicyController extends BaseController
      * @Route("/xslPolicyTree/ajax/createFromFile")
      * @Method("POST")
      */
-    public function xslPolicyTreeCreateFromFileAction(Request $request)
+    public function xslPolicyTreeCreateFromFileAction(Request $request, Quotas $quotas)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
         // Check quota
-        if (!$this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+        if (!$quotas->hasPolicyCreationRights()) {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
         $policyCreateFromFileForm = $this->createForm(XslPolicyCreateFromFileFormType::class);
         $policyCreateFromFileForm->handleRequest($request);
-        if ($policyCreateFromFileForm->isValid()) {
+        if ($policyCreateFromFileForm->isSubmitted() && $policyCreateFromFileForm->isValid()) {
             $data = $policyCreateFromFileForm->getData();
             if ($data['file']->isValid()) {
                 $path = $this->container->getParameter('kernel.root_dir').'/../files/uploadTmp/'.$this->getUser()->getId();
@@ -209,16 +210,16 @@ class XslPolicyController extends BaseController
                 try {
                     // Analyze file
                     $checks = $this->get('mco.checker.analyze');
-                    $checks->analyse($file->getRealPath());
+                    $checks->analyse(array($file->getRealPath()));
                     $response = $checks->getResponseAsArray();
-                    $transactionId = $response['transactionId'];
+                    $transactionId = $response[0]['transactionId'];
 
                     // Wait for analyze is complete
                     usleep(200000);
                     $status = $this->get('mco.checker.status');
-                    for ($loop = 100; --$loop; $loop >= 0) {
+                    for ($loop = 5; $loop >= 0; --$loop) {
                         $status->getStatus($transactionId);
-                        $response = $status->getResponse()->getResponse();
+                        $response = $status->getResponse();
                         // Stop the loop when analyze is finish
                         if (isset($response[$transactionId]['finish']) && true === $response[$transactionId]['finish']) {
                             $loop = 0;
@@ -312,7 +313,7 @@ class XslPolicyController extends BaseController
 
         $policyEditForm = $this->createForm(XslPolicyInfoFormType::class);
         $policyEditForm->handleRequest($request);
-        if ($policyEditForm->isValid()) {
+        if ($policyEditForm->isSubmitted() && $policyEditForm->isValid()) {
             $data = $policyEditForm->getData();
 
             try {
@@ -359,14 +360,14 @@ class XslPolicyController extends BaseController
      * @Route("/xslPolicyTree/ajax/duplicate/{id}/{dstPolicyId}", requirements={"id": "\d+", "dstPolicyId": "(-)?\d+"})
      * @Method("GET")
      */
-    public function xslPolicyTreeDuplicateAction(Request $request, $id, $dstPolicyId)
+    public function xslPolicyTreeDuplicateAction(Request $request, Quotas $quotas, $id, $dstPolicyId)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
         // Check quota only if policy is duplicated on the top level
-        if (-1 == $dstPolicyId && !$this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+        if (-1 == $dstPolicyId && !$quotas->hasPolicyCreationRights()) {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
@@ -516,7 +517,7 @@ class XslPolicyController extends BaseController
         }
 
         $policyRuleForm->handleRequest($request);
-        if ($policyRuleForm->isValid()) {
+        if ($policyRuleForm->isSubmitted() && $policyRuleForm->isValid()) {
             $data = $policyRuleForm->getData();
 
             try {

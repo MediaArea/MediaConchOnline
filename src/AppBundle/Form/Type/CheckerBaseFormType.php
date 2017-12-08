@@ -46,7 +46,6 @@ class CheckerBaseFormType extends AbstractType
         $builder
             ->add('policy', ChoiceType::class, array(
                 'choices' => $this->policyList,
-                'choices_as_values' => true,
                 'placeholder' => 'Choose a policy',
                 'required' => false,
                 'label' => 'Policy',
@@ -71,7 +70,6 @@ class CheckerBaseFormType extends AbstractType
                     3 => 3,
                     4 => 4, '5 (most verbose)' => 5,
                     ),
-                'choices_as_values' => true,
                 'placeholder' => false,
                 'required' => false,
                 'label' => 'Verbosity',

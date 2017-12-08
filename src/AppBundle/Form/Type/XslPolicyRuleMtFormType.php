@@ -21,7 +21,6 @@ class XslPolicyRuleMtFormType extends AbstractType
                 'placeholder' => false,
                 'choices' => XslPolicyFormFields::getOperators(),
                 'required' => false,
-                'choices_as_values' => true,
             ))
             ->add('value', TextType::class, array('required' => false))
             ->add('scope', HiddenType::class, array('data' => 'mmt'))

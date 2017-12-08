@@ -15,6 +15,7 @@ use AppBundle\Form\Type\CheckerOnlineFormType;
 use AppBundle\Form\Type\CheckerRepositoryFormType;
 use AppBundle\Form\Type\CheckerUploadFormType;
 use AppBundle\Lib\MediaConch\MediaConchServerException;
+use AppBundle\Lib\Quotas\Quotas;
 
 /**
  * @Route("/")
@@ -25,22 +26,22 @@ class CheckerController extends BaseController
      * @Route("/checker")
      * @Template()
      */
-    public function checkerAction()
+    public function checkerAction(Quotas $quotas)
     {
         // Remove MediaConch-Server-ID setting
         $settings = $this->get('mco.settings');
         $settings->removeMediaConchInstanceID();
 
-        if ($this->get('mediaconch_user.quotas')->hasUploadsRights()) {
+        if ($quotas->hasUploadsRights()) {
             $formUpload = $this->createForm(CheckerUploadFormType::class);
         }
 
-        if ($this->get('mediaconch_user.quotas')->hasUrlsRights()) {
+        if ($quotas->hasUrlsRights()) {
             $formOnline = $this->createForm(CheckerOnlineFormType::class);
         }
 
-        if (null != $this->container->getParameter('mco_check_folder') && file_exists($this->container->getParameter('mco_check_folder'))) {
-            if ($this->get('mediaconch_user.quotas')->hasPolicyChecksRights()) {
+        if (null != $this->getParameter('mco_check_folder') && file_exists($this->getParameter('mco_check_folder'))) {
+            if ($quotas->hasPolicyChecksRights()) {
                 $formRepository = $this->createForm(CheckerRepositoryFormType::class);
             }
         }
@@ -168,7 +169,7 @@ class CheckerController extends BaseController
                 ->getRepository('AppBundle:DisplayFile')
                 ->findOneByUserOrSystem($request->query->get('display'), $this->getUser());
             if ($display) {
-                $helper = $this->container->get('vich_uploader.storage');
+                $helper = $this->get('vich_uploader.storage');
                 $displayFile = $helper->resolvePath($display, 'displayFile');
             }
         }
@@ -223,17 +224,17 @@ class CheckerController extends BaseController
      */
     public function checkerDownloadReportAction($id, $reportType, $displayName, Request $request)
     {
-        if ($this->container->has('profiler')) {
-            $this->container->get('profiler')->disable();
+        if ($this->has('profiler')) {
+            $this->get('profiler')->disable();
         }
 
         $displayFile = null;
         if (ctype_digit($request->query->get('display'))) {
             $display = $this->getDoctrine()
-            ->getRepository('AppBundle:DisplayFile')
-            ->findOneByUserOrSystem($request->query->get('display'), $this->getUser());
+                ->getRepository('AppBundle:DisplayFile')
+                ->findOneByUserOrSystem($request->query->get('display'), $this->getUser());
             if ($display) {
-                $helper = $this->container->get('vich_uploader.storage');
+                $helper = $this->get('vich_uploader.storage');
                 $displayFile = $helper->resolvePath($display, 'displayFile');
             }
         }
@@ -266,7 +267,7 @@ class CheckerController extends BaseController
     /**
      * @Route("/checkerAjaxForm")
      */
-    public function checkerAjaxFormAction(Request $request)
+    public function checkerAjaxFormAction(Request $request, Quotas $quotas)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
@@ -275,31 +276,31 @@ class CheckerController extends BaseController
         $formUpload = $this->createForm(CheckerUploadFormType::class);
         $formUpload->handleRequest($request);
         if ($formUpload->isSubmitted()) {
-            return $this->checkerAjaxFormUpload($formUpload);
+            return $this->checkerAjaxFormUpload($formUpload, $quotas);
         }
 
         $formOnline = $this->createForm(CheckerOnlineFormType::class);
         $formOnline->handleRequest($request);
 
         if ($formOnline->isSubmitted()) {
-            return $this->checkerAjaxFormOnline($formOnline);
+            return $this->checkerAjaxFormOnline($formOnline, $quotas);
         }
 
-        if (null != $this->container->getParameter('mco_check_folder') && file_exists($this->container->getParameter('mco_check_folder'))) {
+        if (null != $this->getParameter('mco_check_folder') && file_exists($this->getParameter('mco_check_folder'))) {
             $formRepository = $this->createForm(CheckerRepositoryFormType::class);
             $formRepository->handleRequest($request);
 
             if ($formRepository->isSubmitted()) {
-                return $this->checkerAjaxFormRepository($formRepository);
+                return $this->checkerAjaxFormRepository($formRepository, $quotas);
             }
         }
 
         return new JsonResponse(array('message' => 'No form selected'), 400);
     }
 
-    protected function checkerAjaxFormUpload($formUpload)
+    protected function checkerAjaxFormUpload($formUpload, Quotas $quotas)
     {
-        if ($this->get('mediaconch_user.quotas')->hasUploadsRights()) {
+        if ($quotas->hasUploadsRights()) {
             if ($formUpload->isValid()) {
                 $data = $formUpload->getData();
 
@@ -309,7 +310,7 @@ class CheckerController extends BaseController
                 $settings->setLastUsedVerbosity($data['verbosity']);
 
                 if ($data['file']->isValid()) {
-                    $path = $this->container->getParameter('kernel.root_dir').'/../files/upload/'.$this->getUser()->getId();
+                    $path = $this->getParameter('kernel.project_dir').'/files/upload/'.$this->getUser()->getId();
                     $filename = $data['file']->getClientOriginalName();
                     $fileMd5 = md5(file_get_contents($data['file']->getRealPath()));
 
@@ -323,7 +324,7 @@ class CheckerController extends BaseController
                         $checks = $this->get('mco.checker.analyze');
                         $checks->analyse(array($file->getRealPath()));
 
-                        $this->get('mediaconch_user.quotas')->hitUploads();
+                        $quotas->hitUploads();
 
                         return new JsonResponse($checks->getResponseAsArray(), 200);
                     } catch (MediaConchServerException $e) {
@@ -340,9 +341,9 @@ class CheckerController extends BaseController
         return new JsonResponse(array('message' => 'Error'), 400);
     }
 
-    protected function checkerAjaxFormOnline($formOnline)
+    protected function checkerAjaxFormOnline($formOnline, Quotas $quotas)
     {
-        if ($this->get('mediaconch_user.quotas')->hasUrlsRights()) {
+        if ($quotas->hasUrlsRights()) {
             if ($formOnline->isValid()) {
                 $data = $formOnline->getData();
 
@@ -356,7 +357,7 @@ class CheckerController extends BaseController
                     $checks->setFullPath(true);
                     $checks->analyse(array(str_replace(' ', '%20', $data['file'])));
 
-                    $this->get('mediaconch_user.quotas')->hitUrls();
+                    $quotas->hitUrls();
 
                     return new JsonResponse($checks->getResponseAsArray(), 200);
                 } catch (MediaConchServerException $e) {
@@ -370,9 +371,9 @@ class CheckerController extends BaseController
         return new JsonResponse(array('message' => 'Error'), 400);
     }
 
-    protected function checkerAjaxFormRepository($formRepository)
+    protected function checkerAjaxFormRepository($formRepository, Quotas $quotas)
     {
-        if ($this->get('mediaconch_user.quotas')->hasPolicyChecksRights()) {
+        if ($quotas->hasPolicyChecksRights()) {
             if ($formRepository->isValid()) {
                 $data = $formRepository->getData();
 
@@ -383,7 +384,7 @@ class CheckerController extends BaseController
 
                 try {
                     $finder = new Finder();
-                    $finder->files()->in($this->container->getParameter('mco_check_folder'));
+                    $finder->files()->in($this->getParameter('mco_check_folder'));
                     $checks = $this->get('mco.checker.analyze');
                     $files = array();
                     foreach ($finder as $file) {
@@ -392,7 +393,7 @@ class CheckerController extends BaseController
 
                     $checks->analyse($files);
 
-                    $this->get('mediaconch_user.quotas')->hitPolicyChecks(count($finder));
+                    $quotas->hitPolicyChecks(count($finder));
 
                     return new JsonResponse($checks->getResponseAsArray(), 200);
                 } catch (MediaConchServerException $e) {

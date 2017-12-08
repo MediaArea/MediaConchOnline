@@ -5,18 +5,34 @@ namespace AppBundle\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Core\Exception\AccountStatusException;
 use FOS\UserBundle\Model\UserInterface;
 use AppBundle\Form\Type\SettingsFormType;
+use AppBundle\Lib\Quotas\Quotas;
+use AppBundle\Form\Type\GuestRegisterFormType;
 
 /**
  * @Route("/")
  */
 class UserController extends BaseController
 {
+    /**
+     * Show the user.
+     *
+     * @Route("/profile/")
+     */
+    public function showProfileAction(Quotas $quotas)
+    {
+        $user = $this->getUser();
+        if (!is_object($user) || !$user instanceof UserInterface) {
+            throw new AccessDeniedException('This user does not have access to this section.');
+        }
+
+        return $this->render('@FOSUser/Profile/show.html.twig', array(
+            'user' => $user, 'quotas' => $quotas->getQuotasForProfile(),
+        ));
+    }
+
     /**
      * @Route("/settings")
      * @Template()
@@ -26,7 +42,7 @@ class UserController extends BaseController
         $form = $this->createForm(SettingsFormType::class);
 
         $form->handleRequest($request);
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $settings = $this->get('mco.settings');
             $settings->setDefaultPolicy($data['policy']);
@@ -35,7 +51,7 @@ class UserController extends BaseController
 
             $this->addFlashBag('success', 'Settings successfully saved');
 
-            return $this->redirect($this->generateUrl('app_user_settings'));
+            return $this->redirectToRoute('app_user_settings');
         }
 
         return array('form' => $form->createView());
@@ -43,37 +59,38 @@ class UserController extends BaseController
 
     /**
      * @Route("/guest/register")
-     * @Template()
      */
-    public function guestRegisterAction()
+    public function guestRegisterAction(Request $request, Quotas $quotas)
     {
         $user = $this->getUser();
-        if (!is_object($user) || !$user instanceof UserInterface) {
+        if (!is_object($user) || !$user instanceof UserInterface || !$user->hasRole('ROLE_GUEST')) {
             throw new AccessDeniedException('This user does not have access to this section.');
         }
 
-        $form = $this->container->get('mco.guest.register.form');
-        $formHandler = $this->container->get('mco.guest.register.form.handler');
-        $confirmationEnabled = $this->container->getParameter('fos_user.registration.confirmation.enabled');
+        $form = $this->createForm(GuestRegisterFormType::class, $user);
+        $confirmation = $this->getParameter('fos_user.registration.confirmation.enabled');
 
-        $process = $formHandler->process($user, $confirmationEnabled);
-        if ($process) {
-            $authUser = false;
-            if ($confirmationEnabled) {
-                $this->container->get('session')->set('fos_user_send_confirmation_email/email', $user->getEmail());
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user->setEnabled(true);
 
+            $this->addFlashBag('success', 'You have been registered successfully');
+
+            if ($confirmation) {
+                $this->get('session')->set('fos_user_send_confirmation_email/email', $user->getEmail());
                 $route = 'fos_user_registration_check_email';
+
+                // Keep guest user enable to avoid redirect to login page
+                if (null === $user->getConfirmationToken()) {
+                    $user->setConfirmationToken($this->get('fos_user.util.token_generator')->generateToken());
+                }
+
+                $this->get('fos_user.mailer')->sendConfirmationEmailMessage($user);
             } else {
-                $authUser = true;
                 $route = 'fos_user_registration_confirmed';
-            }
 
-            $this->addFlashBag('success', 'The user has been registered successfully');
-            $url = $this->container->get('router')->generate($route);
-            $response = new RedirectResponse($url);
-
-            if ($authUser) {
-                $this->authenticateUser($user, $response);
+                // Remove guest token cookie
+                $request->attributes->set('remove_guest_cookie', true);
 
                 // Switch role to basic
                 $user->removeRole('ROLE_GUEST');
@@ -81,46 +98,22 @@ class UserController extends BaseController
 
                 // Remove guest token in DB
                 $token = $user->getGuestToken();
-                $em = $this->get('doctrine.orm.entity_manager');
+                $user->setGuestToken(null);
+                $em = $this->getDoctrine()->getManager();
                 $em->remove($token);
-                $em->flush();
-
-                // Remove guest token cookie
-                $this->getRequest()->attributes->set('remove_guest_cookie', true);
-
-                // Update user
-                $this->container->get('fos_user.user_manager')->updateUser($user);
 
                 // Set quotas for new user with mail activation disabled
-                $this->container->get('mediaconch_user.quotas')->resetQuotas();
+                $quotas->resetQuotas();
             }
 
-            return $response;
+            // Update user
+            $this->get('fos_user.user_manager')->updateUser($user);
+
+            return $this->redirectToRoute($route);
         }
 
-        return $this->container->get('templating')->renderResponse(
-            'FOSUserBundle:Registration:guest_register.html.twig',
-            array('form' => $form->createView())
-        );
-    }
-
-    /**
-     * Authenticate a user with Symfony Security.
-     *
-     * @param \FOS\UserBundle\Model\UserInterface        $user
-     * @param \Symfony\Component\HttpFoundation\Response $response
-     */
-    protected function authenticateUser(UserInterface $user, Response $response)
-    {
-        try {
-            $this->container->get('fos_user.security.login_manager')->loginUser(
-                $this->container->getParameter('fos_user.firewall_name'),
-                $user,
-                $response
-            );
-        } catch (AccountStatusException $ex) {
-            // We simply do not authenticate users which do not pass the user
-            // checker (not enabled, expired, etc.).
-        }
+        return $this->render('@FOSUser/Registration/guest_register.html.twig', array(
+            'form' => $form->createView(),
+        ));
     }
 }

@@ -2,7 +2,7 @@
 
 namespace AppBundle\Lib\MediaConch;
 
-use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Process\Process;
 
 class MediaConchTrackTypes extends MediaConch
 {
@@ -12,10 +12,7 @@ class MediaConchTrackTypes extends MediaConch
 
     public function run()
     {
-        $builder = new ProcessBuilder();
-        $process = $builder->setPrefix($this->MediaConch)
-            ->add('--MAXML_StreamKinds')
-            ->getProcess();
+        $process = new Process($this->MediaConch.' --MAXML_StreamKinds');
 
         $process->run();
 

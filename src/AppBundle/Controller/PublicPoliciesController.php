@@ -9,9 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
-
-use AppBundle\Controller\BaseController;
 use AppBundle\Lib\MediaConch\MediaConchServerException;
+use AppBundle\Lib\Quotas\Quotas;
 
 /**
  * @Route("/publicPolicies")
@@ -19,7 +18,7 @@ use AppBundle\Lib\MediaConch\MediaConchServerException;
 class PublicPoliciesController extends BaseController
 {
     /**
-     * Public policies page
+     * Public policies page.
      *
      * @Route("")
      * @Template()
@@ -34,7 +33,8 @@ class PublicPoliciesController extends BaseController
     }
 
     /**
-     * Export XML of a policy
+     * Export XML of a policy.
+     *
      * @param int id policy ID of the policy to export
      * @param int userId user ID of the policy to export
      *
@@ -57,7 +57,7 @@ class PublicPoliciesController extends BaseController
 
             // Prepare response
             $response = new Response($policyExport->getPolicyXml());
-            $disposition = $this->downloadFileDisposition($response, $policyName . '.xml');
+            $disposition = $this->downloadFileDisposition($response, $policyName.'.xml');
 
             $response->headers->set('Content-Type', 'text/xml');
             $response->headers->set('Content-Disposition', $disposition);
@@ -70,24 +70,25 @@ class PublicPoliciesController extends BaseController
     }
 
     /**
-     * Import a policy
+     * Import a policy.
+     *
      * @param int id policy ID of the policy to import
      * @param int userId user ID of the policy to import
      *
      * @return json
-     * {"policyId":ID}
+     *              {"policyId":ID}
      *
      * @Route("/import/{id}/{userId}", requirements={"id": "\d+", "userId": "\d+"})
      * @Method("GET")
      */
-    public function policyImportAction(Request $request, $id, $userId)
+    public function policyImportAction(Request $request, Quotas $quotas, $id, $userId)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
         // Check quota only if policy is duplicated on the top level
-        if (!$this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+        if (!$quotas->hasPolicyCreationRights()) {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 

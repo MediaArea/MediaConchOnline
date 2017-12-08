@@ -8,10 +8,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
-
 use AppBundle\Lib\MediaConch\MediaConchServerException;
+use AppBundle\Lib\XslPolicy\XslPolicyGetPolicies;
 
 /**
  * @Route("/api/protected/v1")
@@ -19,13 +17,13 @@ use AppBundle\Lib\MediaConch\MediaConchServerException;
 class ProtectedApiController extends Controller
 {
     /**
-    * Import a policy to the oublic policies list
-    *
-    * @return json
-    * @Route("/publicpolicies/import")
-    * @Route("/policies/import")
-    * @Method({"POST"})
-    */
+     * Import a policy to the oublic policies list.
+     *
+     * @return json
+     * @Route("/publicpolicies/import")
+     * @Route("/policies/import")
+     * @Method({"POST"})
+     */
     public function importPolicyAction(Request $request)
     {
         // Get the policy XML
@@ -63,11 +61,11 @@ class ProtectedApiController extends Controller
     }
 
     /**
-    * Public policies list
-    *
-    * @return json
-    * @Route("/publicpolicies/list")
-    */
+     * Public policies list.
+     *
+     * @return json
+     * @Route("/publicpolicies/list")
+     */
     public function publicPoliciesListAction(Request $request)
     {
         // Remove MediaConch-Server-ID setting
@@ -108,7 +106,7 @@ class ProtectedApiController extends Controller
                     $name = '';
                     // Firstname
                     if (null !== $user['firstname'] && '' != trim($user['firstname'])) {
-                        $name .= trim($user['firstname']) . ' ';
+                        $name .= trim($user['firstname']).' ';
                     }
                     // Lastname
                     if (null !== $user['lastname'] && '' != trim($user['lastname'])) {
@@ -120,7 +118,7 @@ class ProtectedApiController extends Controller
                     }
                     // CompanyName
                     if (null !== $user['companyName'] && '' != trim($user['companyName'])) {
-                        $name .= ' (' . trim($user['companyName']) . ')';
+                        $name .= ' ('.trim($user['companyName']).')';
                     }
 
                     $userList[$user['id']] = $name;
@@ -133,7 +131,7 @@ class ProtectedApiController extends Controller
                         'name' => htmlspecialchars($policy->name),
                         'description' => nl2br(htmlspecialchars($policy->description)),
                         'license' => isset($policy->license) ? $policy->license : '',
-                        'allowEdit' => ($this->getUser()->getId() == $policy->user)
+                        'allowEdit' => ($this->getUser()->getId() == $policy->user),
                         );
                 }
             }
@@ -145,12 +143,12 @@ class ProtectedApiController extends Controller
     }
 
     /**
-    * Unpublish a public policy
-    *
-    * @return json
-    * @Route("/publicpolicies/unpublish/{id}", requirements={"id": "\d+"})
-    * @Method({"PUT"})
-    */
+     * Unpublish a public policy.
+     *
+     * @return json
+     * @Route("/publicpolicies/unpublish/{id}", requirements={"id": "\d+"})
+     * @Method({"PUT"})
+     */
     public function publicPoliciesUnpublishAction($id)
     {
         try {
@@ -169,13 +167,13 @@ class ProtectedApiController extends Controller
     }
 
     /**
-    * User policies list
-    *
-    * @return json
-    * @Route("/userpolicies/list")
-    * @Method({"GET"})
-    */
-    public function userPoliciesListAction(Request $request)
+     * User policies list.
+     *
+     * @return json
+     * @Route("/userpolicies/list")
+     * @Method({"GET"})
+     */
+    public function userPoliciesListAction(Request $request, XslPolicyGetPolicies $policies)
     {
         // Get start value
         $start = $request->request->get('start', 0);
@@ -187,9 +185,8 @@ class ProtectedApiController extends Controller
 
         try {
             // Get public policies from server
-            $policyList = $this->get('mco.policy.getPolicies');
-            $policyList->getPolicies(array());
-            $policyList = $policyList->getResponse()->getPolicies();
+            $policies->getPolicies(array());
+            $policyList = $policies->getResponse()->getPolicies();
             if (0 < count($policyList)) {
                 // Build result list
                 foreach ($policyList as $policy) {
@@ -210,13 +207,14 @@ class ProtectedApiController extends Controller
     }
 
     /**
-    * User policies get policy
-    * @param int id policy ID of the policy to import
-    *
-    * @return XML
-    * @Route("/userpolicies/policy/{id}", requirements={"id": "\d+"})
-    * @Method({"GET"})
-    */
+     * User policies get policy.
+     *
+     * @param int id policy ID of the policy to import
+     *
+     * @return XML
+     * @Route("/userpolicies/policy/{id}", requirements={"id": "\d+"})
+     * @Method({"GET"})
+     */
     public function userPoliciesPolicyExportAction($id)
     {
         try {

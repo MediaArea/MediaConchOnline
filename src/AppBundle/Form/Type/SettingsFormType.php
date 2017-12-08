@@ -46,7 +46,6 @@ class SettingsFormType extends AbstractType
         $builder
             ->add('policy', ChoiceType::class, array(
                 'choices' => array('Last used policy' => -2) + $this->policyList,
-                'choices_as_values' => true,
                 'placeholder' => 'No default policy',
                 'required' => false,
                 'label' => 'Default Policy',
@@ -55,7 +54,6 @@ class SettingsFormType extends AbstractType
             ))
             ->add('display', ChoiceType::class, array(
                 'choices' => array('Last used display' => -2) + $this->em->getRepository('AppBundle:DisplayFile')->getUserAndSystemDisplaysChoices($this->user),
-                'choices_as_values' => true,
                 'placeholder' => 'Default display (MediaConch Html)',
                 'required' => false,
                 'label' => 'Default Display',
@@ -63,7 +61,6 @@ class SettingsFormType extends AbstractType
                 'attr' => array('class' => 'displayList'),
             ))
             ->add('verbosity', ChoiceType::class, array('choices' => array('Default verbosity level' => -1, 'Last used verbosity' => -2, '0 (least verbose)' => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4, '5 (most verbose)' => 5),
-                'choices_as_values' => true,
                 'placeholder' => false,
                 'required' => false,
                 'label' => 'Default Verbosity',

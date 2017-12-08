@@ -21,7 +21,7 @@ class RegistrationFormType extends BaseType
             ->add('newsletter');
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'mediaconch_user_registration';
     }

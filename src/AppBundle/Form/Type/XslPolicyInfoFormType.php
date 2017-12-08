@@ -25,20 +25,18 @@ class XslPolicyInfoFormType extends AbstractType
         $builder->add('policyName', null, array('required' => false))
             ->add('policyDescription', TextareaType::class, array('required' => false))
             ->add('policyType', ChoiceType::class, array('choices' => array('AND' => 'and', 'OR' => 'or'),
-                'choices_as_values' => true,
                 'placeholder' => false, )
                 )
             ->add('policyLicense', ChoiceType::class, array('choices' => array('Creative Commons Zero' => 'CC0-1.0+', 'Creative Commons Attribution' => 'CC-BY-4.0+', 'Creative Commons Attribution-ShareAlike' => 'CC-BY-SA-4.0+', 'Other' => ''),
-                'choices_as_values' => true,
                 'placeholder' => false, )
                 )
             ->add('policyTopLevel', HiddenType::class);
 
         if ($this->authChecker->isGranted('ROLE_BASIC')) {
-            $builder->add('policyVisibility', ChoiceType::class, array('choices' => array('Private' => false, 'Public' => true),
-                'choices_as_values' => true,
-                'placeholder' => false, )
-                );
+            $builder->add('policyVisibility', ChoiceType::class, array(
+                'choices' => array('Private' => false, 'Public' => true),
+                'placeholder' => false,
+            ));
         }
 
         $builder->add('SavePolicyInfo', SubmitType::class, array('attr' => array('class' => 'btn-warning')));

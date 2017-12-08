@@ -24,15 +24,13 @@ class XslPolicyRuleFormType extends AbstractType
             ->add('trackType', ChoiceType::class, array(
                 'placeholder' => 'Choose a track type',
                 'choices' => XslPolicyFormFields::getTrackTypes(),
-                'choices_as_values' => true,
             ))
-            ->add('field', ChoiceType::class, array('placeholder' => 'Choose a field', 'choices_as_values' => true))
+            ->add('field', ChoiceType::class, array('placeholder' => 'Choose a field'))
             ->add('occurrence', IntegerType::class, array('attr' => array('min' => 1), 'required' => false))
             ->add('validator', ChoiceType::class, array(
                 'placeholder' => false,
                 'choices' => XslPolicyFormFields::getOperators(),
                 'required' => false,
-                'choices_as_values' => true,
             ))
             ->add('value', null, array('label' => 'Content'))
             ->add('scope', HiddenType::class, array('data' => ''))
@@ -49,7 +47,6 @@ class XslPolicyRuleFormType extends AbstractType
                 $form->add('field', ChoiceType::class, array(
                     'placeholder' => 'Choose a field',
                     'choices' => XslPolicyFormFields::getFields($item->getTrackType(), $item->getField()),
-                    'choices_as_values' => true,
                 ));
             }
         });
@@ -62,7 +59,6 @@ class XslPolicyRuleFormType extends AbstractType
                 $form->add('field', ChoiceType::class, array(
                     'placeholder' => 'Choose a field',
                     'choices' => XslPolicyFormFields::getFields($item['trackType'], $item['field']),
-                    'choices_as_values' => true,
                 ));
             }
         });

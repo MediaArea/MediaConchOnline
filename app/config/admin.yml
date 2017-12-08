@@ -14,7 +14,7 @@ easy_admin:
         Users:
             class: AppBundle\Entity\User
             list:
-                fields: ['username', 'email', 'firstname', 'lastname', 'enabled', 'locked', 'lastLogin']
+                fields: ['username', 'email', 'firstname', 'lastname', 'enabled', 'lastLogin']
             form:
                 fields:
                     - 'username'
@@ -23,14 +23,13 @@ easy_admin:
                     - 'lastname'
                     - 'companyName'
                     - 'newsletter'
-                    - { property: 'professional', type: 'professional'}
-                    - { property: 'country', type: 'country_custom' }
-                    - { property: 'language', type: 'language_custom' }
+                    - { property: 'professional', type: 'AppBundle\Form\Type\ProfessionalType'}
+                    - { property: 'country', type: 'AppBundle\Form\Type\CountryCustomType' }
+                    - { property: 'language', type: 'AppBundle\Form\Type\LanguageCustomType' }
                     - 'enabled'
-                    - 'locked'
                     - 'roles'
             show:
-                fields: ['username', 'email', 'firstname', 'lastname', 'companyName', 'newsletter', 'professional', 'country', 'language', 'enabled', 'locked', 'lastLogin', 'roles']
+                fields: ['username', 'email', 'firstname', 'lastname', 'companyName', 'newsletter', 'professional', 'country', 'language', 'enabled', 'lastLogin', 'roles']
             search:
                 fields: ['username', 'email', 'firstname', 'lastname']
             disabled_actions: ['new']
@@ -48,6 +47,6 @@ easy_admin:
             new:
                 fields: ['user', 'policies', 'uploads', 'urls', 'policyChecks']
             edit:
-                fields: [{ property: 'user', type: 'entity_disabled'}, 'policies', 'uploads', 'urls', 'policyChecks']
+                fields: [{ property: 'user', type: 'AppBundle\Form\Type\EntityDisabledType'}, 'policies', 'uploads', 'urls', 'policyChecks']
             show:
                 fields: ['user', 'policies', 'uploads', 'urls', 'policyChecks']

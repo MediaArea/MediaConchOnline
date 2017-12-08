@@ -5,12 +5,7 @@ namespace AppBundle\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
-
-use AppBundle\Controller\BaseController;
 use AppBundle\Lib\MediaConch\MediaConchServerException;
 
 /**
@@ -19,7 +14,7 @@ use AppBundle\Lib\MediaConch\MediaConchServerException;
 class ConnectedApiController extends BaseController
 {
     /**
-     * Public policies list
+     * Public policies list.
      *
      * @return json
      * @Route("/publicpolicies/list")
@@ -65,7 +60,7 @@ class ConnectedApiController extends BaseController
                     $name = '';
                     // Firstname
                     if (null !== $user['firstname'] && '' != trim($user['firstname'])) {
-                        $name .= trim($user['firstname']) . ' ';
+                        $name .= trim($user['firstname']).' ';
                     }
                     // Lastname
                     if (null !== $user['lastname'] && '' != trim($user['lastname'])) {
@@ -77,7 +72,7 @@ class ConnectedApiController extends BaseController
                     }
                     // CompanyName
                     if (null !== $user['companyName'] && '' != trim($user['companyName'])) {
-                        $name .= ' (' . trim($user['companyName']) . ')';
+                        $name .= ' ('.trim($user['companyName']).')';
                     }
 
                     $userList[$user['id']] = $name;
@@ -90,7 +85,7 @@ class ConnectedApiController extends BaseController
                         'name' => htmlspecialchars($policy->name),
                         'description' => nl2br(htmlspecialchars($policy->description)),
                         'license' => isset($policy->license) ? $policy->license : '',
-                        'allowEdit' => ($this->getUser()->getId() == $policy->user)
+                        'allowEdit' => ($this->getUser()->getId() == $policy->user),
                         );
                 }
             }
@@ -102,7 +97,7 @@ class ConnectedApiController extends BaseController
     }
 
     /**
-     * Unpublish a public policy
+     * Unpublish a public policy.
      *
      * @return json
      * @Route("/publicpolicies/unpublish/{id}", requirements={"id": "\d+"})

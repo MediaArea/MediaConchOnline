@@ -20,9 +20,9 @@ before_install:
 
 install:
   - travis_retry composer update --prefer-dist --no-suggest --ansi -o
-  - php app/console doctrine:database:create --env=test
-  - php app/console doctrine:schema:create --env=test
-  - app/console fos:user:create testUser info@mediaarea.net --env=test testPassword
+  - bin/console doctrine:database:create --env=test
+  - bin/console doctrine:schema:create --env=test
+  - bin/console fos:user:create testUser info@mediaarea.net --env=test testPassword
 
 script:
-  - phpunit -c app
+  - ./vendor/bin/simple-phpunit -v

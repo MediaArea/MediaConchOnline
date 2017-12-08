@@ -8,9 +8,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
-
 use AppBundle\Lib\MediaConch\MediaConchServerException;
 
 /**
@@ -19,7 +16,7 @@ use AppBundle\Lib\MediaConch\MediaConchServerException;
 class PublicApiController extends Controller
 {
     /**
-     * Public policies page
+     * Public policies page.
      *
      * @return json
      * @Route("/publicpolicies/list")
@@ -64,7 +61,7 @@ class PublicApiController extends Controller
                     $name = '';
                     // Firstname
                     if (null !== $user['firstname'] && '' != trim($user['firstname'])) {
-                        $name .= trim($user['firstname']) . ' ';
+                        $name .= trim($user['firstname']).' ';
                     }
                     // Lastname
                     if (null !== $user['lastname'] && '' != trim($user['lastname'])) {
@@ -76,7 +73,7 @@ class PublicApiController extends Controller
                     }
                     // CompanyName
                     if (null !== $user['companyName'] && '' != trim($user['companyName'])) {
-                        $name .= ' (' . trim($user['companyName']) . ')';
+                        $name .= ' ('.trim($user['companyName']).')';
                     }
 
                     $userList[$user['id']] = $name;
@@ -89,7 +86,7 @@ class PublicApiController extends Controller
                         'name' => htmlspecialchars($policy->name),
                         'description' => nl2br(htmlspecialchars($policy->description)),
                         'license' => isset($policy->license) ? $policy->license : '',
-                        'allowEdit' => ($this->getUser()->getId() == $policy->user)
+                        'allowEdit' => ($this->getUser()->getId() == $policy->user),
                         );
                 }
             }
@@ -101,12 +98,13 @@ class PublicApiController extends Controller
     }
 
     /**
-     * Public policies get policy
+     * Public policies get policy.
+     *
      * @param int id policy ID of the policy to import
      * @param int userId user ID of the policy to import
      *
      * @return json
-     * {"policy":POLICY_JSTREE_JSON}
+     *              {"policy":POLICY_JSTREE_JSON}
      * @Route("/publicpolicies/policy/{id}/{userId}", requirements={"id": "\d+", "userId": "\d+"})
      */
     public function publicPoliciesPolicyAction($id, $userId)
@@ -123,7 +121,8 @@ class PublicApiController extends Controller
     }
 
     /**
-     * Public policies get policy
+     * Public policies get policy.
+     *
      * @param int id policy ID of the policy to import
      * @param int userId user ID of the policy to import
      *
@@ -148,7 +147,7 @@ class PublicApiController extends Controller
     }
 
     /**
-     * Get the ApiKey for a user
+     * Get the ApiKey for a user.
      *
      * @return json
      * @Route("/login/ckeck")

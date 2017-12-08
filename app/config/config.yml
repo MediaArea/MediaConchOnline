@@ -9,7 +9,7 @@ framework:
     translator:      { fallbacks: ["%locale%"] }
     secret:          "%secret%"
     router:
-        resource: "%kernel.root_dir%/config/routing.yml"
+        resource: '%kernel.project_dir%/app/config/routing.yml'
         strict_requirements: ~
     form:            ~
     csrf_protection: ~
@@ -19,28 +19,30 @@ framework:
         #assets_version: SomeVersionScheme
     default_locale:  "%locale%"
     trusted_hosts:   ~
-    trusted_proxies: ~
     session:
-        # handler_id set to null will use default session handler from php.ini
-        handler_id:  ~
+        # https://symfony.com/doc/current/reference/configuration/framework.html#handler-id
+        handler_id: session.handler.native_file
+        save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
     fragments:       ~
     http_method_override: true
+    assets: ~
+    php_errors:
+        log: true
 
 # Twig Configuration
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
-    form:
-        resources: ['bootstrap_3_layout.html.twig']
     form_themes:
+        - 'bootstrap_3_layout.html.twig'
         - 'VichUploaderBundle:Form:fields.html.twig'
     globals:
-        mco_ga_tracking: %mco_ga_tracking%
+        mco_ga_tracking: '%mco_ga_tracking%'
 
 # Assetic Configuration
 assetic:
     debug:          "%kernel.debug%"
-    use_controller: false
+    use_controller: '%kernel.debug%'
     bundles:
       - AppBundle
     workers:
@@ -52,50 +54,46 @@ assetic:
         jsqueeze: ~
         scssphp:
             formatter: 'Leafo\ScssPhp\Formatter\Compressed'
-        #closure:
-        #    jar: "%kernel.root_dir%/Resources/java/compiler.jar"
-        #yui_css:
-        #    jar: "%kernel.root_dir%/Resources/java/yuicompressor-2.4.7.jar"
     assets:
         jquery:
             inputs:
-                - %kernel.root_dir%/../vendor/components/jquery/jquery.min.js
+                - '%kernel.root_dir%/../vendor/components/jquery/jquery.min.js'
             output: js/jquery.js
         bootstrap_js:
             inputs:
-                - %kernel.root_dir%/../vendor/twbs/bootstrap/dist/js/bootstrap.min.js
+                - '%kernel.root_dir%/../vendor/twbs/bootstrap/dist/js/bootstrap.min.js'
             output: js/bootstrap.js
         bootstrap_css:
             inputs:
-                - %kernel.root_dir%/../vendor/twbs/bootstrap/dist/css/bootstrap.min.css
+                - '%kernel.root_dir%/../vendor/twbs/bootstrap/dist/css/bootstrap.min.css'
             output: css/bootstrap.css
         jstree_js:
             inputs:
-                - %kernel.root_dir%/../vendor/vakata/jstree/dist/jstree.min.js
+                - '%kernel.root_dir%/../vendor/vakata/jstree/dist/jstree.min.js'
             output: js/jstree.min.js
         jstree_css:
             inputs:
-                - %kernel.root_dir%/../vendor/vakata/jstree/dist/themes/default/style.min.css
+                - '%kernel.root_dir%/../vendor/vakata/jstree/dist/themes/default/style.min.css'
             output: css/jstree.min.css
         jstree_32px:
             inputs:
-                - %kernel.root_dir%/../vendor/vakata/jstree/dist/themes/default/32px.png
+                - '%kernel.root_dir%/../vendor/vakata/jstree/dist/themes/default/32px.png'
             output: css/32px.png
         jstree_40px:
             inputs:
-                - %kernel.root_dir%/../vendor/vakata/jstree/dist/themes/default/40px.png
+                - '%kernel.root_dir%/../vendor/vakata/jstree/dist/themes/default/40px.png'
             output: css/40px.png
         jstree_throbber:
             inputs:
-                - %kernel.root_dir%/../vendor/vakata/jstree/dist/themes/default/throbber.gif
+                - '%kernel.root_dir%/../vendor/vakata/jstree/dist/themes/default/throbber.gif'
             output: css/throbber.gif
         select2_js:
             inputs:
-                - %kernel.root_dir%/../vendor/ivaynberg/select2/dist/js/select2.full.min.js
+                - '%kernel.root_dir%/../vendor/ivaynberg/select2/dist/js/select2.full.min.js'
             output: js/select2.js
         select2_css:
             inputs:
-                - %kernel.root_dir%/../vendor/ivaynberg/select2/dist/css/select2.min.css
+                - '%kernel.root_dir%/../vendor/ivaynberg/select2/dist/css/select2.min.css'
             output: css/select2.css
 
 # Doctrine Configuration
@@ -151,11 +149,11 @@ vich_uploader:
     db_driver: orm
     mappings:
         xsl_policy:
-            upload_destination: %kernel.root_dir%/../files/xsl_policy
+            upload_destination: '%kernel.project_dir%/files/xsl_policy'
             namer:              vich_uploader.namer_origname
             directory_namer:    mco.directory_namer.policy
         display:
-            upload_destination: %kernel.root_dir%/../files/display
+            upload_destination: '%kernel.project_dir%/files/display'
             namer:              vich_uploader.namer_origname
             directory_namer:    mco.directory_namer.policy
 

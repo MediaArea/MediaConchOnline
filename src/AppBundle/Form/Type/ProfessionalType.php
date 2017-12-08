@@ -17,7 +17,6 @@ class ProfessionalType extends AbstractType
                 'No' => 'n',
             ),
             'placeholder' => false,
-            'choices_as_values' => true,
         ));
     }
 

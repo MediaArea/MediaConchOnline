@@ -2,7 +2,7 @@
 
 namespace AppBundle\Lib\MediaConch;
 
-use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Process\Process;
 
 class MediaConchTrackTypeFields extends MediaConch
 {
@@ -12,10 +12,7 @@ class MediaConchTrackTypeFields extends MediaConch
 
     public function run($trackType)
     {
-        $builder = new ProcessBuilder();
-        $process = $builder->setPrefix($this->MediaConch)
-            ->add('--MAXML_Fields=' . $trackType)
-            ->getProcess();
+        $process = new Process($this->MediaConch.' --MAXML_Fields='.$trackType);
 
         $process->run();
 
