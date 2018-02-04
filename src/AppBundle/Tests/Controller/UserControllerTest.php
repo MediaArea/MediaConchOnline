@@ -2,8 +2,6 @@
 
 namespace AppBundle\Tests\Controller;
 
-use AppBundle\Tests\Controller\AbstractAuthControllerTest;
-
 class UserControllerTest extends AbstractAuthControllerTest
 {
     public function testSettings()

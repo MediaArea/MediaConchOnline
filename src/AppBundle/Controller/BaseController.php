@@ -11,15 +11,16 @@ abstract class BaseController extends Controller implements MCOControllerInterfa
     {
         $this->addFlash(
             $type,
-            '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' . $message
-            );
+            '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.$message
+        );
 
         return $this;
     }
 
     /**
      * Make the content-disposition string to download a file
-     * Handle unauthorized and non ASCII characters
+     * Handle unauthorized and non ASCII characters.
+     *
      * @param Response response the response object
      * @param string filename the name of the file to download
      *

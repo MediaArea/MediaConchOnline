@@ -2,8 +2,6 @@
 
 namespace AppBundle\Tests\Controller;
 
-use AppBundle\Tests\Controller\AbstractAuthControllerTest;
-
 class DisplayControllerTest extends AbstractAuthControllerTest
 {
     public function testDisplay()

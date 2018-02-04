@@ -14,14 +14,14 @@ class RegistrationFormType extends BaseType
         // add your custom field
         $builder->add('firstname')
             ->add('lastname')
-            ->add('country', 'country_custom')
-            ->add('language', 'language_custom')
-            ->add('professional', 'professional', array('required' => false))
+            ->add('country', CountryCustomType::class)
+            ->add('language', LanguageCustomType::class)
+            ->add('professional', ProfessionalType::class, array('required' => false))
             ->add('companyName')
             ->add('newsletter');
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'mediaconch_user_registration';
     }

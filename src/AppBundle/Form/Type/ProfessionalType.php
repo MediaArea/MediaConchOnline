@@ -1,7 +1,9 @@
 <?php
+
 namespace AppBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ProfessionalType extends AbstractType
@@ -10,20 +12,20 @@ class ProfessionalType extends AbstractType
     {
         $resolver->setDefaults(array(
             'choices' => array(
-                'u' => 'Not specified',
-                'y' => 'Yes',
-                'n' => 'No',
+                'Not specified' => 'u',
+                'Yes' => 'y',
+                'No' => 'n',
             ),
-            'empty_value' => false,
+            'placeholder' => false,
         ));
     }
 
     public function getParent()
     {
-        return 'choice';
+        return ChoiceType::class;
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'professional';
     }

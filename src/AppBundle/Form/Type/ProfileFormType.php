@@ -7,7 +7,7 @@ use FOS\UserBundle\Form\Type\ProfileFormType as BaseType;
 
 class ProfileFormType extends BaseType
 {
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'mediaconch_user_profile';
     }
@@ -24,9 +24,9 @@ class ProfileFormType extends BaseType
 
         $builder->add('firstname')
             ->add('lastname')
-            ->add('country', 'country_custom')
-            ->add('language', 'language_custom')
-            ->add('professional', 'professional', array('required' => false))
+            ->add('country', CountryCustomType::class)
+            ->add('language', LanguageCustomType::class)
+            ->add('professional', ProfessionalType::class, array('required' => false))
             ->add('companyName')
             ->add('newsletter');
     }

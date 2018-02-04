@@ -2,13 +2,11 @@
 
 namespace AppBundle\Tests\Controller;
 
-use AppBundle\Tests\Controller\AbstractAuthControllerTest;
-
 class XslPolicyControllerTest extends AbstractAuthControllerTest
 {
     public function testOldPolicy()
     {
-        $crawler = $this->client->request('GET', '/xslPolicyTree/');
+        $this->client->request('GET', '/xslPolicyTree/');
 
         $this->assertEquals(301, $this->client->getResponse()->getStatusCode());
     }

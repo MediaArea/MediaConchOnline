@@ -10,10 +10,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
-
-use AppBundle\Controller\BaseController;
+use AppBundle\Form\Type\XslPolicyCreateFromFileFormType;
+use AppBundle\Form\Type\XslPolicyImportFormType;
+use AppBundle\Form\Type\XslPolicyInfoFormType;
+use AppBundle\Form\Type\XslPolicyRuleFormType;
+use AppBundle\Form\Type\XslPolicyRuleMtFormType;
 use AppBundle\Lib\XslPolicy\XslPolicyFormFields;
 use AppBundle\Lib\MediaConch\MediaConchServerException;
+use AppBundle\Lib\Quotas\Quotas;
+use AppBundle\Lib\XslPolicy\XslPolicyGetPolicies;
 
 /**
  * @Route("/")
@@ -21,7 +26,7 @@ use AppBundle\Lib\MediaConch\MediaConchServerException;
 class XslPolicyController extends BaseController
 {
     /**
-     * Old policy editor page
+     * Old policy editor page.
      *
      * @Route("/xslPolicyTree/")
      */
@@ -31,21 +36,21 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Policy editor page
+     * Policy editor page.
      *
      * @Route("/policyEditor")
      * @Template()
      */
-    public function xslPolicyTreeAction()
+    public function xslPolicyTreeAction(Quotas $quotas)
     {
         // Forms
-        $policyRuleForm = $this->createForm('xslPolicyRule');
-        $policyRuleMtForm = $this->createForm('xslPolicyRuleMt');
-        $policyInfoForm = $this->createForm('xslPolicyInfo');
+        $policyRuleForm = $this->createForm(XslPolicyRuleFormType::class);
+        $policyRuleMtForm = $this->createForm(XslPolicyRuleMtFormType::class);
+        $policyInfoForm = $this->createForm(XslPolicyInfoFormType::class);
 
-        if ($this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
-            $importPolicyForm = $this->createForm('xslPolicyImport');
-            $policyCreateFromFileForm = $this->createForm('xslPolicyCreateFromFile');
+        if ($quotas->hasPolicyCreationRights()) {
+            $importPolicyForm = $this->createForm(XslPolicyImportFormType::class);
+            $policyCreateFromFileForm = $this->createForm(XslPolicyCreateFromFileFormType::class);
         }
 
         return array(
@@ -58,14 +63,14 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Get the json for jstree
+     * Get the json for jstree.
      *
      * @return json
-     * {"policiesTree":POLICIES_JSTREE_JSON}
+     *              {"policiesTree":POLICIES_JSTREE_JSON}
      *
      * @Route("/xslPolicyTree/ajax/data")
      */
-    public function xslPolicyTreeDataAction(Request $request)
+    public function xslPolicyTreeDataAction(Request $request, XslPolicyGetPolicies $policies)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
@@ -76,7 +81,6 @@ class XslPolicyController extends BaseController
         $settings->removeMediaConchInstanceID();
 
         try {
-            $policies = $this->get('mco.policy.getPolicies');
             $policies->getPolicies(array(), 'JSTREE');
 
             return new JsonResponse(array('policiesTree' => $policies->getResponse()->getPolicies()), 200);
@@ -86,23 +90,24 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Create a policy
+     * Create a policy.
+     *
      * @param int parentId policy ID in which the new policy will be created
      *
      * @return json
-     * {"policy":POLICY_JSTREE_JSON}
+     *              {"policy":POLICY_JSTREE_JSON}
      *
      * @Route("/xslPolicyTree/ajax/create/{parentId}", requirements={"parentId": "(-)?\d+"})
      * @Method("GET")
      */
-    public function xslPolicyTreeCreateAction($parentId, Request $request)
+    public function xslPolicyTreeCreateAction($parentId, Request $request, Quotas $quotas)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
         // Check quota only if policy is created on the top level
-        if (-1 == $parentId && !$this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+        if (-1 == $parentId && !$quotas->hasPolicyCreationRights()) {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
@@ -126,28 +131,28 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Import a policy from an XML (the XML is provided as POST data from a form)
+     * Import a policy from an XML (the XML is provided as POST data from a form).
      *
      * @return json
-     * {"policy":POLICY_JSTREE_JSON}
+     *              {"policy":POLICY_JSTREE_JSON}
      *
      * @Route("/xslPolicyTree/ajax/import")
      * @Method("POST")
      */
-    public function xslPolicyTreeImportAction(Request $request)
+    public function xslPolicyTreeImportAction(Request $request, Quotas $quotas)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
         // Check quota
-        if (!$this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+        if (!$quotas->hasPolicyCreationRights()) {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
-        $importPolicyForm = $this->createForm('xslPolicyImport');
+        $importPolicyForm = $this->createForm(XslPolicyImportFormType::class);
         $importPolicyForm->handleRequest($request);
-        if ($importPolicyForm->isValid()) {
+        if ($importPolicyForm->isSubmitted() && $importPolicyForm->isValid()) {
             $data = $importPolicyForm->getData();
             if ($data['policyFile']->isValid()) {
                 try {
@@ -174,47 +179,47 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Create a policy from a file (the file is provided as POST data from a form)
+     * Create a policy from a file (the file is provided as POST data from a form).
      *
      * @return json
-     * {"policy":POLICY_JSTREE_JSON}
+     *              {"policy":POLICY_JSTREE_JSON}
      *
      * @Route("/xslPolicyTree/ajax/createFromFile")
      * @Method("POST")
      */
-    public function xslPolicyTreeCreateFromFileAction(Request $request)
+    public function xslPolicyTreeCreateFromFileAction(Request $request, Quotas $quotas)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
         // Check quota
-        if (!$this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+        if (!$quotas->hasPolicyCreationRights()) {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
-        $policyCreateFromFileForm = $this->createForm('xslPolicyCreateFromFile');
+        $policyCreateFromFileForm = $this->createForm(XslPolicyCreateFromFileFormType::class);
         $policyCreateFromFileForm->handleRequest($request);
-        if ($policyCreateFromFileForm->isValid()) {
+        if ($policyCreateFromFileForm->isSubmitted() && $policyCreateFromFileForm->isValid()) {
             $data = $policyCreateFromFileForm->getData();
             if ($data['file']->isValid()) {
-                $path = $this->container->getParameter('kernel.root_dir').'/../files/uploadTmp/' . $this->getUser()->getId();
-                $filename =  $data['file']->getClientOriginalName();
-                $file = $data['file']->move($path . '/', $filename);
+                $path = $this->container->getParameter('kernel.root_dir').'/../files/uploadTmp/'.$this->getUser()->getId();
+                $filename = $data['file']->getClientOriginalName();
+                $file = $data['file']->move($path.'/', $filename);
 
                 try {
                     // Analyze file
                     $checks = $this->get('mco.checker.analyze');
-                    $checks->analyse($file->getRealPath());
+                    $checks->analyse(array($file->getRealPath()));
                     $response = $checks->getResponseAsArray();
-                    $transactionId = $response['transactionId'];
+                    $transactionId = $response[0]['transactionId'];
 
                     // Wait for analyze is complete
                     usleep(200000);
                     $status = $this->get('mco.checker.status');
-                    for ($loop = 100; $loop--; $loop >= 0) {
+                    for ($loop = 5; $loop >= 0; --$loop) {
                         $status->getStatus($transactionId);
-                        $response = $status->getResponse()->getResponse();
+                        $response = $status->getResponse();
                         // Stop the loop when analyze is finish
                         if (isset($response[$transactionId]['finish']) && true === $response[$transactionId]['finish']) {
                             $loop = 0;
@@ -254,7 +259,8 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Export XML of a policy
+     * Export XML of a policy.
+     *
      * @param int id policy ID of the policy to export
      *
      * @return XML
@@ -276,7 +282,7 @@ class XslPolicyController extends BaseController
 
             // Prepare response
             $response = new Response($policyExport->getPolicyXml());
-            $disposition = $this->downloadFileDisposition($response, $policyName . '.xml');
+            $disposition = $this->downloadFileDisposition($response, $policyName.'.xml');
 
             $response->headers->set('Content-Type', 'text/xml');
             $response->headers->set('Content-Disposition', $disposition);
@@ -288,13 +294,13 @@ class XslPolicyController extends BaseController
         }
     }
 
-
     /**
-     * Edit a policy (POST data from a form)
+     * Edit a policy (POST data from a form).
+     *
      * @param int id policy ID of the policy to edit
      *
      * @return json
-     * {"policy":POLICY_JSTREE_JSON}
+     *              {"policy":POLICY_JSTREE_JSON}
      *
      * @Route("/xslPolicyTree/ajax/edit/{id}", requirements={"id": "\d+"})
      * @Method("POST")
@@ -305,9 +311,9 @@ class XslPolicyController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $policyEditForm = $this->createForm('xslPolicyInfo');
+        $policyEditForm = $this->createForm(XslPolicyInfoFormType::class);
         $policyEditForm->handleRequest($request);
-        if ($policyEditForm->isValid()) {
+        if ($policyEditForm->isSubmitted() && $policyEditForm->isValid()) {
             $data = $policyEditForm->getData();
 
             try {
@@ -343,24 +349,25 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Duplicate a policy
+     * Duplicate a policy.
+     *
      * @param int id policy ID of the policy to duplicate
      * @param int dstPolicyId policy ID of the destination policy
      *
      * @return json
-     * {"policy":POLICY_JSTREE_JSON}
+     *              {"policy":POLICY_JSTREE_JSON}
      *
      * @Route("/xslPolicyTree/ajax/duplicate/{id}/{dstPolicyId}", requirements={"id": "\d+", "dstPolicyId": "(-)?\d+"})
      * @Method("GET")
      */
-    public function xslPolicyTreeDuplicateAction(Request $request, $id, $dstPolicyId)
+    public function xslPolicyTreeDuplicateAction(Request $request, Quotas $quotas, $id, $dstPolicyId)
     {
         if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
         // Check quota only if policy is duplicated on the top level
-        if (-1 == $dstPolicyId && !$this->get('mediaconch_user.quotas')->hasPolicyCreationRights()) {
+        if (-1 == $dstPolicyId && !$quotas->hasPolicyCreationRights()) {
             return new JsonResponse(array('message' => 'Quota exceeded', 'quota' => $this->renderView('AppBundle:Default:quotaExceeded.html.twig')), 400);
         }
 
@@ -384,12 +391,13 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Move a policy
+     * Move a policy.
+     *
      * @param int id policy ID of the policy to duplicate
      * @param int dstPolicyId policy ID of the destination policy
      *
      * @return json
-     * {"policy":POLICY_JSTREE_JSON}
+     *              {"policy":POLICY_JSTREE_JSON}
      *
      * @Route("/xslPolicyTree/ajax/move/{id}/{dstPolicyId}", requirements={"id": "\d+", "dstPolicyId": "(-)?\d+"})
      * @Method("GET")
@@ -420,11 +428,12 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Delete a policy
+     * Delete a policy.
+     *
      * @param int id policy ID of the policy to duplicate
      *
      * @return json
-     * {"policyId":ID}
+     *              {"policyId":ID}
      *
      * @Route("/xslPolicyTree/ajax/delete/{id}", requirements={"id": "\d+"})
      * @Method("GET")
@@ -447,11 +456,12 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Add a rule to a policy
+     * Add a rule to a policy.
+     *
      * @param int policyId policy ID of the policy that will contain the rule
      *
      * @return json
-     * {"rule":{"tracktype":TRACKTYPE, "field":FIELD, "id":RULE_ID, "name":NAME, "value":VALUE, "occurrence":OCCURENCE, "ope":OPERATOR}}
+     *              {"rule":{"tracktype":TRACKTYPE, "field":FIELD, "id":RULE_ID, "name":NAME, "value":VALUE, "occurrence":OCCURENCE, "ope":OPERATOR}}
      *
      * @Route("/xslPolicyTree/ajax/ruleCreate/{policyId}", requirements={"policyId": "\d+"})
      * @Method("GET")
@@ -482,12 +492,13 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Edit a rule (POST data from a form)
+     * Edit a rule (POST data from a form).
+     *
      * @param int id rule ID of the rule to edit
      * @param int policyId policy ID of the policy that contain the rule
      *
      * @return json
-     * {"rule":{"tracktype":TRACKTYPE, "field":FIELD, "id":RULE_ID, "name":NAME, "value":VALUE, "occurrence":OCCURENCE, "ope":OPERATOR}}
+     *              {"rule":{"tracktype":TRACKTYPE, "field":FIELD, "id":RULE_ID, "name":NAME, "value":VALUE, "occurrence":OCCURENCE, "ope":OPERATOR}}
      *
      * @Route("/xslPolicyTree/ajax/ruleEdit/{id}/{policyId}", requirements={"id": "\d+", "policyId": "\d+"})
      * @Method("POST")
@@ -500,13 +511,13 @@ class XslPolicyController extends BaseController
 
         // Get the requested form
         if ($request->request->has('xslPolicyRuleMt')) {
-            $policyRuleForm = $this->createForm('xslPolicyRuleMt');
+            $policyRuleForm = $this->createForm(XslPolicyRuleMtFormType::class);
         } else {
-            $policyRuleForm = $this->createForm('xslPolicyRule');
+            $policyRuleForm = $this->createForm(XslPolicyRuleFormType::class);
         }
 
         $policyRuleForm->handleRequest($request);
-        if ($policyRuleForm->isValid()) {
+        if ($policyRuleForm->isSubmitted() && $policyRuleForm->isValid()) {
             $data = $policyRuleForm->getData();
 
             try {
@@ -532,12 +543,13 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Delete a rule
+     * Delete a rule.
+     *
      * @param int id rule ID of the rule to delete
      * @param int policyId policy ID of the policy that contain the rule
      *
      * @return json
-     * {"id":RULE_ID}
+     *              {"id":RULE_ID}
      *
      * @Route("/xslPolicyTree/ajax/ruleDelete/{id}/{policyId}", requirements={"id": "\d+", "policyId": "\d+"})
      * @Method("GET")
@@ -564,13 +576,14 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Duplicate a rule
+     * Duplicate a rule.
+     *
      * @param int id rule ID of the rule to duplicate
      * @param int policyId policy ID of the policy that contain the rule
      * @param int dstPolicyId policy ID of the destination policy
      *
      * @return json
-     * {"rule":{"tracktype":TRACKTYPE, "field":FIELD, "id":RULE_ID, "name":NAME, "value":VALUE, "occurrence":OCCURENCE, "ope":OPERATOR}}
+     *              {"rule":{"tracktype":TRACKTYPE, "field":FIELD, "id":RULE_ID, "name":NAME, "value":VALUE, "occurrence":OCCURENCE, "ope":OPERATOR}}
      *
      * @Route("/xslPolicyTree/ajax/ruleDuplicate/{id}/{policyId}/{dstPolicyId}", requirements={"id": "\d+", "policyId": "\d+", "dstPolicyId": "(-)?\d+"})
      * @Method("GET")
@@ -601,13 +614,14 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Move a rule
+     * Move a rule.
+     *
      * @param int id rule ID of the rule to move
      * @param int policyId policy ID of the policy that contain the rule
      * @param int dstPolicyId policy ID of the destination policy
      *
      * @return json
-     * {"rule":{"tracktype":TRACKTYPE, "field":FIELD, "id":RULE_ID, "name":NAME, "value":VALUE, "occurrence":OCCURENCE, "ope":OPERATOR}}
+     *              {"rule":{"tracktype":TRACKTYPE, "field":FIELD, "id":RULE_ID, "name":NAME, "value":VALUE, "occurrence":OCCURENCE, "ope":OPERATOR}}
      *
      * @Route("/xslPolicyTree/ajax/ruleMove/{id}/{policyId}/{dstPolicyId}", requirements={"id": "\d+", "policyId": "\d+", "dstPolicyId": "(-)?\d+"})
      * @Method("GET")
@@ -639,7 +653,7 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Get list of fields for a trackType (POST : type and field)
+     * Get list of fields for a trackType (POST : type and field).
      *
      * @return json
      *
@@ -648,7 +662,7 @@ class XslPolicyController extends BaseController
      */
     public function xslPolicyRuleFieldsListAction(Request $request)
     {
-        if (! $request->isXmlHttpRequest()) {
+        if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 
@@ -662,7 +676,7 @@ class XslPolicyController extends BaseController
     }
 
     /**
-     * Get list of values for a trackType and a field (POST : type, field and value)
+     * Get list of values for a trackType and a field (POST : type, field and value).
      *
      * @return json
      *
@@ -671,7 +685,7 @@ class XslPolicyController extends BaseController
      */
     public function xslPolicyRuleValuesListAction(Request $request)
     {
-        if (! $request->isXmlHttpRequest()) {
+        if (!$request->isXmlHttpRequest()) {
             throw new NotFoundHttpException();
         }
 

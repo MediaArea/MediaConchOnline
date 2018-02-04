@@ -218,7 +218,7 @@ footer .navbar {
     display: inline-block;
 }
 
-#fos_user_registration_form .required:after, #fos_user_profile_form .required:after, #xslPolicyRule .required:after {
+.fos_user_registration_register .required:after, #fos_user_profile_form .required:after, #xslPolicyRule .required:after {
     content: " *";
 }
 
